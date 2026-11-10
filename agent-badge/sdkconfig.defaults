@@ -1,0 +1,90 @@
+# The chip. Without this a fresh clone configures for plain esp32 and
+# fails deep inside TinyUSB, which is a confusing way to find out.
+CONFIG_IDF_TARGET="esp32s3"
+
+# This file was generated using idf.py save-defconfig. It can be edited manually.
+# Shared ESP-IDF v5.5/v6.0 project minimal configuration
+#
+CONFIG_ESPTOOLPY_FLASHMODE_QIO=y
+CONFIG_ESPTOOLPY_FLASHSIZE_32MB=y
+CONFIG_PARTITION_TABLE_CUSTOM=y
+CONFIG_COMPILER_OPTIMIZATION_PERF=y
+CONFIG_SPIRAM=y
+CONFIG_SPIRAM_MODE_OCT=y
+CONFIG_SPIRAM_FETCH_INSTRUCTIONS=y
+CONFIG_SPIRAM_RODATA=y
+CONFIG_SPIRAM_SPEED_80M=y
+CONFIG_SPIRAM_XIP_FROM_PSRAM=y
+CONFIG_ESP32S3_INSTRUCTION_CACHE_32KB=y
+CONFIG_ESP32S3_DATA_CACHE_64KB=y
+CONFIG_ESP_DEFAULT_CPU_FREQ_MHZ_240=y
+CONFIG_ESP32S3_DATA_CACHE_LINE_64B=y
+
+CONFIG_FREERTOS_HZ=1000
+CONFIG_LV_USE_CLIB_MALLOC=y
+CONFIG_LV_USE_CLIB_STRING=y
+CONFIG_LV_USE_CLIB_SPRINTF=y
+CONFIG_LV_DEF_REFR_PERIOD=15
+CONFIG_LV_OS_FREERTOS=y
+CONFIG_LV_OBJ_STYLE_CACHE=y
+
+CONFIG_LV_DRAW_SW_DRAW_UNIT_CNT=2
+# The BLE stack eats a lot of IRAM. LVGL has to come out of IRAM for the link to succeed.
+CONFIG_LV_ATTRIBUTE_FAST_MEM_USE_IRAM=n
+CONFIG_LV_FONT_MONTSERRAT_12=y
+CONFIG_LV_FONT_MONTSERRAT_16=y
+CONFIG_LV_FONT_MONTSERRAT_18=y
+CONFIG_LV_FONT_MONTSERRAT_20=y
+CONFIG_LV_FONT_MONTSERRAT_22=y
+CONFIG_LV_FONT_MONTSERRAT_24=y
+CONFIG_LV_FONT_MONTSERRAT_26=y
+CONFIG_LV_USE_FONT_COMPRESSED=y
+CONFIG_LV_TXT_BREAK_CHARS=" ,.;:-_"
+# The performance overlay, which is clipped on a round screen. On only during development.
+# 🚨 Only LV_USE_SYSMON goes here. LV_USE_PERF_MONITOR hangs off it, so with
+# sysmon off the child symbol does not exist and the line is silently dropped.
+CONFIG_LV_USE_SYSMON=n
+CONFIG_LV_USE_IMGFONT=y
+CONFIG_IDF_EXPERIMENTAL_FEATURES=y
+
+
+
+# Sizes this firmware actually uses. Each one costs flash, so they are listed
+# rather than turned on wholesale.
+CONFIG_LV_FONT_MONTSERRAT_32=y
+CONFIG_LV_FONT_MONTSERRAT_40=y
+CONFIG_LV_FONT_MONTSERRAT_48=y
+
+# BLE HID (the ESP32-S3 has no classic BT — BLE only)
+CONFIG_BT_ENABLED=y
+CONFIG_BT_BLUEDROID_ENABLED=y
+CONFIG_BT_BLE_ENABLED=y
+CONFIG_BT_GATTS_ENABLE=y
+CONFIG_BT_BLE_42_FEATURES_SUPPORTED=y
+CONFIG_BT_BLE_SMP_ENABLE=y
+
+# Power management — the CPU clock drops when idle
+CONFIG_PM_ENABLE=y
+CONFIG_PM_DFS_INIT_AUTO=y
+
+# ── light sleep (09-06) ───────────────────────────────────────
+# Without tickless idle, esp_pm's light_sleep_enable does nothing at all.
+# With nothing to do the CPU sleeps, which cuts standby current sharply.
+CONFIG_FREERTOS_USE_TICKLESS_IDLE=y
+CONFIG_FREERTOS_IDLE_TIME_BEFORE_SLEEP=3
+
+# ── finding where it died (09-06) ────────────────────────────
+# On a panic the stack and registers are dumped whole into the coredump partition.
+# Plug it in, run `idf.py coredump-info`, and it names the file and line it died on.
+CONFIG_ESP_COREDUMP_ENABLE_TO_FLASH=y
+CONFIG_ESP_COREDUMP_DATA_FORMAT_ELF=y
+# 🚨 This said CONFIG_ESP_COREDUMP_CHECKSUM_SHA for a long time. There is no
+# such symbol — it is _SHA256 — so the line was ignored and the dump has always
+# been CRC32 checksummed. CRC32 is enough to tell a corrupt dump from a good
+# one and costs less flash, so it stays; the dead line is gone.
+CONFIG_ESP_COREDUMP_MAX_TASKS_NUM=64
+
+# Half-sleeping PSRAM during light sleep has a task whose stack is in PSRAM step
+# on memory that is not ready yet when it wakes. The LVGL stack was moved to
+# internal RAM, but this is turned off as a second guard.
+# CONFIG_PM_SLP_SPIRAM_HALFSLEEP_ENABLED is not set

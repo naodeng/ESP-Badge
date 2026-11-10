@@ -1,79 +1,30 @@
 # macOS / editor noise
 .DS_Store
 ._*
-.Spotlight-V100
-.Trashes
 .vscode/
 .idea/
 *.swp
 *.swo
 
-# Local Claude/Codex workspace settings
-.claude/settings.local.json
-.env
-.env.*
-!.env.example
+# Workspace-local toolchain (ESP-IDF, CMake/Ninja, Python env)
+.toolchain/
 
-# Logs and runtime files
-*.log
-logs/
-*.pid
-*.seed
-npm-debug.log*
-yarn-debug.log*
-yarn-error.log*
-pnpm-debug.log*
-
-# Node companion dependencies and caches
-node_modules/
-companion/node_modules/
-.npm/
-.pnpm-store/
-
-# Python / ASR local environment
+# Python
 __pycache__/
-*.py[cod]
-.pytest_cache/
-.mypy_cache/
-.ruff_cache/
+*.pyc
 .venv/
 venv/
-env/
 
-# Arduino / arduino-cli build artifacts
-/build/
-build/
-*.bin
-*.elf
-*.map
-*.hex
-*.uf2
-*.partitions.bin
-*.bootloader.bin
-*.merged.bin
-
-# PlatformIO / embedded tooling
-.pio/
-.pioenvs/
-.piolibdeps/
-compile_commands.json
-
-# Serial/audio debug captures
+# Logs and local captures
+*.log
 *.wav
 *.pcm
-*.raw
-codey_dev_last.wav
 
-# Large local speech-model binaries. Keep download instructions in docs/README instead.
-companion/models/**/*.bin
-companion/models/**/*.onnx
-companion/models/**/*.int8.onnx
-
-# Runtime ASR history and companion generated data
-companion/data/
-
-# Filled ngrok config (secrets/domain) — keep ngrok.yml.example committed instead
-companion/ngrok.yml
-
-# Superpowers brainstorming (visual companion) scratch dir
-.superpowers/
+# Firmware build output is ignored by agent-badge/.gitignore as well
+agent-badge/build/
+agent-badge/managed_components/
+agent-badge/sdkconfig
+agent-badge/sdkconfig.old
+agent-badge/dependencies.lock
+agent-badge/main/secrets.h
+agent-badge/main/snippets.h

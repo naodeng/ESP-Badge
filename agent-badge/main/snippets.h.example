@@ -1,0 +1,13 @@
+/* Copy this file to snippets.h and fill it in. snippets.h is in .gitignore.
+ *
+ * 🚨 A password put in here sits in flash as plain text. Lose the badge and it
+ *    goes with it. Keep company accounts and anything important out. Something
+ *    like an RDP login — annoying to lose, but not fatal — is the right sort of
+ *    thing. */
+#pragma once
+
+#define BADGE_SNIPPETS \
+    { "ID",    "myaccount" },      \
+    { "PW",    "example-pass" },   \
+    { "Mail",  "me@example.com" }, \
+    { "Sig",   "Thanks" },

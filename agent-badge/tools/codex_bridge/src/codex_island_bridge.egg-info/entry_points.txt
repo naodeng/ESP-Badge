@@ -1,0 +1,2 @@
+[console_scripts]
+codex-island-bridge = codex_island_bridge.cli:main

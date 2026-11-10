@@ -1,0 +1,17 @@
+## IDF Component Manager Manifest File
+dependencies:
+  idf: ">=5.5.0"
+  waveshare/esp32_s3_touch_amoled_1_75c:
+    version: "^3.0.0"
+  waveshare/qmi8658:
+    version: "^2.0.0"
+  lvgl/lvgl:
+    version: "9.5.0"
+    public: true
+  # Recordings go out as a USB mass-storage device. Raw tinyusb rather than
+  # esp_tinyusb (the wrapper) because the wrapper's MSC expects a real
+  # filesystem underneath, whereas we make up a fake FAT and so have to hold
+  # the tud_msc_* callbacks ourselves. Turning the wrapper on defines those
+  # callbacks twice and breaks the link.
+  espressif/tinyusb:
+    version: "~0.15.0"
