@@ -1,0 +1,94 @@
+import io
+import json
+from pathlib import Path
+import tempfile
+import unittest
+from unittest.mock import patch
+
+import build_site
+
+
+def release(tag, published_at, prerelease=False, draft=False):
+    return dict(tag_name=tag, published_at=published_at, prerelease=prerelease,
+                draft=draft, html_url=build_site.RELEASE_URL + tag)
+
+
+class ReleaseChannels(unittest.TestCase):
+    def snapshot(self, stable, releases):
+        def response(request, timeout):
+            self.assertEqual(timeout, 30)
+            data = stable if request.full_url.endswith('/latest') else releases
+            return io.StringIO(json.dumps(data))
+        with patch.object(build_site, 'urlopen', side_effect=response):
+            return build_site.release_snapshot()
+
+    def test_stable_promotion_updates_both_channels(self):
+        stable = release('v1.7', '2026-10-08T13:00:00Z')
+        beta = release('v1.7-beta.31', '2026-10-08T12:28:31Z', True)
+        snapshot = self.snapshot(stable, [beta, stable])
+        self.assertEqual(snapshot['stable']['tag'], 'v1.7')
+        self.assertEqual(snapshot['beta']['tag'], 'v1.7')
+
+    def test_newer_beta_retains_stable_channel(self):
+        stable = release('v1.7', '2026-10-08T13:00:00Z')
+        beta = release('v1.7.1-beta.1', '2026-10-08T14:00:00Z', True)
+        snapshot = self.snapshot(stable, [stable, beta])
+        self.assertEqual(snapshot['stable']['tag'], 'v1.7')
+        self.assertEqual(snapshot['beta']['tag'], 'v1.7.1-beta.1')
+
+    def test_withdrawn_beta_does_not_replace_stable(self):
+        stable = release('v1.7', '2026-10-08T13:00:00Z')
+        withdrawn = release('v1.7.1-beta.2', '2026-10-08T15:00:00Z', True, True)
+        self.assertEqual(self.snapshot(stable, [withdrawn])['beta']['tag'], 'v1.7')
+
+    def test_stable_only_repository(self):
+        stable = release('v1.7', '2026-10-08T13:00:00Z')
+        snapshot = self.snapshot(stable, [])
+        self.assertEqual(snapshot['stable'], snapshot['beta'])
+
+
+class PublishedWatchFaces(unittest.TestCase):
+    def test_beta38_new_faces_are_published_and_filterable(self):
+        catalog = json.loads((build_site.SOURCE / 'watchfaces.json').read_text())
+        gallery = build_site.watchface_gallery(catalog)
+        # 新增分组不能再被标成未发布。 / A new release cohort must not be labeled unreleased.
+        self.assertEqual(gallery.count('data-face-id='), 62)
+        self.assertEqual(gallery.count('data-face-state="existing"'), 30)
+        self.assertEqual(gallery.count('data-face-state="new"'), 32)
+        self.assertEqual(gallery.count('本次新增 · beta.38'), 32)
+        self.assertNotIn('尚未发布', gallery)
+        self.assertNotIn('data-face-state="preview"', gallery)
+
+
+class AssetVersioning(unittest.TestCase):
+    def test_either_asset_content_changes_the_shared_version(self):
+        with tempfile.TemporaryDirectory(prefix='soround-site-version-') as directory:
+            source = Path(directory)
+            css, script = source / 'styles.css', source / 'script.js'
+            css.write_text('body { color: black; }')
+            script.write_text('"use strict";')
+            with patch.object(build_site, 'SOURCE', source):
+                original = build_site.asset_version()
+                self.assertRegex(original, r'^[0-9a-f]{12}$')
+                self.assertEqual(original, build_site.asset_version())
+                css.write_text('body { color: red; }')
+                self.assertNotEqual(original, build_site.asset_version())
+                css.write_text('body { color: black; }')
+                script.write_text('"use strict";\n')
+                self.assertNotEqual(original, build_site.asset_version())
+
+    def test_english_assets_keep_queries_and_parent_prefix(self):
+        page = build_site.EnglishPage({})
+        page.feed('<link href="styles.css?v=123abc"><script src="script.js?v=123abc" defer></script>')
+        english = ''.join(page.parts)
+        self.assertIn('href="../styles.css?v=123abc"', english)
+        self.assertIn('src="../script.js?v=123abc"', english)
+
+    def test_asset_validation_uses_url_paths(self):
+        page = build_site.PageCheck()
+        page.feed('<link href="styles.css?v=123abc"><script src="../script.js?v=123abc#end"></script>')
+        self.assertEqual(page.local_files, ['styles.css', '../script.js'])
+
+
+if __name__ == '__main__':
+    unittest.main()

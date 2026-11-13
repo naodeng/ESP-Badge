@@ -1,0 +1,87 @@
+#pragma once
+// GeekTool-IDF App 框架(LVGL 9)
+#include "lvgl.h"
+
+// ---- Nothing 单色主题:黑底 / 白字 / 灰次 / 一个红强调 ----
+#define COL_BG    0x000000   // 黑(背景)
+#define COL_TXT   0xffffff   // 白(主文字/线条)
+#define COL_TXT2  0x6a6a6e   // 灰(次要文字)
+#define COL_RED   0xd1283a   // 唯一强调色(低电量/危险/选中)
+#define COL_CHARGE 0x30d158  // 充电态功能绿:电量环 + ⚡ 仅插电时变绿(柔和不刺眼,黑白红基调外的唯一功能色)
+
+// 旧的多彩别名统一收敛到黑白红(改这里 = 全局变色,各 app 不用动)
+#define COL_RING  COL_TXT
+#define COL_WIFI  COL_TXT
+#define COL_I2C   COL_TXT
+#define COL_SYS   COL_TXT
+#define COL_OTA   COL_TXT
+#define COL_OK    COL_TXT
+#define COL_WARN  COL_RED
+
+// ---- 字体(集中管理)----
+// 正文 unscii 点阵、符号 montserrat,都经 i18n 包一层:RAM 副本挂 simsun_16_cjk fallback。
+// 英文/数字全在基底字体命中(零成本);中文自动落到 CJK 字库 → 全部 app 免改支持中文。
+#include "i18n.h"
+#define UI_FONT_L    i18n_font_l()             // 正文 / 标题
+#define UI_FONT_M    i18n_font_m()             // 次要文字
+#define UI_FONT_SYM  i18n_font_sym()           // 图标标签 + 默认主题字体
+
+// App 接口:每个工具实现 enter/tick/exit,并在 APPS[] 注册
+typedef struct {
+    const char *name;                 // 显示名(ASCII)
+    uint32_t    color;                // 主题色(单色化后基本都是白)
+    void (*enter)(lv_obj_t *parent);  // 在 parent(整屏)建 UI
+    void (*tick)(void);               // 周期回调(可 NULL),由 lv_timer 调度
+    void (*exit)(void);               // 退出清理(可 NULL)
+    bool (*back)(void);               // 返回键/右滑时先调(可 NULL):返 true=已消费(退子页),false=退出 app
+    uint16_t tick_period_ms;          // 0=原有 50ms;动态页面可独立选择节拍
+    void (*visibility)(bool visible); // 遮挡/恢复时暂停纯视觉任务
+    bool tick_in_background;         // 仅有到期/提醒等业务的页面继续 tick
+} app_t;
+
+extern const app_t app_wifi;
+extern const app_t app_i2c;
+extern const app_t app_sys;
+extern const app_t app_weather;
+extern const app_t app_calendar;
+extern const app_t app_countdown;
+extern const app_t app_settings;   // 分类入口,子页返回上一级
+extern const app_t app_watchfaces;
+extern const app_t app_ota;
+extern const app_t app_audio;
+extern const app_t app_level;
+extern const app_t app_maze;
+extern const app_t app_stopwatch;
+extern const app_t app_fluid;
+extern const app_t app_dice;
+extern const app_t app_twin;
+extern const app_t app_mouse;
+extern const app_t app_answers;
+extern const app_t app_zodiac;
+extern const app_t app_merit;
+extern const app_t app_pixels;
+extern const app_t app_garden;
+extern const app_t app_focus;
+extern const app_t app_capsules;
+extern const app_t app_stocks;
+extern const app_t app_mimi;
+extern const app_t app_codex;
+extern const app_t *const APPS[];
+extern const int APP_COUNT;
+uint32_t launcher_heartbeat(void);
+
+#include "wifi_service.h"
+
+// 天气数据(app_weather.c 持有 + 拉取),供天气表盘共用
+void weather_poll(void);                                                   // 后台按需拉取
+bool weather_cached(int *temp, int *lo, int *hi, int *code, int *hum);     // 取缓存,有数据返回 true
+
+bool launcher_start(void);   // 创建启动器并加载;返回关键任务/定时器是否创建(需在 lvgl_port 锁内调用)
+void go_home(void);          // app 内返回启动器
+void launcher_set_title(const char *t);   // app 可在 enter 里改顶部标题(如天气→城市)
+void launcher_set_app_fullscreen(bool fullscreen); // App独占圆屏，退出自动恢复。/ App owns the round viewport until exit.
+
+bool launcher_demo_active(void);    // 拍摄会话；BOOT短按退出。/ BOOT exits a filming session.
+bool launcher_app_visible(void);    // 当前 app 没被锁屏/快捷面板遮挡
+bool launcher_home_visible(void);   // 启动器首页可见且未被锁屏/快捷面板遮挡
+bool app_codex_next_page(void);     // Codex 内 PWR 长按前进一页；末页保持不动

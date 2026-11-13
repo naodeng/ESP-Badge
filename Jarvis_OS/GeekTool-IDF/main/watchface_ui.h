@@ -1,0 +1,52 @@
+#pragma once
+#include "lvgl.h"
+#include <stdbool.h>
+#include <time.h>
+
+// One data snapshot serves the active lock screen and its scaled settings preview.
+typedef struct {
+    struct tm time;
+    bool aod, wifi, battery_valid, charging, weather_valid, image_loading;
+    uint8_t grok_expression, grok_blink;
+    char ssid[33], ip[16];
+    int battery, temperature, low, high, code, humidity;
+    const lv_image_dsc_t *image;
+} watchface_data_t;
+
+enum { WATCHFACE_LEGACY_THEME_COUNT = 3, WATCHFACE_KIND_COUNT = 5,
+       WATCHFACE_LEGACY_COUNT = 15, WATCHFACE_HAND_COUNT = 6,
+       WATCHFACE_STUDIO_START = 21, WATCHFACE_STUDIO_COUNT = 41,
+       WATCHFACE_TYPE_START = 44, WATCHFACE_TYPE_COUNT = 6,
+       WATCHFACE_SPORT_START = 50, WATCHFACE_SPORT_COUNT = 6,
+       WATCHFACE_GEOMETRY_START = 56, WATCHFACE_GEOMETRY_COUNT = 6,
+       WATCHFACE_GROK_INDEX = 62, WATCHFACE_THEME_COUNT = 6, WATCHFACE_COUNT = 63 };
+void watchface_render(lv_layer_t *layer, const lv_area_t *area,
+                      const watchface_data_t *data, int index, bool preview);
+LV_FONT_DECLARE(font_wf_7);
+LV_FONT_DECLARE(font_wf_9);
+LV_FONT_DECLARE(font_wf_14);
+LV_FONT_DECLARE(font_wf_18);
+LV_FONT_DECLARE(font_wf_26);
+LV_FONT_DECLARE(font_wf_36);
+LV_FONT_DECLARE(font_wf_52);
+LV_FONT_DECLARE(font_wf_56);
+LV_FONT_DECLARE(font_wf_72);
+LV_FONT_DECLARE(font_wf_82);
+LV_FONT_DECLARE(font_wf_104);
+LV_FONT_DECLARE(font_wf_112);
+LV_FONT_DECLARE(font_wf_164);
+LV_FONT_DECLARE(font_wf_regular_48);
+LV_FONT_DECLARE(font_wf_regular_96);
+LV_FONT_DECLARE(font_wf_black_94);
+LV_FONT_DECLARE(font_wf_black_188);
+LV_FONT_DECLARE(font_wf_semibold_14);
+LV_FONT_DECLARE(font_wf_semibold_26);
+LV_FONT_DECLARE(font_wf_semibold_28);
+LV_FONT_DECLARE(font_wf_semibold_52);
+LV_FONT_DECLARE(font_wf_semibold_56);
+LV_FONT_DECLARE(font_wf_semibold_104);
+LV_FONT_DECLARE(font_wf_semibold_112);
+LV_FONT_DECLARE(font_hand_regular_12);
+LV_FONT_DECLARE(font_hand_regular_24);
+LV_FONT_DECLARE(font_hand_semibold_16);
+LV_FONT_DECLARE(font_hand_semibold_32);

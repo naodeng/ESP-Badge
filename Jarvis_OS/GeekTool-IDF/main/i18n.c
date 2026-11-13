@@ -1,0 +1,167 @@
+// 多语言表 + CJK fallback 字体。见 i18n.h 顶部说明。
+#include "i18n.h"
+#include "settings.h"
+#include <string.h>
+
+/* 文案表:一列 en 一列 zh,下标 = str_id_t。zh 只用高频字(simsun_16_cjk 千字表内)。 */
+static const char *const TXT[S__COUNT][2] = {
+    /* settings */
+    [S_DISPLAY]     = { "display",      "显示" },
+    [S_SOUND]       = { "sound",        "声音" },
+    [S_SYSTEM]      = { "system",       "系统" },
+    [S_BRIGHTNESS]  = { "brightness",   "亮度" },
+    [S_FACE]        = { "face",         "表盘" },
+    [S_ALWAYS_ON]   = { "always-on",    "常显" },
+    [S_VOLUME]      = { "volume",       "音量" },
+    [S_SILENT]      = { "silent",       "静音" },
+    [S_ABOUT]       = { "about",        "关于" },
+    [S_LANGUAGE]    = { "language",     "语言" },
+    [S_ON]          = { "on",           "开" },
+    [S_OFF]         = { "off",          "关" },
+    [S_AOD_DESC]    = { "screen stays dimmed when idle\ninstead of turning off", "空闲时变暗常显\n而不是自动关屏" },
+    [S_SILENT_DESC] = { "mute alarms and beeps",  "关闭提示音和铃声" },
+    /* ota */
+    [S_OTA_TITLE]   = { "OTA",          "OTA" },
+    [S_CURRENT]     = { "current",      "当前版本" },
+    [S_TAP_UPDATE]  = { "check for update", "检查更新" },
+    [S_BETA_CH]     = { "beta", "测试通道" },
+    [S_OTA_KEEP_POWER] = { "do not power off", "请勿断电" },
+    [S_OTA_VERIFYING] = { "verifying\nkeep power on", "正在校验\n请勿断电" },
+    [S_CHECKING]    = { "checking latest version...", "正在检查最新版本..." },
+    [S_UPDATING]    = { "updating - do not power off", "更新中 - 请勿断电" },
+    [S_DONE_REBOOT] = { "done - rebooting", "完成 - 正在重启" },
+    [S_UPTODATE]    = { "already up to date", "已是最新版本" },
+    [S_FAILED]      = { "failed - check url / server", "更新失败 - 检查网络或服务器" },
+    [S_CONNECT_WIFI]= { "connect wifi first", "请先连接 WiFi" },
+    [S_OTA_RETRY]   = { "reconnecting...", "正在重新连接..." },
+    [S_OTA_VERIFY]  = { "verifying - do not power off", "正在校验 - 请勿断电" },
+    [S_OTA_CONNECT_FAIL] = { "update connection failed", "更新服务连接失败" },
+    [S_OTA_HEADER_FAIL] = { "firmware check failed", "固件检查失败" },
+    [S_OTA_DOWNLOAD_FAIL] = { "firmware download failed", "固件下载失败" },
+    [S_OTA_VERIFY_FAIL] = { "firmware verification failed", "固件校验失败" },
+    [S_OTA_TLS_FAIL] = { "secure connection failed", "安全连接失败" },
+    /* weather */
+    [S_WX_CLEAR]    = { "Clear",         "晴" },
+    [S_WX_PARTLY]   = { "Partly cloudy", "多云" },
+    [S_WX_OVERCAST] = { "Overcast",      "阴" },
+    [S_WX_FOG]      = { "Fog",           "雾" },
+    [S_WX_DRIZZLE]  = { "Drizzle",       "小雨" },
+    [S_WX_RAIN]     = { "Rain",          "雨" },
+    [S_WX_SNOW]     = { "Snow",          "雪" },
+    [S_WX_SHOWERS]  = { "Rain showers",  "阵雨" },
+    [S_WX_SNOW_SHOWERS] = { "Snow showers", "阵雪" },
+    [S_WX_THUNDER]  = { "Thunderstorm",  "雷雨" },
+    [S_WX_HUM]      = { "hum",           "湿度" },
+    [S_WX_LOADING]  = { "loading...",    "加载中..." },
+    [S_WX_FAIL]     = { "no wifi / fetch failed", "无网络 / 获取失败" },
+    [S_WX_FETCH_FAIL] = { "fetch failed / tap to retry", "获取失败" },
+    /* stopwatch / countdown */
+    [S_KEY_START]     = { "PWR key = start",            "按 PWR 键开始" },
+    [S_RUNNING_LAP]   = { "running - btn = lap",        "计时中 - 按钮记圈" },
+    [S_PAUSED_RESUME] = { "paused - PWR key = resume",  "已暂停 - 按 PWR 键继续" },
+    [S_LAP]           = { "lap",                        "记圈" },
+    [S_RESET]         = { "reset",                      "归零" },
+    [S_CD_PAUSE]      = { "key/tap = pause",            "按键或点屏暂停" },
+    [S_CD_RESUME]     = { "paused - key/tap = resume",  "已暂停 - 按键或点屏继续" },
+    [S_CD_DONE]       = { "done - key/tap = reset",     "时间到 - 按键或点屏复位" },
+    [S_CD_TAP_START]  = { "tap time to start",          "点时间开始" },
+    /* dice / fluid / level */
+    [S_DICE_HINT]     = { "shake or tap to roll",       "甩一下或点屏掷" },
+    [S_DICE_TAP]      = { "tap to roll",                "点屏掷" },
+    [S_DICE_DOUBLE]   = { "double!",                    "豹子!" },
+    [S_NO_SENSOR]     = { "no sensor",                  "无传感器" },
+    [S_FLUID_NOIMU]   = { "no sensor - gravity down",   "无传感器 - 重力朝下" },
+    /* mouse */
+    [S_STARTING]      = { "starting...",                "启动中..." },
+    [S_CONNECTED]     = { "connected",                  "已连接" },
+    [S_MOUSE_PAIR]    = { "pair \"soRound\" on your device", "在设备蓝牙里配对 soRound" },
+    [S_BT_FAIL]       = { "bluetooth failed",           "蓝牙启动失败" },
+    [S_REMOTE_TITLE]  = { "remote",                     "遥控台" },
+    [S_REMOTE_MOUSE]  = { "mouse",                      "鼠标" },
+    [S_REMOTE_SLIDES] = { "slides",                     "演示" },
+    [S_REMOTE_MEDIA]  = { "music",                      "音乐" },
+    [S_REMOTE_DRAG]   = { "drag",                       "拖拽" },
+    [S_REMOTE_PREPARING] = { "waiting for host controls...", "等待设备启用控制..." },
+    [S_REMOTE_BUSY]   = { "busy - try again",           "繁忙 - 请重试" },
+    [S_REMOTE_PREV_PAGE] = { "prev",                    "上一页" },
+    [S_REMOTE_NEXT_PAGE] = { "next",                    "下一页" },
+    [S_REMOTE_PREV_TRACK] = { "prev",                   "上一首" },
+    [S_REMOTE_NEXT_TRACK] = { "next",                   "下一首" },
+    [S_REMOTE_PLAY_PAUSE] = { "play\npause",            "播放/暂停" },
+    [S_REMOTE_MUTE]   = { "mute",                       "静音" },
+    [S_REMOTE_TIMER_HINT] = { "tap time: start / pause", "点时间开始/暂停" },
+    [S_REMOTE_VOLUME_UP] = { "VOL+",                    "音量 +" },
+    [S_REMOTE_VOLUME_DOWN] = { "VOL-",                  "音量 -" },
+    [S_REMOTE_LEFT] = { "left", "左键" },
+    [S_REMOTE_RIGHT] = { "right", "右键" },
+    [S_REMOTE_PAD_HINT] = { "slide to move / tap to click", "滑动移动 · 轻点点击" },
+    [S_REMOTE_WHEEL] = { "scroll", "滚动" },
+    [S_REMOTE_SYSTEM_PLAYBACK] = { "computer music", "电脑音乐" },
+    [S_REMOTE_WAIT_INFO] = { "waiting for song details", "等待电脑同步曲目信息" },
+    [S_REMOTE_HOLD_VOLUME] = { "hold music for volume", "长按音乐调音量" },
+    [S_REMOTE_CLOSE] = { "close", "关闭" },
+    /* dice modes / coin */
+    [S_COIN]          = { "coin",                       "硬币" },
+    [S_HEADS]         = { "heads",                      "正" },
+    [S_TAILS]         = { "tails",                      "反" },
+    [S_DICE_MODE]     = { "dice mode",                  "骰子模式" },
+    [S_1DIE]          = { "1 die",                      "1 颗" },
+    [S_2DICE]         = { "2 dice",                     "2 颗" },
+    [S_3DICE]         = { "3 dice",                     "3 颗" },
+};
+
+/* 启动器 app 名(en → zh;不在表里 = 保留英文,如 WiFi/I2C/twin/OTA 专名) */
+static const char *const APP_ZH[][2] = {
+    { "System",    "系统" },
+    { "weather",   "天气" },
+    { "calendar",  "日历" },
+    { "countdown", "倒计时" },
+    { "stopwatch", "秒表" },
+    { "settings",  "设置" },
+    { "audio",     "音频" },
+    { "level",     "水平仪" },
+    { "maze",      "迷宫" },
+    { "fluid",     "流体" },
+    { "dice",      "色子" },
+    { "Answers",   "答案之书" },
+    { "Zodiac",    "星座运势" },
+    { "Merit",     "木鱼" },
+    { "Pixels",    "方块" },
+    { "Garden",    "生态箱" },
+    { "Focus",     "专注" },
+    { "Capsules",  "声音胶囊" },
+    { "Watchfaces", "表盘" },
+    { "Stocks", "股票" },
+    { "Mimi", "小咪" },
+    { "Codex", "Codex" },
+};
+
+const char *tr(str_id_t id) {
+    if (id < 0 || id >= S__COUNT) return "";
+    return TXT[id][settings_lang() ? 1 : 0];
+}
+
+const char *tr_app_name(const char *en_name) {
+    // 保留内部 mouse 标识及现有启动器图标,对用户呈现扩展后的遥控台。
+    if (strcmp(en_name, "mouse") == 0) return tr(S_REMOTE_TITLE);
+    if (!settings_lang()) return en_name;
+    for (unsigned i = 0; i < sizeof(APP_ZH) / sizeof(APP_ZH[0]); i++)
+        if (strcmp(APP_ZH[i][0], en_name) == 0) return APP_ZH[i][1];
+    return en_name;
+}
+
+/* 字体:拷一份到 RAM 再挂 fallback(内置字体是 const 在 flash,不能原地改)。
+   fallback = 自产精简中文字库 font_cn16(苹方 16px 4bpp,只含 UI 用字,tools/gen_font_cn.swift 生成)——
+   LVGL 内置思源 CJK 的字表是 demo 日繁混合集,简体覆盖差(实测缺 显/亮/盘/设 等 40+ UI 字),弃用。 */
+LV_FONT_DECLARE(font_cn16);
+static lv_font_t f_l, f_m, f_sym;
+
+void i18n_init(void) {
+    f_l = lv_font_unscii_16;        f_l.fallback   = &font_cn16;
+    f_m = lv_font_unscii_16;        f_m.fallback   = &font_cn16;
+    f_sym = lv_font_montserrat_20;  f_sym.fallback = &font_cn16;
+}
+
+const lv_font_t *i18n_font_l(void)   { return &f_l; }
+const lv_font_t *i18n_font_m(void)   { return &f_m; }
+const lv_font_t *i18n_font_sym(void) { return &f_sym; }

@@ -1,0 +1,321 @@
+# soRound OS 官网
+
+正式入口：**https://sobigrice.github.io/soRound_os/**。
+
+英文入口：**https://sobigrice.github.io/soRound_os/en/**，页首 `EN / 中文` 可互相切换。
+
+本目录只维护产品官网，现有 `web/` 仍是独立的 GeekTwin 蓝牙校准器。
+
+## 2026-10-28 v1.8 正式通道晋升
+
+沿用既有正式晋升规则，v1.8 发布后正式/内测下载入口同时指向 v1.8；后续有更新的 beta 时，内测入口仍按发布时间独立更新。`site/index.html` 与 `locales/en.json` 将表盘和安装说明同步为 v1.8 正式版，保留 beta.38 新增32款的历史分组、全部62款目录、轮播和图鉴交互。19张应用预览仍标明来自旧v1.7，避免把旧截图当成完整v1.8界面。普通OTA不迁移分区，升级需要双8MiB应用槽；录音卷仍需单独初始化。
+
+当前发布结果和CI、下载摘要、官网部署回执见[发布记录](../GeekTool-IDF/PORTING_NOTES.md#2026-10-28-v18-正式发布)。以下各节保留原日期的历史实现和验证范围。
+
+官网不请求设备权限，也不连接设备；表盘展示使用固定样例数据。
+
+## 2026-10-22 首页表盘陈列与自动播放
+
+针对62款全部铺开、STUDIO的41个文字按钮挤占主展示的问题，首页沿用现有黑白红设计，收拢为一张大图、五个系列、最多五张原生缩略图及上一款/下一款。`script.js:render`按当前系列和样式编号计算缩略图批次，末批保留最多五张，计数反映当前款/系列总数。缩略图直接复用`build_site.py:watchface_gallery`生成的原生图节点；`watchfaces.json`、图片、固件ID和62/30/32发布分组保持不变。
+
+`.face-collection`默认使用收起的`details`，首页只显示“浏览全部62款”入口。支持时，脚本将唯一的`.collection-panel`移入原生`dialog`，图鉴在独立滚动区域浏览；选中后关闭并回到大图及当前缩略图焦点。关闭按钮、Escape和遮罩可关闭，关闭后恢复页面滚动；筛选保留全部/已有/本次新增。无JS或缺少`showModal`时仍可手动展开完整图鉴，避免目录失去访问入口。中英文共用结构及翻译字典。
+
+采用平台原生[showModal](https://developer.mozilla.org/en-US/docs/Web/API/HTMLDialogElement/showModal)处理焦点约束和背景交互隔离，未引入弹层或轮播依赖；核查日期2026-10-22。后续目录扩容只增加图鉴项，首页缩略图数量维持上限五张；验收须同时查看首页密度和完整图鉴的选择返回流程。此前“完整表盘图鉴”的全部铺开布局已由本节替代，历史发布证据仍按各节原日期保留。
+
+自动播放沿用同一选择状态：`script.js:syncPlayback`在大图区域可见至少25%、页面可见且当前图片就绪时，安排唯一的5秒计时器；按目录顺序播放五个系列，最后一款回到首款。600ms大图淡入轻移、500ms文案上移及红色进度细线均使用原生Web Animations，不改原图。播放按钮显式暂停/继续；鼠标悬停临时暂停，移开继续；手动选款、键盘进入选款控件、打开图鉴或图片失败则暂停，需点击播放继续。明确点击播放即刻生效，本次悬停不拦截；再次移入仍会暂停。
+
+系统“减少动态效果”默认关闭自动播放，运行中启用也立即暂停；用户仍可主动播放，此时保留无动效换图。自动轮播关闭标题与序号的重复实时播报，暂停后恢复`polite`。离屏、后台或`pagehide`释放计时器及进度动画，`pagehide`断开观察；`pageshow`重新观察并按原播放意图恢复。交互参考[WAI轮播控制](https://www.w3.org/WAI/ARIA/apg/patterns/carousel/)，核查日期2026-10-22；无新依赖，首页五张缩略图上限及图鉴筛选保持。媒体偏好变更事件异步到达，验证应等待暂停状态落实。
+
+2026-10-22自动播放新增验证：中英文构建、8项既有网站单元测试、JS语法及Diff检查通过；内置浏览器观察到实际跨系列轮播。补充Chromium共38项断言通过：真实5秒间隔连续换图两次、600ms动画中间态、末款跨系列循环、暂停/继续、悬停、手动选款、键盘焦点、图鉴、离屏、动态/初始减少动态效果、两语言控件及62/30/32筛选、1380/768/390/320px无横向溢出。后台可见性与`pagehide`通过受控事件验证计时器释放，未实测系统后台或BFCache恢复；无控制台/页面错误。已查看最终桌面、手机及过渡中间态，并保留实际运行视频。临时脚本、日志、录制缓存及预览服务清理，构建与最终演示素材保留；用户已授权提交和部署本节实现；发布结果以对应提交的Pages工作流及线上回读为准。
+
+2026-10-22陈列收拢验证（自动播放加入前）：中英文构建、8项既有网站单元测试、JS语法及Diff检查通过。内置浏览器已查看主展示/图鉴并核对关闭后的焦点及滚动恢复；补充Chromium检查通过两语言124次目录选择、62/30/32筛选、缩略图批次与末款边界、Enter、Escape/关闭按钮/遮罩、焦点约束、1380/768/390/320px无横向溢出，以及无JS和缺少`showModal`的展开回退，共704项断言。已查看当轮桌面、手机和图鉴截图；本地基础预览服务曾出现资源连接重置，在扩大临时服务连接队列并将请求日志输出到文件后完整复测无控制台或页面错误，未据此修改网站加载逻辑。原生`close`事件异步触发，自动检查应等待关闭后的滚动状态落实。临时脚本与服务已清理；标准`build/site`保留为本地构建结果。
+
+## 2026-10-22 圆形动效
+
+`script.js:siteMotion` 使用浏览器原生Web Animations和IntersectionObserver增强既有页面，无新依赖、逐帧scroll监听或循环动画：首屏文字上移18px渐显680ms；圆屏外圈连同红点通过42%→74%的圆形裁切展开900ms，不改变原生截图比例。后续主要区块首次进入视口时上移16px渐显560ms，完成后停止观察。表盘/应用选择立即更新状态，图片可用后以圆形47%→50%裁切及淡入回应280ms；快速选择先取消旧动画。筛选先同步62/30/32可见项，再对可见网格执行6px短显现240ms；卡片与按钮仅有180ms悬停/焦点/按压反馈，触屏不启用卡片悬停位移。
+
+CSS不预先隐藏区块；JS、Observer或动画API不可用时正文保持可见。`prefers-reduced-motion: reduce` 初始关闭全部JS动画、CSS位移与平滑滚动，运行中切换为减弱动态会取消当前效果并断开观察，不重播已看过的区块。动画完成/取消删除临时Animation引用，离开页面清理仍在运行的动画与Observer；不遗留计时器或`will-change`图层。
+
+首次本地实现后的中英文构建、既有5项网站单元测试、JS语法及本次网站Diff检查通过；实际动效中间态、快速切换、动态减弱设置和响应式由本轮浏览器验证补充，不继承历史截图结论。未创建额外浏览器会话、服务或测试框架。
+
+## 2026-10-22 beta.38 公开表盘状态
+
+官网内容以 beta.38 为当前内测：五组62款，TYPE/ORBIT/SHIFT各5款、HAND6款、STUDIO41款；30款原有表盘与32款本次新增均归入公开固件。`watchfaces.json` 将原32个 `preview:true` 改为 `new:true`，只表达本次新增分组；`build_site.py:watchface_gallery`、数量统计与 `script.js:render` 共用此语义。全部/已有/本次新增筛选仍分别为62/30/32，新款徽标为“本次新增 · beta.38”，不再将新增等同未发布。原图、ID、选择与语言切换交互保持。
+
+中英文页面同步24个内置应用与19个既有界面预览、独立表盘App、STUDIO黑底及当前下载链接；安装说明明确双8MiB应用槽和录音独立初始化，普通OTA不迁移或格式化分区，beta.36继续撤回。中英文README说明后台保存与尚未落盘操作的断电窗口，不宣传未测量的真机帧率/功耗，不包含地图App或未启用的新木鱼图标。
+
+本节是内容与实现边界；本轮CI、公开包分发、Pages部署及设备安装结果分别见[发布记录](../GeekTool-IDF/PORTING_NOTES.md)。本次未执行设备安装，不将以下历史本地候选记录当作beta.38公开包设备验收。
+
+本地中英文构建通过：62款与固件目录顺序一致、19张原生应用预览及资源/翻译检查通过；5项网站单元测试、JavaScript语法和补丁空白检查通过。新增回归核对62/30/32分组以及新增徽标不含“尚未发布”。浏览器交互与上线结果以本轮发布回执为准，不继承以下历史浏览器结果。
+
+动效回归补充：动态切换减少动态时，必须以与普通声明同等特异性的10个选择器显式设置`transition:none`，只将duration变量归零不会取消已启动的过渡。`scripts/build_site.py:asset_version`以CSS/JS内容共同计算12位SHA256版本，两语言的资源URL共享`?v=`，避免新脚本配上旧缓存样式；`EnglishPage`保留query及父目录前缀，`PageCheck`仅用URL path核对磁盘资源。实体文件名不变，无发布workflow或依赖变化。8项构建回归及最终本地18项浏览器检查通过，包含原80ms动态切换条件和computed transition:none。
+
+## 2026-10-22 极简几何六款（已部署及安装）
+
+目录追加56–61：坐标、支点、沙漏、方量、合相和开合，总62款（公开固件已有30、未公开32）、五组及STUDIO41款。保留旧ID和图片，统计仍从`watchfaces.json`派生。新六张`assets/studio/active-*.png`来自实际LVGL绘制器，读时规则与原生审阅见[表盘说明](../GeekTool-IDF/WATCHFACES_UI.md)。
+
+功能提交`cc08558`已按相同Git对象哈希推送，[Pages39732510280](https://github.com/soBigRice/soRound_os/actions/runs/39732510280)部署成功；101个公开文件与本地构建逐字节一致，源站首页与index均为62款、SHA相同。当前版本中英文124次选择、62/30/32筛选、Enter及语言锚点检查通过，1380/390/320px无横向溢出，无页面错误。六款隔离实机轮测及普通62款固件安装完成，详见表盘说明。官网“未发布”仍指尚未打包公开固件Release；本次浏览器旧缓存通过版本参数绕过，细节见表盘说明。
+
+## 2026-10-22 极简字体与运动图形十二款（已部署及安装）
+
+本地`watchfaces.json`追加44–55，包含六款大字体和六款运动图形；目录共56款（公开固件已有30、未公开26），STUDIO共35款。原有ID与图片保持，统计仍从目录派生。新PNG来自实际LVGL绘制；运动图形表达真实时分秒，不代表健康或运动数据。新增字体与绘制入口见[表盘说明](../GeekTool-IDF/WATCHFACES_UI.md)。
+
+导出审阅分别使用`--review-from 44 --review-to 50`和`--review-from 50 --review-to 56`，正常/AOD、00:00及23:59共用真实绘制器。原生233px选择图另由`settings_level_tests`导出，不能将大图缩放代替预览检查。
+
+功能提交`3bc1963`已推送，[Pages39727908403](https://github.com/soBigRice/soRound_os/actions/runs/39727908403)部署成功；线上中英文56款共112次选择、56/30/26筛选、Enter及语言锚点切换通过，1380/390/320px无横向溢出，无页面错误；95个公开文件与本地构建逐字节一致。十二款隔离真机轮测及普通56款固件安装完成，详见表盘说明和本批原生验证回执。未创建公开固件Release，因此26款新设计继续保留未发布标记。
+
+## 2026-10-22 设计八款与官网图鉴
+
+目录追加ID36–43，新增留白、构成、电子、唱片、棱镜、线路、月门和星仪；现为44款，其中30款随公开固件已有、14款尚未随公开固件发布。用户已确认八款并授权提交、部署及安装；发布与设备回执以[表盘说明](../GeekTool-IDF/WATCHFACES_UI.md)的当前记录为准，下节保留前一批36款的历史证据。新原生素材见`assets/studio/active-*.png`，审阅与固件边界见[表盘说明](../GeekTool-IDF/WATCHFACES_UI.md)。
+
+`build_site.py:main`从`watchfaces.json`计算总数/已有/未发布数量，翻译后替换中英文正文与动态消息里的数量占位，避免目录扩展后统计过期。`render_site_watchfaces.py`现导出23款STUDIO，`--review-from 36 --review-to 44 --review <folder>`可保留新八款正常/AOD和午夜、23:59合览；默认审阅范围仍为旧六款30–35。
+
+本地中英文构建、原生图片尺寸、名称/ID/翻译检查通过；Tabbit核对新八款两语言共16次选择、44/30/14筛选及Enter操作，1380/390/320px无横向溢出，无页面错误。后续[Pages39724945016](https://github.com/soBigRice/soRound_os/actions/runs/39724945016)部署成功：线上两语言共88次选择、83个公开文件逐字节核对通过。八款隔离实机轮测通过，普通44款候选已安装并完成70秒观察及新鲜VALID/数据完整性回读；详情见表盘说明。未创建公开固件Release，因此新设计继续保留未发布标记。
+
+## 2026-10-22 完整表盘图鉴（已部署）
+
+保留大图切换，增加五组完整缩略图，共30款已有表盘与6款未发布新设计。支持全部/已有/新设计筛选、缩略图点击放大和标准按钮键盘操作；桌面六列、较窄屏幕四列、手机三列，360px以下两列。无JavaScript时全部图鉴仍可见。新款标记“本地新设计 · 尚未发布”，不把本地实现当作公开固件能力；用户已确认设计并授权部署，功能提交`83ba596`已推送；[Pages工作流39722087908](https://github.com/soBigRice/soRound_os/actions/runs/39722087908)成功，正式地址及英文入口已验证。
+
+`watchfaces.json`是官网主题描述、样式名称、图片与候选状态的唯一目录。`build_site.py:watchface_gallery`按目录生成HTML，并与`GeekTool-IDF/main/watchface_catalog.c:names`逐项比较；缺项、错序、重复ID、缺失原生图或翻译均拒绝构建。`script.js`读取构建注入的`#watchface-catalog`，大图、样式按钮、缩略图选中态与筛选共用同一状态；切换语言继续保留当前section锚点。
+
+旧三组合辑和HAND图继续使用既有原生素材。STUDIO十五款由当前生产绘制器直接导出，包含已在本地实现的九款黑底样式和六款图形新设计；样例时刻2026-10-20 10:08:36。不要用旧合辑裁切坐标处理这些独立466px PNG。
+
+```bash
+cmake -S GeekTool-IDF/tests/host -B /tmp/soround-face-export -DCMAKE_BUILD_TYPE=Debug
+cmake --build /tmp/soround-face-export --target watchface_tests -j 6
+python3 -B scripts/render_site_watchfaces.py --faces /tmp/soround-face-export/watchface_tests
+python3 -B scripts/build_site.py
+```
+
+导出脚本在临时目录运行真实夹具，只将PPM转为PNG，不缩放或重画固件像素；PPM自动删除。结束后删除本次`/tmp/soround-face-export`并关闭本地预览服务，不清理其他任务的构建。`--review <folder>`可额外保存六款正常/AOD和审阅合览。
+
+2026-10-22核对：中英文构建/资源/目录/翻译和JS语法通过；Tabbit实际完成两语言各36次选择、30/6筛选、Enter键操作，1380×844、390×844、320×844无横向溢出，无页面错误。已查看原生六款、桌面图鉴及手机图鉴。固件另有5项相关主机回归和ESP32-S3构建通过；后续六款全屏、两个选择入口各两轮及AOD/休眠唤醒真机轮测通过，174.14秒无监测fault，最低LVGL可用栈3064B；最终候选已安装并通过70.09秒正常启动观察和VALID读回。主观观感/触摸、帧率及功耗未据此宣称通过。
+
+线上中英文筛选/预览/语言跳转与390px手机检查通过，无页面错误；75个公开文件与本地输出逐字节一致。网站仍将六款标记为未发布设计，因为本轮只安装本地候选，没有创建公开固件Release或变更下载渠道。
+
+## 中英文内容
+
+`index.html` 是两种语言共用的唯一结构，中文为默认入口，`locales/en.json` 按原文维护英文文案。
+`build_site.py:EnglishPage` 同时翻译文字、描述、无障碍名称、元数据和应用按钮描述，生成
+`en/index.html`；英文页的安装指南指向根目录 `README.en.md#quick-start-firmware`。
+本地资源按英文子目录重写为 `../` 路径，站内锚点保留当前语言。语言切换保留当前 section 锚点；
+不按浏览器语言强制跳转，不需要 localStorage。canonical 各指自己的页面，两页都声明中英文
+hreflang 与默认入口，sitemap 包含两个地址。
+
+`script.js:translate` 从页面内的 `site-messages` JSON 读取同一份翻译，切换表盘时更新英文描述
+与名称；应用标题/说明由已翻译的按钮数据提供。构建拒绝漏译文案、漏译动态字符串、
+占位符不一致、未替换模板、错误资源路径和缺失的19个原生预览，避免英文页只翻译静态标题。
+英文正文和大标题复用本地 Barlow，手机导航按完整词组换行。
+
+英文应用图片放在 `assets/apps/en/`，来自固件自身 `settings_lang() == 0` 的原生界面；
+三份表盘合辑已使用英文日期与信息，继续共用。星座控件是英文，运势内容有意保留接口中文原文
+（`app_zodiac.c:render_data`，界面标注 `CN`），英文说明明确此限制，不能把网页翻译冒充固件能力。
+本次英文导出使用已提交固件 `d9bebc1` 的临时源码副本，与工作区并行设置修改隔离；
+既有11个目标覆盖12个应用，另7个真实控制器也渲染成功，不改中文预览或固件源文件。
+`README.md` 和 `README.en.md` 互相链接；英文 README 包含安装、硬件、BLE、OTA、验证及已知边界，
+历史发布验证保留原日期与验收范围，不把历史测试当作本轮重新测试。
+
+2026-10-07 本轮英文适配检查：原生导出使用已提交固件，11个夹具目标通过，另7个控制器
+离线渲染成功。Codex IAB 实际检查两语言各19个应用、各15个表盘选项，图片加载、标题、
+动态名称及唯一选中状态匹配；中英文互跳保留 section 锚点，英文 Enter/Space 操作通过。
+1505×1045、390×844、320×740 无横向溢出；320px 英文导航保持完整词组并自然换行。
+英文安装入口与官方460×345设备图核对通过，无浏览器 error/warn；漏译负向检查、
+README 本地链接、公开版本查询、资源尺寸、JS语法和最终补丁空白检查通过。
+上述是网站与离线渲染验证，不替代设备验收。本轮临时源码副本、构建、原始PPM与服务结束后清理。
+
+英文实现提交 `68402a7` 的 [Pages CI 37628150016](https://github.com/soBigRice/soRound_os/actions/runs/37628150016)
+部署成功；54个公开文件（含两个页面、19张英文预览）HTTPS 200，SHA-256 与本地发布目录一致。
+`.nojekyll` 是 Pages 控制文件，不作为公开路由核验；英文 README 的远端 blob SHA 也与本地一致。
+本机 GitHub HTTPS Git 连接超时时，通过官方 [Git commits API](https://docs.github.com/en/rest/git/commits#create-a-commit)
+与 [Git refs API](https://docs.github.com/en/rest/git/refs#update-a-reference) 发布相同对象，逐项核对 blob、tree、commit SHA，
+再以 `force:false` 前进 main。创建 commit 必须保留原始消息末尾换行，不能 `rstrip`；GitHub 按消息原字节计算对象。
+首个缺换行候选因 SHA 不同而被检查阻止，未更新分支；补回原始换行后与本地 SHA 完全一致。
+未修改 Git 身份、DNS、全局网络或部署配置。核对日期2026-10-07。
+
+## 功能 UI 与硬件图片
+
+`index.html:#explore` 展示全部19个应用，`script.js` 的第二个控制器只管理功能选项、
+图片、标题、描述、序号和 `aria-pressed`，与表盘状态独立。默认天气预览；
+天气、音频、木鱼另在黑色功能区直接展示。无 JavaScript 时保留这些图片和设备图。
+`build_site.py` 检查19个选项不缺项、不重复，并校验每张应用 PNG 为466×466。
+
+`assets/apps/` 使用当前 `main` 的真实 LVGL 控制器与既有主机夹具导出。
+天气/设置/水平仪/音频/骰子/答案/系统/Wi-Fi/遥控台/木鱼/星座/OTA 复用现有原生回归导出；
+`scripts/site_native/renderer.c` 链接真实日历、倒计时、秒表、迷宫、流体、I2C、数字孪生。
+设备服务固定为离线夹具，应用 UI 不另画一套。额外 renderer 复用正式的 i18n 字体主题
+与启动器标题/返回键/电量布局；遗漏主题 fallback 会使秒表“归零”变成缺字方框，生成前须检查。
+日历固定2026-10-07，电量74%为夹具；Twin 为等待连接状态，截图不证明蓝牙或传感器连接。
+既有夹具里的版本、天气和运势日期也都是样例，不代表当前发布版或实时数据。
+
+需要更新界面时，从仓库根目录执行（沿用已有 CMake、Python/Pillow）：
+
+```bash
+cmake -S scripts/site_native -B /tmp/soround-site-previews -DCMAKE_BUILD_TYPE=Debug
+cmake --build /tmp/soround-site-previews --target site_native weather_ui_tests settings_level_tests audio_ui_tests dice_ui_tests answers_ui_tests system_ui_tests wifi_ui_tests remote_ui_tests merit_ui_tests zodiac_ui_tests ota_ui_tests -j 8
+python3 scripts/render_site_apps.py --build-dir /tmp/soround-site-previews
+# 英文预览；保留中文图片
+python3 scripts/render_site_apps.py --build-dir /tmp/soround-site-previews --language en
+```
+
+导出脚本仅做 PPM→PNG 格式转换，不缩放或改画固件像素；临时原始图自动删除。
+核对19张图片后删除本次 `/tmp/soround-site-previews`，不要删除其他任务的主机构建。
+
+`assets/waveshare-1.75c.jpg` 原样保存微雪官方产品照片（460×345），来源：
+[ESP32-S3-Touch-AMOLED-1.75C 产品页](https://www.waveshare.com/esp32-s3-touch-amoled-1.75c.htm)，
+[原始图片](https://www.waveshare.com/img/devkit/ESP32-S3-Touch-AMOLED-1.75C/ESP32-S3-Touch-AMOLED-1.75C-8_460.jpg)。
+版权归 Waveshare；官网图注明确标注“屏幕为出厂演示界面”，并链接官方产品页。
+没有将官方照片中的出厂 AI/音乐 UI 改称 soRound OS 功能。
+
+2026-10-07 用户补充：官网需要其他功能 UI 和实际微雪设备图。
+此前完整功能文字列表仍不足以满足产品视觉展示；现补全可切换原生截图和官方硬件照片。
+后续官网内容核对要同时检查表盘、功能 UI、硬件外观与素材来源，不以功能名列表代替 UI 展示。
+
+本轮验证：既有11个原生 UI 目标全部通过并导出所需12个应用界面；另7个真实控制器
+离线渲染成功。补齐正式字体主题后，秒表“归零”字形再次逐图核对。
+Codex IAB 在1505×1045、390×844、320×740检查，无横向溢出；19个选项逐个点击，
+图片路径、标题、序号与唯一选中状态匹配，Space/Enter 操作通过，无浏览器 error/warn。
+手机选中后带回圆屏预览，缩略图进入对应应用，设备照片加载为原始460×345。
+静态构建、PNG尺寸与完整目录、JavaScript语法、最终Diff检查通过。
+
+## 作者入口
+
+`index.html:#author` 位于安装区之后、页脚之前，展示作者 SoBigRice、简短介绍与
+`https://sobigrice.com/` 个人主页入口。桌面两列，760px 及以下单列，沿用浅灰背景、
+Barlow 字标和黑白红配色。页脚“关于作者”跳到本页区块，底部署名直接打开个人主页。
+两个外链均使用真实 `href` 和 `rel="author noopener noreferrer"`，无需 JavaScript；
+新增文案仍由 `locales/en.json` 进入既有中英文构建链路。
+
+2026-10-16 核对：离线构建的翻译、锚点和资源检查通过；Tabbit 实际检查中英文
+1505×1045、390×844、320×740，作者区无横向溢出，两列/单列切换、页脚点击和
+Enter 跳转、外链地址与键盘聚焦均通过，无页面运行错误。逐图查看中文桌面、中文手机
+与英文320px效果。用户已确认本轮效果，并授权提交代码和部署官网；线上状态以对应
+GitHub Pages 工作流及公开页面核验为准。
+
+## 本地预览
+
+从仓库根目录执行（Python 3 标准库，无需安装依赖）：
+
+```bash
+python3 scripts/build_site.py
+python3 -m http.server 8765 --bind 127.0.0.1 --directory build/site
+```
+
+访问 http://127.0.0.1:8765/。结束后 `Ctrl+C` 关闭服务器，可删除本次生成的
+`build/site/`，不要清理其他固件构建目录。
+需要核对当前公开发布版时用 `python3 scripts/build_site.py --refresh-releases`。
+
+## 内容、预览和部署调用链
+
+```text
+site/index.html + locales/en.json + styles.css + script.js + assets/
+  → scripts/build_site.py
+  → 生成中英文页面，替换正式/内测版本链接，检查翻译、锚点、资源、原生预览尺寸
+  → build/site/ + en/index.html（只包含公开站点资源）
+  → .github/workflows/pages.yml
+  → upload-pages-artifact → deploy-pages → GitHub Pages
+```
+
+- `main` 上的官网相关修改、GitHub Release 发布/编辑、手动运行都会触发部署。
+  发布事件仍明确取 `main` 的官网，不取可能尚无官网的旧固件 Tag。
+- Pages 使用 GitHub Actions 发布源；无需 `gh-pages` 分支和额外构建框架。
+- `github-pages` 环境允许 `main` 分支和 `v*` Tag。Release 事件的执行 ref 是 Tag，
+  即使 checkout 了 `main`，只有分支策略仍会阻止部署；Tag 策略用于已有固件发布事件。
+- CI 读取公开 GitHub Releases，正式版使用`releases/latest`，内测入口按发布时间选择内测版或更新的正式版。
+  正式发布同时覆盖beta OTA对象，官网两入口同步指向正式版；之后有更新的beta发布时恢复独立内测入口。
+  `scripts/test_build_site.py`覆盖正式晋升、新内测、撤回与无内测的首次正式发布。API 失败时
+  构建失败，已上线版本保留；本地离线预览使用 `releases.json` 中的已核查快照。
+- `build_site.py` 只删除和重建本项目 `build/site/`，不接受其他清理目标。
+- 固件构建、Tag、Release 资产上传、OTA 地址与蓝牙协议均独立。
+- 不上传源码目录、设计稿、README、固件构建文件或本地配置。
+
+## 表盘素材与交互
+
+`assets/type.png`、`orbit.png`、`shift.png` 是已有
+`GeekTool-IDF/artwork/watchfaces/native/` 的原生 LVGL 审阅合辑副本。
+网页用圆形 viewport 显示其中一个 466×466 区域，保持原始像素；
+不是实机照片，温度、Wi-Fi、时间、电量都是夹具数据。
+
+beta.37 已公开发布为 prerelease，官网恢复五组30款：`TYPE/ORBIT/SHIFT` 各五款、`HAND` 六款和 `STUDIO` 九款，保留原21款ID与行为。
+[发布CI 39441675606](https://github.com/soBigRice/soRound_os/actions/runs/39441675606)通过53项主机、2项配套功能、媒体sanitizer和14项镜像检查。
+真机 probe3 候选通过真实启动器链运行约283秒，覆盖九款全屏、39次预览、九款AOD、分钟变化/熄屏唤醒、RADAR70秒与木鱼视觉，未出现fault；LVGL栈配置9216B，最低剩余2952B。
+白羊座五次实际请求均为HTTP200、1525B且日期正确；历史失败未复现，根因未确认，星座修改按新增诊断记录，不宣传未知根因已解决。
+R2与国内完整beta.37包均与CI/Release资产摘要一致，强ETag条件Range返回准确206；两处正式v1.7完整包SHA保持不变。精确公开CI包USB安装已开始，安装、首启及VALID读回仍待主任务完成，不以候选或分发校验代替。
+beta.36 因真机选择 STUDIO 后连续 panic 重启保持撤回，后续恢复不改写这条历史。
+
+`script.js` 在旧三组间保留用途索引 `0–4`；跨到 HAND/STUDIO 从该组第一款开始，点击当前组保留当前款式。
+款式按钮由各组目录生成，并同步 `aria-pressed` 与预览的无障碍名称；STUDIO 不再使用临时禁用规则。
+`assets/hands/hand-*.png` 来自 `GeekTool-IDF/artwork/analog-play/native/` 的六张固件原生渲染。
+`assets/studio/active-*.png` 来自 `GeekTool-IDF/artwork/watchfaces/studio-native/` 的九张固件原生渲染。
+保留既有原图；完整466×466图通过 `.native-face` 展示，不套用旧合辑的放大和裁切坐标。
+图片是离线夹具，不是实机拍摄，也不证明星座真实网络返回或设备全项验收。
+主题和用途按钮使用原生按钮，Tab、Enter、Space 可操作；无定时器、后台请求或第三方统计。
+图片失败有可见提示，无 JavaScript 时保留默认 ORBIT 环形预览与所有导航/下载链接。
+
+合辑区域依次为：`(60,145)`、`(607,145)`、`(1154,145)`、`(334,709)`、`(881,709)`；
+每个区域466×466，合辑1680×1220。构建校验五组均可用、三份合辑及15张独立PNG尺寸；撤回期间的“仅四组”约束已移除。
+`releases.json` 当前内测指向已公开的 beta.37。在线刷新继续沿用现有 Release 草稿过滤，不硬编码排除版本。
+本次只更新表盘和版本状态，不扩大既有19个应用预览的范围。木鱼、表盘、星座的验证范围按上面的实际证据分别记录。
+本次最终文案的双语静态构建、30款五组入口/资源及JavaScript语法校验通过；`build/site/` 保留给主任务做官网HTTP回读比对，未启动驻留服务。
+精确CI包已完成USB安装、70秒普通固件观察与VALID回读；设置、引导器/分区、beta.35回退槽及完整文件区均核验保持。官网部署与公开HTTP回读结果统一见[组合发布记录](../GeekTool-IDF/PORTING_NOTES.md#2026-10-20-beta37组合修复与验证)。图片/主机检查及USB安装仍不代替用户观感、网络OTA或失败回滚验收。
+Barlow 字体复用项目已有素材，OFL 许可证随 `assets/OFL.txt` 发布。
+
+## 设计与验收
+
+设计来源是内置 Image Gen 的三张 section 设计稿，保留在 `design/01-hero.png`、
+`02-showcase.png`、`03-start.png`，仅用于维护比对，不属于发布文件。
+生成要求：中文工业感产品官网，浅灰首屏/黑色表盘区/白色安装区，黑白红配色，
+原生圆屏预览、开放布局、可实现的 HTML 控件、无虚构硬件照片和产品指标。
+
+设计变量：首屏 `#f4f5f5`、展示区 `#131416`、安装区纯白、强调 `#e54330`；
+正文 PingFang SC / 系统中文字体，英文和数字 Barlow；桌面内容宽度 1280px。
+首屏和安装区标题使用 Google Fonts 官方 Noto Sans SC 900 的16字 WOFF2 子集，实际字重
+不依赖系统中文字体的合成加粗。字体本地加载，无 Google Fonts 运行时请求；
+来源为 [Google Fonts Noto Sans SC](https://github.com/google/fonts/tree/main/ofl/notosanssc)，
+生成接口 `fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@900&text=把灵感，装进圆里。准备好让屏醒来`，
+2026-10-07 核对并保留 `assets/NotoSansSC-OFL.txt`；更改标题需重新生成子集。
+移动端按内容单列排列，参数条变为两列；`prefers-reduced-motion` 禁用滚动/按钮动效。
+
+事实所需的明确设计补充：使用真实固件预览替代生成图里的近似表盘；补齐全部19个应用、
+正式/内测范围、版本链接与首次烧录/分区边界。网站展示不构成固件或设备体验验收。
+
+部署方案核查日期：2026-10-07。使用 GitHub 官方
+[Pages 工作流](https://docs.github.com/en/pages/getting-started-with-github-pages/using-custom-workflows-with-github-pages)
+和 [Pages API](https://docs.github.com/en/rest/pages/pages#create-a-github-pages-site)，
+采用 `configure-pages@v5`、`upload-pages-artifact@v4`、`deploy-pages@v4`。
+静态站点无需增加 React/Vite 或站点生成器依赖；现有校准器继续使用原框架。
+
+### 2026-10-07 发布前核对
+
+使用 Codex IAB 实际渲染、点击与 DOM/CSS 检查，没有使用 Mock 或 Playwright 替代浏览器。
+首屏按设计稿原尺寸 1505×1045 检查，另检查 390×844 和 320×740；无横向溢出。
+三个 section 的设计稿和最终浏览器截图均用 `view_image` 逐项对照。
+
+| 对照项 | 设计与浏览器证据 | 处理 |
+| --- | --- | --- |
+| 首屏文案 | 品牌、四个导航、两行标题、两行正文、两项操作和预览说明 | 文案核对一致，没有增加眉题、徽章或指标 |
+| 首屏比例 | 初稿标题偏小、首屏过高；最终标题 top≈189px，黑色区 top≈918px | 调整字号、真实字重、留白和圆屏比例，恢复设计的首屏节奏 |
+| 配色/容器 | CSS 实测 `rgb(244,245,245)`、`rgb(19,20,22)`、`rgb(255,255,255)` | 保留浅灰/黑/纯白开放布局，无多层卡片与图片染色 |
+| 原生表盘 | 生成稿是近似刻度；现有合辑中的真实 ORBIT 刻度与其不同 | 有意使用真实固件绘制，不把生成稿当固件截图 |
+| 字体/控件 | 英文 Barlow；大标题本地 Noto 900 子集；中文正文系统字体 | 修正系统字重不足；按钮、选择项、正文均显式定义字号 |
+| 安装区 | 两列硬件/步骤、三个红色序号、黑/白两个操作 | 保留设计，增加真实正式/内测链接与首次安装边界 |
+| 小屏 | 首屏/表盘/安装区变单列，参数两列，320px 下载操作自动逐行 | 原生预览保持圆形、长型号自然换行，内容不裁切 |
+
+三主题 × 五用途逐个实际点击，15组素材、裁剪区域、选中状态与无障碍名称匹配；
+Space 选择主题、Enter 选择用途通过，主题切换保留用途。浏览器无 error/warn。
+静态构建、公开版本查询、JavaScript 语法、锚点/资源检查、`git diff --check` 通过；
+构建脚本拒绝 `--out build`，未删除其他构建目录。
+核心交互和主体视觉已按设计基线核对；上述事实补充与真实固件素材替换是有意差异。
+网站主观效果仍由用户确认，未将自动检查表述为用户验收。
+
+### 首次上线核对
+
+2026-10-07：GitHub Pages 已设为 `workflow` 发布源并强制 HTTPS；
+官网实现提交 `c3c0590` 的 [Actions 部署](https://github.com/soBigRice/soRound_os/actions/runs/37596692357)
+成功。公开站点14个文件均返回 HTTPS 200，SHA-256 与本地发布目录一致；
+README 与仓库 About 的 homepage 已补上官网链接。线上文件核验与本地浏览器功能检查
+分别执行，不将部署状态代替真实访问。
+
+
+## 2026-11-04 v1.9.3 正式发行同步
+
+正式/内测入口均更新到v1.9.3。沿用全部62款表盘及19张已标明旧版本的原生应用预览，不把旧截图改称新小咪/股票界面；安装说明新增三项功能与小咪独立素材边界，普通OTA不迁移分区或写资源。中英文使用同一模板与翻译表，不改交互/样式或目录编号。发布CI和线上校验结果见固件PORTING_NOTES本轮记录。

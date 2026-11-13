@@ -1,0 +1,59 @@
+#include "watchface.h"
+#include "watchface_ui.h"
+
+static const char *const themes[]={"TYPE","ORBIT","SHIFT","HAND","STUDIO","GROK"};
+static const char *const kinds[]={"dots","bold","rings","weather","image"};
+static const char *const hands[]={"mark","arc","numeral","orbit","frame","dots"};
+static const char *const studio[]={"radar","tape","iris","maze","fold","pixel","horizon","tide","growth","sector","solar","grid","petal","ribbon","binary","mono","bauhaus","seven","vinyl","prism","metro","moon-gate","orrery","stack","air","offset","column","cut","edition","activity","circuit","matrix","vector","duo","stride","cross","balance","hourglass","quanta","phase","aperture"};
+static const char *const names[]={
+    "TYPE / dots","TYPE / bold","TYPE / rings","TYPE / weather","TYPE / image",
+    "ORBIT / dots","ORBIT / bold","ORBIT / rings","ORBIT / weather","ORBIT / image",
+    "SHIFT / dots","SHIFT / bold","SHIFT / rings","SHIFT / weather","SHIFT / image",
+    "HAND / mark","HAND / arc","HAND / numeral","HAND / orbit","HAND / frame","HAND / dots",
+    "STUDIO / radar","STUDIO / tape","STUDIO / iris","STUDIO / maze","STUDIO / fold",
+    "STUDIO / pixel","STUDIO / horizon","STUDIO / tide","STUDIO / growth",
+    "STUDIO / sector","STUDIO / solar","STUDIO / grid","STUDIO / petal","STUDIO / ribbon","STUDIO / binary",
+    "STUDIO / mono","STUDIO / bauhaus","STUDIO / seven","STUDIO / vinyl","STUDIO / prism","STUDIO / metro","STUDIO / moon-gate","STUDIO / orrery",
+    "STUDIO / stack","STUDIO / air","STUDIO / offset","STUDIO / column","STUDIO / cut","STUDIO / edition",
+    "STUDIO / activity","STUDIO / circuit","STUDIO / matrix","STUDIO / vector","STUDIO / duo","STUDIO / stride",
+    "STUDIO / cross","STUDIO / balance","STUDIO / hourglass","STUDIO / quanta","STUDIO / phase","STUDIO / aperture",
+    "JARVIS / expression"
+};
+// 目录顺序即 NVS ID，新增组不得重新排列既有的 0..55。
+// Catalogue order is the persisted NVS ID; keep existing indices 0..55 stable.
+_Static_assert(sizeof names/sizeof names[0]==WATCHFACE_COUNT,"watchface catalogue/count mismatch");
+_Static_assert(sizeof studio/sizeof studio[0]==WATCHFACE_STUDIO_COUNT,"studio catalogue/count mismatch");
+_Static_assert(WATCHFACE_STUDIO_START==WATCHFACE_LEGACY_COUNT+WATCHFACE_HAND_COUNT,"persisted ID boundary changed");
+_Static_assert(WATCHFACE_TYPE_START+WATCHFACE_TYPE_COUNT==WATCHFACE_SPORT_START,"typography boundary mismatch");
+_Static_assert(WATCHFACE_SPORT_START+WATCHFACE_SPORT_COUNT==WATCHFACE_GEOMETRY_START,"sport boundary mismatch");
+_Static_assert(WATCHFACE_GEOMETRY_START+WATCHFACE_GEOMETRY_COUNT==WATCHFACE_GROK_INDEX,"geometry boundary mismatch");
+_Static_assert(WATCHFACE_STUDIO_START+WATCHFACE_STUDIO_COUNT==WATCHFACE_GROK_INDEX,"studio boundary mismatch");
+_Static_assert(WATCHFACE_GROK_INDEX+1==WATCHFACE_COUNT,"Grok face must be appended after every persisted face");
+int watchface_count(void){return WATCHFACE_COUNT;}
+const char *watchface_name(int index){return index>=0&&index<WATCHFACE_COUNT?names[index]:"";}
+const char *watchface_theme_name(int theme){return theme>=0&&theme<WATCHFACE_THEME_COUNT?themes[theme]:"";}
+int watchface_theme_for(int index){
+    if(index<0||index>=WATCHFACE_COUNT)return -1;
+    if(index<WATCHFACE_LEGACY_COUNT)return index/WATCHFACE_KIND_COUNT;
+    if(index<WATCHFACE_STUDIO_START)return WATCHFACE_LEGACY_THEME_COUNT;
+    if(index<WATCHFACE_GROK_INDEX)return WATCHFACE_LEGACY_THEME_COUNT+1;
+    return WATCHFACE_THEME_COUNT-1;
+}
+const char *watchface_kind_name(int index){
+    if(index<0||index>=WATCHFACE_COUNT)return "";
+    if(index<WATCHFACE_LEGACY_COUNT)return kinds[index%WATCHFACE_KIND_COUNT];
+    if(index<WATCHFACE_STUDIO_START)return hands[index-WATCHFACE_LEGACY_COUNT];
+    if(index<WATCHFACE_GROK_INDEX)return studio[index-WATCHFACE_STUDIO_START];
+    return "expression";
+}
+int watchface_index_in_theme(int theme,int current){
+    if(theme<0||theme>=WATCHFACE_THEME_COUNT)return current;
+    if(watchface_theme_for(current)==theme)return current;
+    if(theme==WATCHFACE_LEGACY_THEME_COUNT)return WATCHFACE_LEGACY_COUNT;
+    if(theme==WATCHFACE_LEGACY_THEME_COUNT+1)return WATCHFACE_STUDIO_START;
+    if(theme==WATCHFACE_THEME_COUNT-1)return WATCHFACE_GROK_INDEX;
+    // 仅旧三组共用五种类型，HAND/STUDIO 切回时从该旧组第一款开始。
+    // Only legacy groups share five kinds; HAND/STUDIO return to the first legacy kind.
+    int kind=current>=0&&current<WATCHFACE_LEGACY_COUNT?current%WATCHFACE_KIND_COUNT:0;
+    return theme*WATCHFACE_KIND_COUNT+kind;
+}

@@ -1,0 +1,29 @@
+#pragma once
+// 全局设置:屏幕亮度 + 音量 + 锁屏表盘 + 空闲策略。状态在这里持有,存 NVS;UI 在 app_settings.c。
+#include <stdint.h>
+
+#define SETTINGS_BRIGHT_MIN 0x40   // 亮度下限 ~25%:再低 AMOLED 看着像黑屏,且防止存了过低值后开机黑屏
+
+// 空闲(锁屏长时间不操作)策略
+#define IDLE_AOD 0    // 低功耗长显:变暗 + 不闪 + 按分钟刷新,保持常亮(默认)
+#define IDLE_OFF 1    // 自动熄屏:先变暗再黑屏
+
+void    settings_init(void);              // 开机:从 NVS 读 + 应用亮度
+uint8_t settings_brightness(void);        // 0x10-0xFF
+void    settings_set_brightness(uint8_t v); // 立即应用到屏幕(不写 NVS,拖动时用)
+uint8_t settings_volume(void);            // 0-100(暂存,音频未接)
+void    settings_set_volume(uint8_t v);
+uint8_t settings_face(void);              // 锁屏表盘索引(由 watchface 钳到有效范围)
+void    settings_set_face(uint8_t v);     // 仅置 RAM 值;持久化调 settings_save()
+uint8_t settings_idle_mode(void);         // IDLE_AOD / IDLE_OFF
+void    settings_set_idle_mode(uint8_t v);
+uint8_t settings_silent(void);            // 1=静音:闹钟/提示音关闭
+void    settings_set_silent(uint8_t v);
+uint8_t settings_beta(void);              // 1=接收内测(beta)通道 OTA;0=只收正式版(默认)
+void    settings_set_beta(uint8_t v);
+uint8_t settings_lang(void);              // 界面语言:0=English(默认),1=中文
+void    settings_set_lang(uint8_t v);
+uint8_t settings_dice(void);              // 骰子模式:0/1/2=1/2/3 颗,3=硬币(默认 2 颗)
+void    settings_set_dice(uint8_t v);
+// 将当前副本交给后台保存；退出App统一等待落盘。 / Queue an immutable snapshot; app exit waits for persistence.
+void    settings_save(void);

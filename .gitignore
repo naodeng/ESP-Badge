@@ -13,6 +13,7 @@
 __pycache__/
 *.pyc
 .venv/
+*.egg-info/
 venv/
 
 # Logs and local captures
@@ -20,11 +21,15 @@ venv/
 *.wav
 *.pcm
 
-# Firmware build output is ignored by agent-badge/.gitignore as well
-agent-badge/build/
-agent-badge/managed_components/
-agent-badge/sdkconfig
-agent-badge/sdkconfig.old
-agent-badge/dependencies.lock
-agent-badge/main/secrets.h
-agent-badge/main/snippets.h
+# Jarvis_OS firmware build and local configuration
+Jarvis_OS/GeekTool-IDF/build/
+Jarvis_OS/GeekTool-IDF/managed_components/
+Jarvis_OS/GeekTool-IDF/sdkconfig
+Jarvis_OS/GeekTool-IDF/sdkconfig.old
+Jarvis_OS/GeekTool-IDF/main/secrets.h
+Jarvis_OS/GeekTool-IDF/main/snippets.h
+Jarvis_OS/tools/.venv/
+
+# Local coding-agent state
+.impeccable/
+.superpowers/

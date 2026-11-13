@@ -1,0 +1,21 @@
+#pragma once
+#include "lvgl.h"
+#include "driver/i2c_master.h"
+
+// 初始化 CO5300 QSPI 面板 + lvgl_port(双缓冲/DMA),返回 LVGL 显示句柄
+lv_display_t *display_init(void);
+// 在 LVGL 锁内调用；仅天气页使用临时 PSRAM 完整帧与 TE 同步。
+void display_weather_mode(bool enabled);
+
+// 初始化 CST9217 触摸,挂到 lvgl_port
+bool touch_init(i2c_master_bus_handle_t i2c_bus, lv_display_t *disp);
+// Completed panel DMA transactions, used as a boot liveness check.
+uint32_t display_transfer_count(void);
+// Request under the LVGL lock after revealing home; completion is the last
+// tile's DMA, and excludes an older in-flight cover transfer.
+uint32_t display_request_frame(void);
+bool display_frame_completed(uint32_t request);
+
+// 屏幕亮度(CO5300 命令 0x51,0-255)与熄屏(关面板省电)
+void display_set_brightness(uint8_t level);
+void display_sleep(bool sleep);   // true=熄屏(面板关),false=亮屏

@@ -1,0 +1,39 @@
+idf_component_register(
+    SRCS "main.c" "demo_mode.c" "display.c" "launcher.c" "power.c" "watchface.c" "watchface_catalog.c" "watchface_ui.c" "watchface_grok.c" "font_watchface.c" "font_watchface_hands.c" "font_watchface_studio.c" "watchface_instrument.c" "watchface_scenes.c" "watchface_graphic.c" "watchface_atelier.c" "watchface_type.c" "watchface_sport.c" "watchface_geometry.c" "font_watchface_type.c" "watchface_studio_draw.c" "watchface_backgrounds.c" "lock.c" "glyph.c" "buttons.c" "i18n.c" "font_cn16.c"
+         "quickpanel.c" "tools_ui.c" "font_tools.c" "launcher_icons.c" "control_ui.c" "font_control.c" "identity_ui.c" "font_identity.c"
+         "startup.c" "startup_network.c" "ui_list.c" "app_sys.c" "app_i2c.c" "app_wifi.c" "app_weather.c"
+         "weather_ui.c" "weather_artwork.c" "font_weather_16.c" "font_weather_20.c"
+         "weather_data.c" "weather_details.c" "font_weather_details.c"
+         "weather_locations.c" "weather_locations_data.c" "weather_location_ui.c" "font_location_24.c"
+         "settings.c" "ui_persistence.c" "app_settings.c" "app_watchfaces.c" "watchface_picker.c" "app_ota.c" "ota_update.c" "audio_mic.c" "app_audio.c" "app_calendar.c"
+         "img_store.c" "resource_store.c" "app_countdown.c" "audio_out.c" "audio_bus.c"
+         "rtc.c" "imu.c" "app_level.c" "app_maze.c" "maze_levels.c" "app_stopwatch.c" "app_fluid.c" "app_dice.c" "font_coin.c"
+         "ble_twin.c" "app_twin.c" "ble_core.c" "ble_hid.c" "app_mouse.c"
+         "network_http.c" "app_answers.c" "answers_data.c" "answers_fetch.c" "font_answer.c" "font_answer_cjk.c"
+         "app_zodiac.c" "zodiac_data.c" "zodiac_fetch.c" "app_merit.c" "merit_artwork.c" "merit_sound.c" "merit_store.c" "weather_frame.c" "weather_refresh.c"
+         "app_pixels.c" "pixel_field.c"
+         "app_garden.c" "garden_state.c" "app_focus.c" "focus_state.c" "font_companion.c" "companion_icons.c"
+         "app_capsules.c" "capsule_store.c" "capsule_recorder.c" "remote_media.c" "ble_media.c"
+         "app_stocks.c" "stocks_data.c" "stocks_store.c" "stocks_fetch.c" "font_stocks.c" "font_stocks_cjk.c" "font_stocks_cjk_22.c"
+         "app_mimi.c" "mimi_pet.c" "mimi_motion.c" "font_mimi.c"
+         "mimi_assets.c" "mimi_prepare.c" "mimi_pipeline.c" "mimi_render.c"
+         "app_codex.c" "codex_client.c" "codex_data.c" "font_codex_cn16.c"
+    INCLUDE_DIRS "."
+    REQUIRES esp_lcd esp_driver_spi esp_driver_i2c esp_driver_gpio esp_lvgl_port nvs_flash
+             esp_timer esp_psram spi_flash esp_hw_support esp_system esp_common
+             esp_wifi esp_netif esp_event lwip
+             bt
+             esp_http_client esp-tls mbedtls esp_https_ota app_update
+             esp_driver_i2s esp_codec_dev
+             fatfs esp_jpeg wear_levelling espressif__cjson
+)
+
+# 图片表盘:把 images/ 目录打包成 storage 分区的只读 FAT 镜像,随 idf.py flash 一起烧入。
+# 用户把 466x466 基线 bg.jpg 放进 ../images/ 后重新 flash 即可换图。
+fatfs_create_rawflash_image(storage ../images FLASH_IN_PROJECT)
+
+# GCC 的 -Wformat-truncation 对 snprintf 的小缓冲过度保守(把 %d 当成最长 11 字符),
+# 我们的温度/时间/地址数值都很小,属误报。对本组件关掉这个告警,免得 watchface/app_sys 也被卡。
+# -Wno-missing-field-initializers:app_t 的 back/tick_period_ms/visibility 等可选字段,C 保证省略字段零初始化,
+# 各 app 5 字段写法合法;不压这条 -Wextra+Werror 会逼所有 app 补一个无意义的 NULL。
+target_compile_options(${COMPONENT_LIB} PRIVATE -Wno-format-truncation -Wno-missing-field-initializers)

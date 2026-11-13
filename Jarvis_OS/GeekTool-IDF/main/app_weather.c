@@ -1,0 +1,173 @@
+#include "demo_mode.h"
+// Shared weather cache. HTTP task never touches LVGL/NVS; location generations
+// prevent a previous city's late response from appearing under the new title.
+#include "app.h"
+#include "display.h"
+#include "settings.h"
+#include "weather_ui.h"
+#include "weather_details.h"
+#include "lvgl_compat.h"
+#include "weather_locations.h"
+#include "weather_location_ui.h"
+#include "esp_http_client.h"
+#include "esp_crt_bundle.h"
+#include "network_http.h"
+#include "esp_log.h"
+#include "esp_timer.h"
+#include "esp_heap_caps.h"
+#include "freertos/FreeRTOS.h"
+#include "freertos/task.h"
+#include <string.h>
+#include <stdlib.h>
+#include <stdio.h>
+#include <math.h>
+
+static const char *TAG="weather";
+#define WX_BUF 8192
+typedef enum {WX_IDLE,WX_LOADING,WX_OK,WX_FAIL,WX_OFFLINE} wx_state_t;
+static portMUX_TYPE s_lock=portMUX_INITIALIZER_UNLOCKED;
+static wx_state_t s_state=WX_IDLE,s_shown=(wx_state_t)-1;
+static bool s_task_alive;
+static uint32_t s_revision,s_shown_revision,s_generation,s_last_fetch;
+static weather_ui_t s_ui;
+static weather_details_t s_details;
+static weather_data_t s_data={.code=-1};
+static lv_obj_t *s_parent,*s_content;
+static bool s_choosing;
+static struct {uint32_t generation;int32_t lat,lon;} s_request;
+
+static bool request_active(void *arg) {
+    portENTER_CRITICAL(&s_lock);bool current=*(const uint32_t *)arg==s_generation;
+    portEXIT_CRITICAL(&s_lock);return current;
+}
+static void wx_task(void *arg) {
+    (void)arg;
+    portENTER_CRITICAL(&s_lock);
+    uint32_t generation=s_request.generation;int32_t lat=s_request.lat,lon=s_request.lon;
+    portEXIT_CRITICAL(&s_lock);
+    char url[1024];int url_size=weather_data_url(url,sizeof url,lat/100000.0,lon/100000.0);
+    if(url_size<0 || url_size>=(int)sizeof url) {
+        portENTER_CRITICAL(&s_lock);
+        if(generation==s_generation){s_state=WX_FAIL;++s_revision;}
+        s_task_alive=false;portEXIT_CRITICAL(&s_lock);vTaskDelete(NULL);return;
+    }
+    // The expanded forecast's request line exceeds IDF's default 512-byte TX
+    // buffer. Size TX for the bounded URL as well as GET/protocol framing.
+    esp_http_client_config_t cfg={.url=url,.crt_bundle_attach=esp_crt_bundle_attach,
+        .timeout_ms=12000,.buffer_size_tx=sizeof url};
+    char *body=heap_caps_malloc(WX_BUF,MALLOC_CAP_SPIRAM);if(!body)body=malloc(WX_BUF);
+    network_http_result_t fetched={.stage=NET_HTTP_INIT};
+    if(body)fetched=network_http_get(TAG,&cfg,body,WX_BUF,24000,request_active,&generation);
+    else ESP_LOGW(TAG,"forecast response allocation failed");
+    weather_data_t data;
+    bool valid=fetched.stage==NET_HTTP_OK && weather_data_parse(body,fetched.bytes,&data);
+    if(fetched.stage==NET_HTTP_OK && !valid)ESP_LOGW(TAG,"forecast parse failed HTTP=%d bytes=%u",fetched.status,(unsigned)fetched.bytes);
+    free(body);
+    bool offline=fetched.stage==NET_HTTP_OFFLINE || !wifi_service_ready();
+    portENTER_CRITICAL(&s_lock);
+    if(generation==s_generation) {
+        if(valid)s_data=data;
+        s_state=valid?WX_OK:offline?WX_OFFLINE:WX_FAIL;++s_revision;
+    }
+    s_task_alive=false;
+    portEXIT_CRITICAL(&s_lock);
+    ESP_LOGI(TAG,"forecast generation=%lu %s",(unsigned long)generation,valid?"ready":"failed");
+    vTaskDelete(NULL);
+}
+static void start_fetch(void) {
+    uint16_t selected=wx_location_selected();
+    portENTER_CRITICAL(&s_lock);bool alive=s_task_alive;portEXIT_CRITICAL(&s_lock);if(alive)return;
+    bool online=wifi_service_ready();
+    portENTER_CRITICAL(&s_lock);
+    if(s_task_alive) {portEXIT_CRITICAL(&s_lock);return;}
+    s_state=online?WX_LOADING:WX_OFFLINE;++s_revision;
+    s_last_fetch=(uint32_t)(esp_timer_get_time()/1000);
+    if(online) {
+        s_task_alive=true;s_request.generation=s_generation;
+        s_request.lat=wx_locations[selected].lat_e5;s_request.lon=wx_locations[selected].lon_e5;
+    }
+    portEXIT_CRITICAL(&s_lock);
+    if(online && xTaskCreate(wx_task,"wx",8192,NULL,5,NULL)!=pdPASS) {
+        portENTER_CRITICAL(&s_lock);s_task_alive=false;s_state=WX_FAIL;++s_revision;portEXIT_CRITICAL(&s_lock);
+    }
+}
+void weather_poll(void) {
+    bool online=wifi_service_ready();
+    wx_location_init();uint32_t now=(uint32_t)(esp_timer_get_time()/1000);
+    portENTER_CRITICAL(&s_lock);
+    uint32_t period=s_state==WX_OK?20u*60*1000:60u*1000;
+    bool due=!s_task_alive && (s_state==WX_IDLE || (s_state==WX_OFFLINE && online) || !s_last_fetch || now-s_last_fetch>=period);
+    portEXIT_CRITICAL(&s_lock);if(due)start_fetch();
+}
+bool weather_cached(int *temp,int *lo,int *hi,int *code,int *hum) {
+    portENTER_CRITICAL(&s_lock);bool ok=s_state==WX_OK;
+    if(ok) {if(temp)*temp=s_data.temp;if(lo)*lo=s_data.low;if(hi)*hi=s_data.high;if(code)*code=s_data.code;if(hum)*hum=s_data.humidity;}
+    portEXIT_CRITICAL(&s_lock);return ok;
+}
+static void city_title(void) {launcher_set_title(wx_location_name(wx_location_selected(),settings_lang()));}
+static bool select_location(uint16_t index) {
+    if(!wx_location_select(index))return false;
+    portENTER_CRITICAL(&s_lock);++s_generation;++s_revision;s_state=WX_IDLE;s_last_fetch=0;portEXIT_CRITICAL(&s_lock);
+    s_ui.has_data=false;lv_obj_invalidate(s_ui.icon);lv_obj_invalidate(s_ui.temperature);
+    weather_details_reset(&s_details);
+    s_choosing=false;ui_obj_set_hidden(s_content,false);city_title();start_fetch();return true;
+}
+static void choose_location(lv_event_t *e) {
+    (void)e;s_choosing=true;weather_details_visibility(&s_details,false);ui_obj_set_hidden(s_content,true);weather_location_ui_open(s_parent,select_location);
+}
+static void retry(lv_event_t *e) {(void)e;start_fetch();}
+static void weather_build(lv_obj_t *parent) {
+    display_weather_mode(true);
+    s_parent=parent;city_title();s_shown=(wx_state_t)-1;s_shown_revision=UINT32_MAX;s_choosing=false;
+    s_content=lv_obj_create(parent);lv_obj_remove_style_all(s_content);lv_obj_set_size(s_content,466,466);
+    ui_obj_set_scrollable(s_content,false);weather_details_create(&s_details,s_content);weather_ui_create(&s_ui,s_details.hero);
+    lv_obj_t *city=lv_button_create(s_content);lv_obj_remove_style_all(city);lv_obj_set_size(city,190,48);
+    lv_obj_align(city,LV_ALIGN_TOP_MID,25,47);lv_obj_add_event_cb(city,choose_location,LV_EVENT_CLICKED,NULL);
+    // The header label lives on the top layer; its non-clickable text allows this
+    // generous hit area beneath it to receive taps on city/pin.
+    ui_obj_set_clickable(s_ui.status,true);lv_obj_add_event_cb(s_ui.status,retry,LV_EVENT_CLICKED,NULL);
+}
+static void weather_enter(lv_obj_t *parent) {
+    weather_build(parent);
+    start_fetch();
+}
+static void weather_tick(void) {
+    weather_poll();
+    portENTER_CRITICAL(&s_lock);
+    wx_state_t state=s_state;uint32_t revision=s_revision;
+    weather_data_t data=s_data;
+    portEXIT_CRITICAL(&s_lock);
+    if(!s_ui.status || (state==s_shown && revision==s_shown_revision))return;
+    s_shown=state;s_shown_revision=revision;
+    if(state==WX_OK)weather_ui_show(&s_ui,data.temp,data.low,data.high,data.code,data.humidity,data.is_day);
+    else weather_ui_status(&s_ui,state==WX_OFFLINE?WEATHER_OFFLINE:
+        state==WX_FAIL?WEATHER_FETCH_FAILED:WEATHER_LOADING);
+    weather_details_show(&s_details,&data,state==WX_OK);
+}
+static bool weather_back(void) {
+    if(!s_choosing)return false;
+    weather_location_ui_back();
+    if(!weather_location_ui_visible()) {
+        s_choosing=false;ui_obj_set_hidden(s_content,false);city_title();
+    }
+    return true;
+}
+static void weather_exit(void) {
+    display_weather_mode(false);
+    weather_location_ui_close();weather_details_close(&s_details);memset(&s_ui,0,sizeof s_ui);s_parent=s_content=NULL;s_choosing=false;
+}
+static void weather_visibility(bool visible) {display_weather_mode(visible);weather_details_visibility(&s_details,visible);}
+const app_t app_weather={"weather",COL_TXT,weather_enter,weather_tick,weather_exit,weather_back,0,weather_visibility};
+
+// 拍摄用RAM视图；不触发真实操作。/ RAM-only filming adapter; no real actions.
+static void demo_weather_enter(lv_obj_t *parent,unsigned variant) {
+    weather_build(parent);launcher_set_title(settings_lang()?"杭州":"Hangzhou");
+    static const weather_data_t sample={.valid=true,.temp=24,.low=19,.high=27,.humidity=62,.code=2,.is_day=true,.updated="10:08",
+        .apparent=25,.wind=8,.gust=14,.direction=135,.precipitation=0,.cloud=32,.pressure=1014,.visibility=18000,
+        .hour_count=6,.day_count=5,
+        .hours={{.time="10:00",.temperature=24,.code=2,.is_day=true},{.time="11:00",.temperature=25,.code=1,.is_day=true},{.time="12:00",.temperature=26,.code=0,.is_day=true},{.time="13:00",.temperature=27,.code=0,.is_day=true},{.time="14:00",.temperature=26,.code=2,.is_day=true},{.time="15:00",.temperature=25,.code=3,.is_day=true}},
+        .days={{.date="2026-10-22",.sunrise="06:06",.sunset="17:24",.low=19,.high=27,.code=2,.uv=4,.daylight=11.3f},{.date="2026-10-23",.low=18,.high=26,.code=0},{.date="2026-10-24",.low=19,.high=25,.code=3},{.date="2026-10-25",.low=17,.high=24,.code=61},{.date="2026-10-26",.low=18,.high=25,.code=2}}};
+    weather_ui_show(&s_ui,sample.temp,sample.low,sample.high,sample.code,sample.humidity,true);weather_details_show(&s_details,&sample,true);
+    if(variant){lv_obj_update_layout(s_details.scroll);lv_obj_scroll_to_view(s_details.sections[variant-1],LV_ANIM_OFF);}
+}
+const demo_page_t demo_weather={.count=5,.enter=demo_weather_enter,.exit=weather_exit};

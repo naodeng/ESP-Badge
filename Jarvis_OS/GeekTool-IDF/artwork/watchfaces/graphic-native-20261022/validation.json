@@ -1,0 +1,131 @@
+{
+  "date": "2026-10-22",
+  "state": "committed_deployed_device_installed_design_accepted",
+  "fixture": "2026-10-20 10:08:36",
+  "renderer": "production LVGL host RGB565",
+  "device_verified": true,
+  "deployed": true,
+  "source_sha256": {
+    "GeekTool-IDF/main/watchface_graphic.c": "7720b00c6b8f302c364a6443bbbc129301a6b856a6edeeab3820dc5dde32152b",
+    "GeekTool-IDF/main/watchface_ui.c": "84807ad9ea3aebc78cc374b68cfdc104b07bace21ca4ab9b2e28691cbf39e1f1",
+    "GeekTool-IDF/main/watchface_catalog.c": "3836f6efb52122bb2350a28c5425b6947d295fe905a30cb789d6bb51ae800d1e",
+    "site/watchfaces.json": "f6fa92fb19198bd22ce78c208d6a462faadae96c704f70c487199150d12a4141",
+    "site/script.js": "aeaefb686d9a1b69afb965d9dcf46c85932475c441d0b13e073482ab690b0b2b",
+    "site/styles.css": "8a315206a0c5499eccd760fb3b82b9db8bcb8168819868cd416d27c76a1911c8",
+    "scripts/build_site.py": "71ea9a76cfcae14d8c1d974f2312f2713734b1f2cde9d0b6fdb7acf5d6daf0a0",
+    "scripts/render_site_watchfaces.py": "4bc441d5a326a3b19ec4658436a1a514e3b28cb7b64a7bb4caae7c368c436506"
+  },
+  "host_checks": {
+    "passed": 5,
+    "failed": 0,
+    "studio_full_frame_and_40row_pairs": 480,
+    "preserved_original_frame_comparisons": 78,
+    "original_frames_changed": 0
+  },
+  "target": {
+    "name": "ESP32-S3",
+    "build": "passed",
+    "binary_bytes": 5235472,
+    "graphic_max_static_function_frame_bytes": 848,
+    "device_task_stack_measured": true
+  },
+  "browser": {
+    "engine": "Tabbit",
+    "languages": [
+      "zh-CN",
+      "en"
+    ],
+    "selections": 72,
+    "viewport_widths": [
+      1380,
+      390,
+      320
+    ],
+    "horizontal_overflow": false,
+    "errors": [],
+    "filters": "36 / 30 / 6",
+    "keyboard_enter": "passed"
+  },
+  "cleanup": "temporary PPMs automatically removed; task host build, website output and preview server removed after verification",
+  "feature_commit": "83ba596ad04f8ca86fbdd0d7b091adf89bcd2c8e",
+  "device_visual_subjective_acceptance": false,
+  "public_firmware_release_created": false,
+  "deployment": {
+    "url": "https://sobigrice.github.io/soRound_os/",
+    "workflow_run": 39722087908,
+    "public_files_verified": 75,
+    "all_public_bytes_match": true
+  },
+  "device_probe": {
+    "version": "v1.7-beta.37-faces6-probe",
+    "seconds": 174.14479320799,
+    "normal_frames_and_both_real_picker_passes": 2,
+    "faces": [
+      30,
+      31,
+      32,
+      33,
+      34,
+      35
+    ],
+    "phase_reports": 47,
+    "aod_minute_and_sleep_wake": "passed",
+    "original_runtime_selection_restored": 21,
+    "lowest_ui_stack_free_bytes": 3064,
+    "lowest_internal_free_bytes": 82499,
+    "faults_seen": false,
+    "no_settings_save_calls": true
+  },
+  "production_boot": {
+    "version": "v1.7-beta.37-faces6",
+    "normal_production_firmware": true,
+    "seconds": 70.08900354197249,
+    "startup_core": "OK",
+    "startup_check": "OK",
+    "home_frame_completed": true,
+    "faults_seen": false,
+    "lowest_observed_startup_ui_stack_free_bytes": 3240,
+    "serial_closed": true,
+    "device_visual_subjective_acceptance": false
+  },
+  "installed_image": {
+    "version": "v1.7-beta.37-faces6",
+    "bytes": 5235472,
+    "sha256": "cd6fd9d0ed29fcb9e1e151ba170136c7125774ffae6ed1ce46f8a67aba4d5b98",
+    "probe_symbols_absent": true
+  },
+  "device_verification": {
+    "active": {
+      "sector": 4096,
+      "sequence": 52,
+      "state": 2,
+      "slot": 1
+    },
+    "records": [
+      {
+        "sector": 0,
+        "sequence": 51,
+        "state": 2,
+        "slot": 0
+      },
+      {
+        "sector": 4096,
+        "sequence": 52,
+        "state": 2,
+        "slot": 1
+      }
+    ],
+    "image_device_md5_verified": true,
+    "image_sha256": "cd6fd9d0ed29fcb9e1e151ba170136c7125774ffae6ed1ce46f8a67aba4d5b98",
+    "bootloader_partition_beta35_storage_unchanged": true,
+    "nvs_byte_identical_to_preinstall": true,
+    "verification_wrote_no_flash": true
+  },
+  "nvs_baseline": {
+    "backup_face": 28,
+    "latest_preinstall_face": 21,
+    "change_occurred_before_first_probe_install": true,
+    "probe_and_production_install_preserved_latest_nvs": true,
+    "restored_obsolete_backup": false
+  }
+}

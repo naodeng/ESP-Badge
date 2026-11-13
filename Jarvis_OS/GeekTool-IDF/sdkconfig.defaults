@@ -1,0 +1,101 @@
+CONFIG_IDF_TARGET="esp32s3"
+
+# 性能优先编译(-O2):默认 -Og 是调试档,LVGL 软渲染慢 20-40%,流畅性专项改为 PERF
+CONFIG_COMPILER_OPTIMIZATION_PERF=y
+
+# 8MB 叠封 PSRAM(八线 80MHz)：画布/图片/TLS 使用它；屏幕双缓冲仍在内部 DMA RAM。
+CONFIG_SPIRAM=y
+CONFIG_SPIRAM_MODE_OCT=y
+CONFIG_SPIRAM_SPEED_80M=y
+# 保留小型热对象在内部 RAM；普通分配超过 1KiB 优先用 PSRAM，失败时由 IDF 回退。
+# 显式 INTERNAL/DMA 分配及任务栈不受此阈值影响；保留原 32KiB 内部专用预留池。
+CONFIG_SPIRAM_USE_MALLOC=y
+CONFIG_SPIRAM_MALLOC_ALWAYSINTERNAL=1024
+CONFIG_SPIRAM_MALLOC_RESERVE_INTERNAL=32768
+# Wi-Fi PSRAM 开关还会强制切换静态 TX 缓冲，先保留 beta33 的动态 TX 模式。
+CONFIG_SPIRAM_TRY_ALLOCATE_WIFI_LWIP=n
+
+# 32MB Flash(芯片实际 32MB,镜像头与之匹配)
+CONFIG_ESPTOOLPY_FLASHSIZE_32MB=y
+
+# 240MHz 峰值 + 动态调频(空闲降到 80MHz)+ 自动 light sleep(tickless idle):
+# 空闲片段进浅睡(~1mA 级),SPI/I2C/I2S/WiFi/BT 驱动各自持 pm 锁,忙时不睡。
+# main.c 里 light_sleep_enable=true 是总开关,出问题先关它回退。
+CONFIG_ESP_DEFAULT_CPU_FREQ_MHZ_240=y
+CONFIG_PM_ENABLE=y
+CONFIG_FREERTOS_USE_TICKLESS_IDLE=y
+# USB 串口(监视器)插着时不进 light sleep —— 否则浅睡断 USB,调试掉线;拔线戴表才睡
+CONFIG_USJ_NO_AUTO_LS_ON_CONNECTION=y
+
+# 1kHz tick(触摸/动画更跟手)
+CONFIG_FREERTOS_HZ=1000
+
+# 自定义分区表(dual-OTA:ota_0/ota_1 各 4MiB + otadata)
+CONFIG_PARTITION_TABLE_CUSTOM=y
+CONFIG_PARTITION_TABLE_CUSTOM_FILENAME="partitions.csv"
+
+# OTA 回滚:新固件刷到另一 slot,启动后进 PENDING_VERIFY;main.c 确认才转 VALID。
+# 若新固件启动即崩(没走到确认),下次复位 bootloader 自动回退旧 slot,防变砖。
+CONFIG_BOOTLOADER_APP_ROLLBACK_ENABLE=y
+
+# 云 OTA 走 HTTPS。用完整根证书包覆盖各家 CA;并开交叉签名验证 ——
+# Cloudflare 证书由 Google Trust Services(WE1)签发,GTS 用交叉签名,不开这条设备会
+# 报 "esp-x509-crt-bundle: Failed to verify certificate" + mbedtls 握手 -0x3000(实测)。
+CONFIG_MBEDTLS_CERTIFICATE_BUNDLE=y
+CONFIG_MBEDTLS_CERTIFICATE_BUNDLE_DEFAULT_FULL=y
+CONFIG_MBEDTLS_CERTIFICATE_BUNDLE_CROSS_SIGNED_VERIFY=y
+
+# TLS 使用板载8MB PSRAM，避免与页面/并发HTTPS争抢内部堆而失去后续OTA能力。
+# 用户已接受未启用硬件加密的PSRAM存放TLS临时会话数据；完整证书校验保持。
+CONFIG_MBEDTLS_INTERNAL_MEM_ALLOC=n
+CONFIG_MBEDTLS_EXTERNAL_MEM_ALLOC=y
+
+# LVGL
+# 刷新周期 20ms(50fps):滑块/开关/滚动等小面积 UI 动画更跟手(默认 33ms=30fps)。
+# 单缓冲下大面积重绘仍受 flush 限速,此项主要提升小更新的流畅度。
+CONFIG_LV_DEF_REFR_PERIOD=20
+CONFIG_LV_COLOR_DEPTH_16=y
+# 解码缓存按需占用，1MiB 足够常用天气图标；大块像素通过普通分配进入 PSRAM。
+# 避免40行部分刷新和滚动逐帧重复解压同一RLE图片，缓存满时由LVGL淘汰。
+CONFIG_LV_CACHE_DEF_SIZE=1048576
+CONFIG_LV_FONT_MONTSERRAT_14=y
+CONFIG_LV_FONT_MONTSERRAT_20=y
+# 40px 大字:设置二级页的圆屏大读数(亮度/音量 %)
+CONFIG_LV_FONT_MONTSERRAT_40=y
+# Nothing 点阵风格:内置 unscii 像素字 + 默认主题(全局单色用)
+CONFIG_LV_FONT_UNSCII_8=y
+CONFIG_LV_FONT_UNSCII_16=y
+# 答案之书的网络中文使用32px压缩扩展字库;既有UI/天气字形资源保持不变。
+CONFIG_LV_USE_FONT_COMPRESSED=y
+# 中文:自产精简字库 main/font_cn16.c(UI 用字子集,tools/gen_font_cn.swift 生成),
+# 不用 LVGL 内置思源 CJK —— 其字表是 demo 日繁混合集,简体覆盖差且白占 ~1.2MB flash。
+CONFIG_LV_USE_THEME_DEFAULT=y
+# Preserve approved weather artwork through LVGL's lossless RGB565/RLE decoder.
+CONFIG_LV_USE_RLE=y
+CONFIG_LV_BIN_DECODER_RAM_LOAD=y
+# ★LVGL 改用系统 heap(标准 malloc/free)而非自带 64KB 固定池:
+#   点阵 app(秒表/倒计时)一次创建上百个 lv_obj,64KB 池被隐藏表盘+启动器+快捷面板占用后会爆,
+#   导致 lv_obj_create 返回 NULL → 点图标即崩。改用 heap 后 LVGL 可用约 165KB 内部 RAM,不再溢出。
+CONFIG_LV_USE_BUILTIN_MALLOC=n
+CONFIG_LV_USE_CLIB_MALLOC=y
+
+# 禁用 LVGL 任务的看门狗(显示刷新可能较慢)
+CONFIG_ESP_TASK_WDT_CHECK_IDLE_TASK_CPU0=n
+CONFIG_ESP_TASK_WDT_CHECK_IDLE_TASK_CPU1=n
+
+# ---- BLE(NimBLE):数字孪生 app(app_twin)用,设备做 GATT 外设向网页 notify 传感器帧 ----
+# 注:sdkconfig.defaults 的值后面不能跟行内注释(尤其 int 类型会被整行当作值而失效),注释须独立成行。
+CONFIG_BT_ENABLED=y
+# 用 NimBLE 主机(比 Bluedroid 省 RAM),自动关 Bluedroid
+CONFIG_BT_NIMBLE_ENABLED=y
+# 只做外设 + 广播,关掉 central/observer 省内存
+CONFIG_BT_NIMBLE_ROLE_PERIPHERAL=y
+CONFIG_BT_NIMBLE_ROLE_BROADCASTER=y
+# CONFIG_BT_NIMBLE_ROLE_CENTRAL is not set
+# CONFIG_BT_NIMBLE_ROLE_OBSERVER is not set
+# 大 MTU,一帧一包
+CONFIG_BT_NIMBLE_ATT_PREFERRED_MTU=247
+# 配对绑定持久化到 NVS:蓝牙鼠标(HID)要求绑定,重启后电脑免重配
+CONFIG_BT_NIMBLE_NVS_PERSIST=y
+# WiFi/BLE 共用单天线 → 开软件共存(twin app 运行时还会临时关 WiFi 让 BLE 更稳)
+CONFIG_ESP_COEX_SW_COEXIST_ENABLE=y

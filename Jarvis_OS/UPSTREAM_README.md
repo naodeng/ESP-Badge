@@ -1,0 +1,472 @@
+# soRound OS（GeekTool）
+
+[English](./README.en.md) ·
+**[项目官网](https://sobigrice.github.io/soRound_os/)** ·
+[固件下载](https://github.com/soBigRice/soRound_os/releases) ·
+[安装指南](#快速开始主线固件)
+
+面向 **ESP32-S3-Touch-AMOLED-1.75C** 圆形 AMOLED 开发板的轻量多功能系统。项目以
+ESP-IDF 固件为主线，提供圆屏启动器、表盘与锁屏、网络与传感器工具、音频、小游戏、
+BLE 数字孪生以及双分区云 OTA。
+
+**当前正式版：[v1.9.3](https://github.com/soBigRice/soRound_os/releases/tag/v1.9.3)。**
+新增小咪离线宠物（25套表情、14段动作）、最多8只自选行情和138场景拍摄演示；正常启动器26项，保留62款表盘及旧24项编号。正式与内测OTA通道均已更新，无需开启测试通道。地图仍为浏览器原型，不包含在固件中。
+
+小咪加速依赖独立的`MIMI.PAK`，Release提供素材、许可证和安装边界说明。普通OTA不写资源卷；缺少素材时仍保留完整矢量动画，复杂彩环较慢。前序本地候选使用素材后约12～16fps，不将该结果承诺为本次CI包或所有设备的帧率。
+
+[发行CI](https://github.com/soBigRice/soRound_os/actions/runs/41767153441)通过67项主机、2项配套功能、媒体内存和14项OTA镜像检查。GitHub、R2和设备OTA地址的正式/内测完整包摘要及条件Range均已核对一致。需要双8MiB应用槽；普通OTA不迁移分区或初始化录音存储。本次发布未烧录设备，精确CI包的设备重启、回滚和主观体验仍待验证。见[版本说明](GeekTool-IDF/RELEASE_NOTES.md)及[发布记录](GeekTool-IDF/PORTING_NOTES.md)。
+
+**此前：[v1.7-beta.37](https://github.com/soBigRice/soRound_os/releases/tag/v1.7-beta.37) 已发布。**
+本版合并木鱼、新表盘与星座网络诊断更新，恢复五组30款表盘，保留原21款ID和已保存选择。CI的53项主机、2项配套功能、媒体sanitizer和14项镜像检查通过；真机候选经实际启动器链约283秒测试未出现fault，覆盖九款全屏/常显、预览与熄屏唤醒。
+白羊座五次请求均HTTP200且日期正确；历史失败未复现，根因未确认，不宣称已修复未知根因。R2/国内完整包与CI及Release资产摘要一致，条件Range通过，正式v1.7字节未变；精确CI包已通过USB安装、启动自检与VALID回读，设置、文件区及beta.35回退槽完整保留。具体范围见[发布记录](GeekTool-IDF/PORTING_NOTES.md)、[版本说明](GeekTool-IDF/RELEASE_NOTES.md)及[星座/木鱼说明](GeekTool-IDF/ZODIAC_MERIT_UI.md)。
+
+**历史撤回：v1.7-beta.36 保持撤回，停止使用该版本。**
+该版本在真机选择 STUDIO 后连续 panic 重启；当时构建、50项主机回归及原生图检查通过，未识别这项设备故障，不能作为可用性结论。
+撤回时内测通道恢复为 beta.35，STUDIO 九款暂停开放；beta.37 的后续修复和验证不改变 beta.36 的撤回记录。
+已陷入重启的设备需使用单独确认的恢复步骤，不以普通 OTA 可访问为前提。
+
+**此前：[v1.7-beta.35](https://github.com/soBigRice/soRound_os/releases/tag/v1.7-beta.35)。**
+修复新App启动器名称方块字，音乐三键改为正中放大的透明播放键与左右切歌键，保留标准BLE HID控制。
+Mac桥接修复封面误清和已连接设备漏检；实际封面传输仍有ATT失败，歌词目前仅支持本地LRC。
+录音分区仍需另行初始化，本次应用OTA不会迁移存储。手动CI构建和全部门禁通过；5,068,848B发布包在R2、国内完整下载与GitHub资产摘要一致，两处条件Range核验通过，正式通道仍为v1.7。
+GitHub故障期间标签运行状态可能延迟回写，发布与包校验分开记录，见[本版说明](GeekTool-IDF/RELEASE_NOTES.md)与[发布记录](GeekTool-IDF/PORTING_NOTES.md#2026-10-20-v17-beta35-启动器字库与音乐控件)。
+
+**此前：[v1.7-beta.34](https://github.com/soBigRice/soRound_os/releases/tag/v1.7-beta.34) 已联合发布至内测通道。**
+23个启动器入口统一为A套实心图标，新增生态箱、专注唱片机和声音胶囊，更新遥控台与手动Mac本地媒体桥接。
+需要双8MiB应用槽；录音还需独立存储分区，普通OTA不迁移分区，也不会自动格式化。
+发布CI通过；GitHub资产摘要与R2、国内OTA完整包一致，两处条件Range核验通过，正式通道保持v1.7。
+镜像5,068,512B；真实圆屏观感、BLE、音频与设备升级仍待验证，见[本版说明](GeekTool-IDF/RELEASE_NOTES.md)与[发布记录](GeekTool-IDF/PORTING_NOTES.md#2026-10-19-v17-beta34-实心图标与随身工具)。
+
+**此前：[v1.7-beta.33](https://github.com/soBigRice/soRound_os/releases/tag/v1.7-beta.33) 于2026-10-09发布至内测通道。**
+新增「方块」彩色像素互动：拖动拨开、摇动重排、三套配色与一键重聚，含中英文界面。
+设备OTA页面开启内测后检查更新；正式通道保持v1.7。发布CI的20项回归通过，准确CI包与R2/国内OTA完整包、摘要及条件Range核验一致。
+镜像4,191,952B，双4MiB槽剩2,352B；真机触摸、摇动手感、功耗及OTA重启仍待验收，见[发布记录](GeekTool-IDF/PORTING_NOTES.md#2026-10-09-v17-beta33-方块像素场)。
+
+**此前：[v1.7-beta.32](https://github.com/soBigRice/soRound_os/releases/tag/v1.7-beta.32) 于2026-10-09发布至内测通道。**
+新增六款HAND指针表盘（共21款）、原粒子/彩色染料两种流体模式、由易到难的12个固定迷宫关卡。
+设备OTA页面开启内测后检查更新；正式通道保持v1.7。标签CI的19项检查通过，R2与国内OTA完整包、摘要和Range核验通过。
+新内测应用镜像4,185,936B，需要双4MiB OTA槽；真机触摸、IMU手感与升级重启仍待验收，见[发布记录](GeekTool-IDF/PORTING_NOTES.md#2026-10-08-v17-beta32-指针表盘流体双模式与固定迷宫关卡)。
+
+**2026-10-08：[v1.7 正式版](https://github.com/soBigRice/soRound_os/releases/tag/v1.7) 已发布。**
+当时正式与内测OTA通道同时更新至v1.7；后续内测状态见顶部，beta.36保持撤回。v1.7生产代码与beta.31一致；beta.30保持撤回。
+设置首页滚动、七个独立设置项、居中表盘预览、圆环红点Logo和关于本机已纳入正式版。
+启动动画至少4秒；完成公共初始化、核心检查与表盘实际刷新后才确认新OTA固件有效，核心失败且可回退时回滚。
+联网检查失败记录并提示，允许离线启动；天气、答案之书、星座与OTA保留联网恢复修正。
+
+当前仓库 `main` 包含 v1.8 正式版的非地图更新，固件生产代码与 beta.38 一致，真实设备与公开分发验证状态见顶部。主线开发使用 `GeekTool-IDF/`；Arduino工程用于早期原型与硬件压力测试。
+v1.7正式发布时，本地34组回归和发布CI的9组启动检查通过；当时正式依赖候选的表盘、解锁、设置已由用户确认。
+beta.36 的真机 panic 已推翻该版“仅待验收”的状态；后续候选仍须分别记录真实设备结果，不能将主机测试或原生预览通过当作设备验收。原beta.30白屏触发点尚未复现。
+
+**v1.7稳定版升级要求：双4MiB OTA槽。** v1.6.1采用双3MiB布局，不能直接OTA安装v1.7的4,149,792B应用镜像；
+旧布局需先USB迁移分区及配套资源，见 [分区迁移说明](GeekTool-IDF/PORTING_NOTES.md#2026-10-04-分区扩容与usb迁移)。
+Release的应用bin不代替首次完整烧录。完整包与断点下载验证见 [v1.7发布记录](GeekTool-IDF/PORTING_NOTES.md#2026-10-08-v17-正式发布)。
+调用链见 [启动自检](GeekTool-IDF/STARTUP.md)、[联网恢复](GeekTool-IDF/NETWORKING.md) 和 [设置布局](GeekTool-IDF/artwork/settings-detail/README.md)。
+此前 [beta.29](https://github.com/soBigRice/soRound_os/releases/tag/v1.7-beta.29) 新增设置首页惯性滚动、固定标题与返回、弧形位置提示及返回位置恢复。
+原生中英文回归、本地及CI构建通过；正式发布包4,133,184B，R2/OTA完整包与GitHub声明摘要一致，Range核对通过；
+本轮GitHub CDN整包下载未核验完成，真机OTA重启与滑动手感待验收，正式通道保持v1.6.1，见
+[发布记录](GeekTool-IDF/PORTING_NOTES.md#2026-10-07-v17-beta29-设置首页滚动发布)。
+此前 [beta.28](https://github.com/soBigRice/soRound_os/releases/tag/v1.7-beta.28) 将圆环与红点 Logo 接入系统，重新设计中英文关于本机页，增加1.8秒原生开机动画；
+版本与电量继续读取实际状态，动画结束回到原锁屏，服务初始化与动画并行。
+26组主机回归、原生466×466渲染、本地及CI构建通过；GitHub/R2/OTA镜像完整包哈希一致，Range断点续传核验通过。
+发布包4,131,024B，4MiB槽余63,280B；正式通道保持v1.6.1。
+在设备OTA页面开启内测后检查更新；升级后重启检查动画只播放一次，并打开设置→关于本机核对版本、语言与返回。
+设备升级/重启、动画流畅度及触摸仍待真机验收，详见
+[系统标志与启动](GeekTool-IDF/artwork/identity/README.md)。
+此前 [beta.27](https://github.com/soBigRice/soRound_os/releases/tag/v1.7-beta.27) 修复木鱼连续快速敲击的杂音和持续响：
+已消费I2S缓冲自动清零，新敲击用2ms平滑过渡接入；发布与4000次密集请求回归证据见
+[发布记录](GeekTool-IDF/PORTING_NOTES.md#2026-10-06-v17-beta27-木鱼音频修复发布)。
+
+此前 beta.24 新增 TYPE/ORBIT/SHIFT 三组十五款表盘，TLS 使用获批的 PSRAM 分配并保留完整证书校验；
+无损字体压缩恢复约96KiB固件槽空间。同 tag 的本地构建后缀不再触发旧包覆盖。
+beta.24 已发布至 GitHub/R2/国内 OTA，三个完整包哈希一致。真机从 beta.23 修复候选一次升级成功，
+自动重启后从 `ota_0` 启动 beta.24，再检查更新一次成功；实际包4,078,448B，4MiB槽剩约113KiB。
+断网、坏包和启动失败回滚仍待实机验收。OTA修复、发布和设备证据见
+[OTA持续升级记录](./GeekTool-IDF/PORTING_NOTES.md#2026-10-05-ota-持续升级保障进行中)。
+上一次 beta.23 已发布至 GitHub/R2/国内 OTA；三个地址完整包与摘要一致，Range断点续传核对通过。
+新增每日联网星座运势与木鱼功德；天气页采用临时完整帧缓存与TE同步，保留现有首屏和滚动详情。
+答案之书继续联网翻页，屏幕与右上PWR计时键均可翻页；失败时明确标记备用答案。
+发布包适配两个4MiB OTA槽，设备上的滚动观感、音色与计数重启保留待验收。
+
+## 功能概览
+
+- 466 x 466 圆形 AMOLED UI，以黑/白/红点阵为主，天气图标使用克制配色，基于 LVGL 9。
+- 径向启动器、快捷面板、锁屏表盘、亮度/音量/常显模式与 NVS 持久化。
+- 当前源码含26个内置 App：Wi-Fi、I2C、系统信息、天气、日历、倒计时、秒表、设置、OTA、
+  音频可视化、水平仪、迷宫、流体、骰子、BLE 遥控台（鼠标 / 演示 / 音乐）、数字孪生、答案之书、星座运势、木鱼、方块、生态箱、专注、声音胶囊、独立表盘App、股票和小咪。
+  [自定义股票](GeekTool-IDF/STOCKS.md)为2026-11-03本地新增：默认全自选行情列表，最多8只，一屏三只并可滚动；每行含价格/涨跌幅/币种/来源时间，完整列表自动刷新，单只失败独立标记旧行情；支持沪深港美市场输入。已随本台整合固件安装并完成启动检查，现已随v1.9.3正式发布，真实行情/触摸待验收。
+  [小咪离线宠物](GeekTool-IDF/MIMI.md)为同日本地新增：全屏展示、25套眼睛表情、14段身体动作、轻点/滑动回应和困倦唤醒；长按显示返回。全屏新版已随本台整合固件安装并完成启动检查，已随v1.9.3正式发布；前序本地候选彩环实测约12～16fps，主观效果和流畅度待验收。
+  [方块像素场](GeekTool-IDF/PIXELS_UI.md)已包含在beta.33中，真机体验待验收。
+- AXP2101 电源与电量管理，QMI8658 IMU，ES7210 麦克风输入和 ES8311 音频输出。
+- Wi-Fi 自动重连、SNTP 校时、Open-Meteo 天气数据。
+- beta.34新增生态箱成长、专注唱片机和WAV声音胶囊，遥控台采用三键音乐与独立Mac本地歌曲信息桥接。需要双8MiB代码槽；录音还需经另行授权的独立分区迁移，不能把普通OTA当成已完成存储迁移。实现、验证和真机待验收边界见[功能地图](GeekTool-IDF/COMPANION_APPS.md)。
+- 双 OTA 分区、启动回滚保护、版本比对和 Cloudflare R2 固件分发。
+- React + Three.js Web 校准器，通过 Web Bluetooth 显示设备姿态与电量；3D 场景独立异步加载，
+  蓝牙连接中途失败时会主动清理残留 GATT 会话。
+
+## 硬件基线
+
+| 模块 | 当前配置 |
+| --- | --- |
+| 主控 | ESP32-S3R8，双核 240 MHz |
+| 屏幕 | 1.75 英寸、466 x 466 AMOLED、CO5300 QSPI |
+| 触摸 | CST9217，I2C |
+| 存储 | 32 MB Flash、8 MB OPI PSRAM |
+| 传感器 | QMI8658 六轴 IMU |
+| 电源 | AXP2101 PMU |
+| 音频 | ES7210 麦克风 ADC、ES8311 DAC/扬声器 |
+| 无线 | 2.4 GHz Wi-Fi、Bluetooth LE |
+
+完整引脚、依赖版本和硬件说明见
+[ESP32-S3-Touch-AMOLED-1.75C 开发指南](./ESP32-S3-Touch-AMOLED-1.75C-开发指南.md)。
+
+## 目录结构
+
+| 路径 | 用途 | 定位 |
+| --- | --- | --- |
+| `GeekTool-IDF/` | ESP-IDF + LVGL 9 主线固件 | 当前主线 |
+| `GeekTool-IDF/main/` | 启动器、系统服务、硬件驱动和各 App | 主要开发目录 |
+| `GeekTool-IDF/images/` | 随固件写入 FAT 分区的表盘图片 | 固件资源 |
+| `web/` | GeekTwin React/Three.js Web Bluetooth 校准器 | 配套前端 |
+| `site/` | soRound OS 产品官网、功能与表盘展示 | GitHub Pages |
+| `scripts/build_site.py` | 官网生成、资源检查及公开版本链接更新 | 网站构建 |
+| `GeekTool/` | Arduino + LVGL 8 多工具原型 | 早期版本 |
+| `WiFiList_StressTest/` | Arduino 圆屏 Wi-Fi 列表压力测试 | 硬件验证 |
+| `.github/workflows/firmware.yml` | Tag 构建、GitHub Release 和 R2 上传 | 发布流程 |
+| `.github/workflows/pages.yml` | 官网构建和 GitHub Pages 部署 | 网站发布 |
+
+官网本地预览、十九个应用 UI、五组共62款表盘交互（beta.38）、微雪设备图和自动部署说明见 [site/README.md](./site/README.md)。
+
+流畅性调度、动画和资源生命周期的当前调用链及验证方式见
+[性能实现记录](./GeekTool-IDF/PORTING_NOTES.md#2026-10-01-流畅性与动画优化)。
+音频点阵能量渐变、水平仪靶盘/读数分区及原生渲染回归见
+[音频与水平仪设计实现](./GeekTool-IDF/AUDIO_LEVEL_DESIGN.md)。
+beta.38包含 TYPE / ORBIT / SHIFT / HAND / STUDIO 五组共62款锁屏表盘，保留已有编号与选择；新增32款和独立表盘App，真实设备与精确发布包结果分别记录。
+真实缩略图、默认/自定义背景和常显状态见[锁屏表盘](./GeekTool-IDF/WATCHFACES_UI.md)。HAND六款的内测发布见
+[beta.32记录](./GeekTool-IDF/PORTING_NOTES.md#2026-10-08-v17-beta32-指针表盘流体双模式与固定迷宫关卡)，真机效果待验收。
+流体当前仅保留原粒子（2026-10-13按用户卡顿反馈移除染料）和三章十二个固定迷宫关卡见[小游戏实现](./GeekTool-IDF/PLAY_UI.md)。
+抛硬币的双层币缘、中文大字、上抛翻面、暂停/退出及骰子回归见
+[硬币实现记录](./GeekTool-IDF/PORTING_NOTES.md#2026-10-04-抛硬币外观与抛掷动画)。
+系统信息三页布局、内存统计口径、刷新与字体容量防线见
+[系统信息 UI](./GeekTool-IDF/SYSTEM_UI.md)。
+内部 RAM / PSRAM 分配策略与真机对照验收见
+[资源分配记录](./GeekTool-IDF/PORTING_NOTES.md#2026-10-13-beta33-rampsram-分配候选优化)。
+天气的 DMA 交替搬运、PSRAM 图片缓存和软件对照见
+[天气优化候选](./GeekTool-IDF/WEATHER_DETAILS_DESIGN.md#2026-10-13-传输流水线与图片缓存候选)；
+当前源码采用双8MiB OTA、7.875MiB只读资源区、4KiB录音迁移标记和剩余独立录音区；
+旧设备的实际分区不会随普通OTA改变。此前扩容记录见[容量规划](./GeekTool-IDF/PORTING_NOTES.md#2026-10-13-天气优化与32mib容量规划)，
+录音分区须另行确认迁移，备份与初始化要求见[声音胶囊](./GeekTool-IDF/CAPSULES.md)。
+启动器23个A套实心图标、原生圆屏预览及切换绘制逻辑见
+[启动器图标](./GeekTool-IDF/LAUNCHER_ICONS.md)。
+答案之书的联网中英文答案、断网备用、实体键翻页与生命周期见
+[答案之书](./GeekTool-IDF/ANSWERS_UI.md)。
+星座每日联网数据、分类长文、木鱼累计计数/声音与生命周期见
+[星座与木鱼](./GeekTool-IDF/ZODIAC_MERIT_UI.md)。
+设置分类导航、Wi-Fi连接/密码页及真实数据/事件边界见
+[设置与Wi-Fi交互](./GeekTool-IDF/SETTINGS_LOCATION_DESIGN.md)。
+系统标志、关于本机的真实版本布局、1.8秒原生开机动画及锁屏恢复见
+[系统标志与启动](./GeekTool-IDF/artwork/identity/README.md)。本地构建和原生回归通过，设备效果待验收。
+OTA 下载恢复、状态同步和故障排查见
+[OTA 实现记录](./GeekTool-IDF/PORTING_NOTES.md#2026-10-02-ota-失败恢复修复)。
+beta.23 的 TLS 内存不足、点阵控件直接绘制与错误码正负号修正见
+[TLS 故障记录](./GeekTool-IDF/PORTING_NOTES.md#2026-10-05-beta23-ota-tls-内存不足)。
+R2 保留发布包、服务器拉取并原子替换镜像的同步程序、部署配置及迁移状态见
+[OTA 服务器镜像](./GeekTool-IDF/tools/ota_mirror/README.md)。设备域名已切换到指定服务器直连。
+当前 OTA 页使用整屏点阵环、大点阵箭头向上动效和按状态配色的真实下载进度，布局与设置入口见
+[极简 OTA 页面](./GeekTool-IDF/PORTING_NOTES.md#2026-10-03-ota-极简页面)。
+实体按键映射与验证见
+[按键实现记录](./GeekTool-IDF/PORTING_NOTES.md#2026-10-02-实体按键功能对调)。
+遥控台的 HID 报文、输入释放和验收见
+[遥控台实现记录](./GeekTool-IDF/PORTING_NOTES.md#遥控台扩展鼠标--演示--媒体)。
+天气页的彩色点阵图标、昼夜切换、布局及主机渲染验证见
+[天气 UI 实现说明](./GeekTool-IDF/WEATHER_UI.md)。
+
+## 系统关系
+
+```mermaid
+flowchart LR
+    U["触摸 / 侧键"] --> L["LVGL 启动器与系统 App"]
+    L --> H["显示 / 触摸 / PMU / IMU / 音频"]
+    H --> B["ESP32-S3 圆屏设备"]
+    B -->|"BLE GATT 传感器帧"| W["Web GeekTwin 校准器"]
+    T["Git v* Tag"] --> A["GitHub Actions 构建"]
+    A --> R["GitHub Release"]
+    A --> C["Cloudflare R2 / GeekTool.bin"]
+    C -->|"HTTPS OTA"| B
+```
+
+## 快速开始：主线固件
+
+### 1. 准备环境
+
+- 推荐 ESP-IDF `v6.0.1`；组件清单声明的最低版本为 `v5.1`。
+- macOS 推荐使用 Espressif IDF 插件终端，或手动加载 `export.sh`。
+- 首次构建会通过 ESP-IDF Component Manager 下载 LVGL、CO5300、CST9217、
+  `esp_codec_dev` 等依赖，需要能够访问组件仓库。
+
+本机使用自定义安装路径时，请把下面路径替换为实际的 `IDF_PATH`：
+
+```bash
+export PATH="/opt/homebrew/bin:$PATH"
+source "$HOME/.espressif/v6.0.1/esp-idf/export.sh"
+idf.py --version
+```
+
+### 2. 构建
+
+在仓库根目录执行：
+
+```bash
+idf.py -C GeekTool-IDF set-target esp32s3
+idf.py -C GeekTool-IDF build
+```
+
+成功后主固件位于：
+
+```text
+GeekTool-IDF/build/GeekTool.bin
+```
+
+### 3. 烧录与串口日志
+
+先确认设备串口。macOS 可使用：
+
+```bash
+ls -la /dev/cu.usbmodem*
+```
+
+将 `<SERIAL_PORT>` 替换为实际串口：
+
+```bash
+idf.py -C GeekTool-IDF -p <SERIAL_PORT> flash monitor
+```
+
+例如本项目曾验证使用 `/dev/cu.usbmodem1101`。不同设备或重新插拔后端口可能变化，不应把该值
+写死到脚本中。退出串口监视器使用 `Ctrl+]`。
+
+如果烧录一直等待同步，可按住 BOOT 键后重新插入 USB 或复位，再重试烧录。
+
+## 启动 Web 数字孪生校准器
+
+要求安装 Node.js 和 npm。首次运行：
+
+```bash
+npm --prefix web ci
+npm --prefix web run dev
+```
+
+Vite 默认尝试使用 `5173` 端口；该端口被占用时会自动选择下一个可用端口，请以终端输出的 URL
+为准。Web Bluetooth 需要安全上下文，开发时使用 `http://localhost`，正式部署使用 HTTPS；推荐
+桌面版 Chrome 或 Edge。
+
+连接步骤：
+
+1. 在设备启动器中进入 `twin` App。
+2. 在浏览器打开校准器并点击“连接”。
+3. 在蓝牙选择器中选择 `GeekTwin`。
+4. 连接后可查看姿态、电量、数据频率，并将当前姿态设为零位。
+
+生产构建与本地预览：
+
+```bash
+npm --prefix web run build
+npm --prefix web run preview
+```
+
+更多坐标映射与 BLE 帧说明见 [web/README.md](./web/README.md)。
+
+## 蓝牙遥控台
+
+1. 进入 `remote` / “遥控台”，在电脑蓝牙设置中配对 `soRound`。
+2. 鼠标模式：拖动触控区域移动光标，轻点左击；`L` / `R` 是左右键，右侧竖条是滚轮。
+   点“拖拽”锁住左键后可用单指移动，再点一次释放。
+3. 演示模式：上一页 / 下一页发送 PageUp / PageDown，需要先让电脑上的幻灯片或文档获得焦点。
+   点时间开始、暂停、继续本地计时；“归零”停止并复位。计时不会启动电脑上的演示。
+4. 媒体模式：播放 / 暂停、上一首 / 下一首、系统音量增减、静音。实际响应由主机和当前播放器决定。
+
+三个模式共用一次配对和连接。只有主机完成加密并订阅对应输入报文后，该模式的控制才启用。
+演示计时无需蓝牙；媒体页面不显示未经主机反馈的曲名、播放状态或音量数值。
+锁屏、快捷面板遮挡和模式切换会取消未发送动作并释放按键；退出遥控台断开 BLE。
+
+从旧版鼠标固件升级后，若鼠标能用而演示 / 媒体一直等待或无响应，先在主机删除旧的 `soRound`
+配对，再重新配对，避免主机缓存旧的 HID Report Map。当前自动验证覆盖协议及真实 LVGL 页面，
+电脑配对、应用响应和物理触摸仍需开发板验收。
+
+## 固件发布与 OTA（正式 / 内测双通道）
+
+`.github/workflows/firmware.yml` 在推送 `v*` Tag 时执行以下流程：
+
+1. 使用 ESP-IDF `v6.0.1` 构建 `GeekTool-IDF`。
+2. 把 `GeekTool.bin` 上传到同名 GitHub Release（beta Tag 自动标记 prerelease）。
+3. 按 Tag 类型覆盖上传 Cloudflare R2 对象（`Cache-Control: no-store`，覆盖即"删除旧包"，
+   R2 不堆积历史；历史归档在 GitHub Release）。
+
+双通道规则：
+
+| Tag 形式 | R2 覆盖对象 | 谁会收到 |
+| --- | --- | --- |
+| 正式 `v1.6` | `GeekTool.bin` **和** `GeekTool-beta.bin` | 所有设备 |
+| 内测 `v1.6-beta.1` | 仅 `GeekTool-beta.bin` | 仅开了 beta 开关的设备 |
+
+设备端点击 OTA 页右上角设置按钮，可进入 `beta` / `测试通道` 开关（存 NVS，默认关）；
+返回键或右滑先返回 OTA 主界面。下载期间可以查看设置，但通道开关禁用：
+
+- 关 → 拉 `https://ota.miaozong.cc/GeekTool.bin`，只收正式版。
+- 开 → 拉 `https://ota.miaozong.cc/GeekTool-beta.bin`，收内测版；因正式版同时覆盖
+  beta 对象，内测设备也不会漏掉正式更新。无需设备端比较版本新旧，不存在通道乒乓。
+
+设备上的"旧固件"位于另一个 OTA 分区（A/B 双分区），是启动回滚的保险，
+下次 OTA 自动覆盖，**不需要也不应该手动删除**。
+
+当前客户端对临时连接失败和断流最多尝试 3 次；有强 ETag 时在同一次任务内从已写入位置续传，
+没有可靠对象身份则重新下载。镜像头、项目、大小和完整镜像验证通过后才切换启动分区。
+页面显示重连次数、校验阶段和失败阶段/错误码；离开页面后下载继续。
+这些客户端修复需要先安装修复后的固件才会生效，旧版若无法完成 OTA，需要一次 USB 更新。
+
+仓库需要配置以下 GitHub Actions Secrets：
+
+- `R2_ACCESS_KEY_ID`
+- `R2_SECRET_ACCESS_KEY`
+
+发布示例：
+
+```bash
+# 正式版
+git tag v1.6 && git push origin v1.6
+# 内测版
+git tag v1.6-beta.1 && git push origin v1.6-beta.1
+```
+
+Tag 应指向已经完成本地构建与真机验证的干净提交。OTA 完成的判断不能只看 Actions 成功或下载
+地址返回 `200`，还需要在设备上验证：
+
+1. 旧版本可检查并升级到新版本。
+2. 下载、写入、重启和新分区启动均正常。
+3. 再次检查同一版本时显示 `already up to date`，不会重复刷写。
+4. 串口没有 TLS、证书、分区或回滚相关错误。
+
+## 常用验证命令
+
+```bash
+# 固件编译
+idf.py -C GeekTool-IDF build
+
+# OTA 下载恢复（真实业务代码，替换传输与 Flash 接口）
+cmake -S GeekTool-IDF/tests/ota -B /tmp/geektool-ota-tests
+cmake --build /tmp/geektool-ota-tests
+ctest --test-dir /tmp/geektool-ota-tests --output-on-failure
+
+# LVGL 性能、OTA 状态、实体按键、遥控台 HID 与真实页面交互
+cmake -S GeekTool-IDF/tests/host -B /tmp/geektool-host-tests
+cmake --build /tmp/geektool-host-tests -j 8
+ctest --test-dir /tmp/geektool-host-tests --output-on-failure
+
+# Web 类型检查 + 生产构建
+npm --prefix web run build
+
+# 检查补丁空白和冲突标记
+git diff --check
+```
+
+涉及硬件交互的改动至少还应验证屏幕、触摸、启动器导航、PWR/BOOT 键、Wi-Fi、音频、IMU、
+锁屏/省电和 OTA 中直接受影响的项目。仅通过编译不等于真机功能已验收。
+
+`v1.7-beta.11` 联合发布验证（2026-10-03）：OTA 与天气改版的固件完整构建、18 组 OTA 下载恢复/错误边界、
+6 组主机回归（LVGL 性能、26 个中英文 OTA 页面渲染及设置交互、实体按键、HID 协议、遥控台交互和布局、78 个天气页面渲染）通过；
+本地 LVGL 9.5 与发布所用上游 9.6.0 的六组回归均通过。
+随后天气原稿图标修正新增固定像素基准，本地 LVGL 9.5 的七组回归（含 64 组原稿像素比对）
+与固件构建通过，并已 USB 安装本地测试镜像、确认启动及 Wi-Fi 重连。当时设置与地址选择仍为交互稿，已在 beta.13 实现。
+点阵动效及状态配色的真机观感、新增遥控台功能和实际设备 OTA 下载、断线恢复与重启仍待验证。
+Web 11 组回归、类型检查和生产构建为 2026-10-01 流畅性发布时的结果，本次未改 Web。
+
+当前本地按键映射：BOOT 短按锁屏/解锁，长按 2 秒软件关机；PWR 短按控制秒表及倒计时的
+开始/暂停/继续（倒计时结束后复位）。该映射此前已 USB 烧录并确认启动有效，实体按键操作待验收。
+`v1.7-beta.11` 保留该按键映射与遥控台扩展，并合并 OTA / 天气页面改版；发布镜像已于
+2026-10-03 USB 烧录、完整读回校验并确认启动，新页面的真机观感与触摸操作仍待验收。
+断电后的 PWR 上电、按住 BOOT 上电进入下载模式属于硬件功能。
+
+## 已知边界
+
+- CO5300 使用 QSPI，无法获得 RGB/DSI 面板级的 tearing avoidance；大面积快速重绘仍可能出现轻微
+  撕裂。当前 UI 通过小面积动画和减少全屏重绘控制影响。
+- Web 校准器没有磁力计或完整姿态四元数，水平偏航只能做短时间相对估算，长时间会漂移。
+- Web Bluetooth 的浏览器支持有限；Safari 和 Firefox 不能作为当前校准器的主要运行环境。
+- `GeekTool-IDF/PORTING_NOTES.md` 是按开发时间累积的记录，早期章节描述的是当时状态；当前入口、
+  构建和发布方式以本 README、代码和工作流配置为准。
+
+## 开发文档
+
+- [ESP-IDF 移植、真机记录与历史问题](./GeekTool-IDF/PORTING_NOTES.md)
+- [音频与水平仪确认稿实现](./GeekTool-IDF/AUDIO_LEVEL_DESIGN.md)
+- [天气首屏保护、详情数据与原生滚动](./GeekTool-IDF/WEATHER_DETAILS_DESIGN.md)
+- [Web GeekTwin 校准器说明](./web/README.md)
+- [Arduino GeekTool 原型说明](./GeekTool/README.md)
+- [Arduino Wi-Fi 列表压力测试](./WiFiList_StressTest/README.md)
+- [硬件开发指南](./ESP32-S3-Touch-AMOLED-1.75C-开发指南.md)
+
+提交功能改动时，请同步更新直接相关的代码注释、模块文档和本 README 中受影响的状态、命令或
+验收说明，避免文档与真实固件行为分离。
+
+2026-10-04 已发布 [v1.7-beta.13](https://github.com/soBigRice/soRound_os/releases/tag/v1.7-beta.13)：
+新增单屏设置交互与离线省市区天气地址选择，补齐夜间降水点阵云形、IMU 断读/停止采样恢复。
+LVGL 9.5/9.6 的十组主机回归、固件构建与公开 beta 镜像校验通过，正式通道保持原镜像。
+用户选择自行 OTA；本轮未执行 USB 写入，真机侧倾与新交互待验收。调用链和数据覆盖范围见
+[设置与地址说明](GeekTool-IDF/SETTINGS_LOCATION_DESIGN.md)及
+[发布验证记录](GeekTool-IDF/PORTING_NOTES.md#2026-10-04-v17-beta13-发布核对)。
+
+2026-10-04 已发布 [v1.7-beta.14](https://github.com/soBigRice/soRound_os/releases/tag/v1.7-beta.14)：
+音频能量渐变与水平仪靶盘按确认稿实现，修正读数字形与刻度穿透；天气保持原首屏，
+增加当前详情、12 小时趋势、五日预报、日光/UV、惯性滚动与右侧圆弧滚动条。
+LVGL 9.5/9.6 各十一组回归通过，天气字库无损裁去透明留白；发布包适配现有 3 MiB OTA 槽。
+GitHub、R2 与国内 beta 镜像逐字节一致，完整/断点下载通过，正式通道仍为 `v1.6.1`。
+设备 OTA 设置开启测试通道后检查更新；本轮未执行刷机，实际圆屏体验仍待设备验收。
+源码提交 `9680430`，容量、摘要与发布证据见
+[发布验证记录](GeekTool-IDF/PORTING_NOTES.md#2026-10-04-v17-beta14-发布核对)。
+
+2026-10-04 已发布 [v1.7-beta.15](https://github.com/soBigRice/soRound_os/releases/tag/v1.7-beta.15)：
+修复硬币中文正反字样显示方框，新增双层币缘、整枚上抛/翻面/落地回弹；保留点击、甩动与骰子模式。
+LVGL 9.6 全部十二组主机回归、十八项 OTA 恢复边界及发布构建通过；GitHub、R2 和设备 beta
+下载地址逐字节一致，完整/断点下载与镜像校验通过。设备 OTA 设置开启测试通道后升级。
+源码提交 `5d98a06`，真实升级/重启与动画手感待设备验收；摘要和容量见
+[发布验证记录](GeekTool-IDF/PORTING_NOTES.md#2026-10-04-v17-beta15-发布核对)。
+
+2026-10-04 已发布 [v1.7-beta.16](https://github.com/soBigRice/soRound_os/releases/tag/v1.7-beta.16)：
+修复天气详情查询超出默认 HTTP 发送缓冲、导致已联网时所有城市获取失败的问题；接口失败与断网提示分开。
+LVGL 9.5/9.6 各十二组回归和发布构建通过，原首屏、图标和字形检查保持一致。
+GitHub、R2、国内 beta 包逐字节一致，镜像校验与断点下载通过。
+用户随后确认 USB 重启后天气已正常，原失败原因仍待请求日志定位。源码 `7451829`，证据见
+[发布验证记录](GeekTool-IDF/PORTING_NOTES.md#2026-10-04-v17-beta16-发布核对)。
+
+2026-10-04 已发布 [v1.7-beta.17](https://github.com/soBigRice/soRound_os/releases/tag/v1.7-beta.17)：
+系统信息新增总览、内存、设备三页，实时显示 RAM/PSRAM 已用与可用、连续空闲块、
+芯片容量、固件/SDK、运行时长及任务数。LVGL 9.5/9.6 各十四组回归通过。
+当前设备已按用户授权跳过备份，经 USB 迁移至双4MiB OTA槽，设置区域摘要未变，
+发布镜像启动、外设及原 Wi-Fi 重连通过；系统页实际显示与触摸仍待用户验收。
+GitHub/R2/国内包全文摘要一致，国内两次整包请求超时后用断点续传完成校验，正式通道仍为 `v1.6.1`。
+现有3MiB布局可OTA安装此包，分区扩容本身需USB迁移。逻辑见 [SYSTEM_UI](GeekTool-IDF/SYSTEM_UI.md)，
+完整证据见 [发布记录](GeekTool-IDF/PORTING_NOTES.md#2026-10-04-v17-beta17-发布与usb迁移核对)。
+
+2026-10-04 已发布 [v1.7-beta.18](https://github.com/soBigRice/soRound_os/releases/tag/v1.7-beta.18)：
+重绘启动器16个App图标和切换箭头，统一圆润白色线条、红色语义细节并减淡按钮边框；
+保留应用顺序、点击/滑动和220ms切换。LVGL9.5/9.6各14组回归及发布构建通过，
+中英文466×466原生预览已检查。GitHub/R2/国内包完整摘要一致，国内首次连接重置后分段续传校验通过，
+正式通道仍为 `v1.6.1`。USB未连接，本次未刷写设备；真实观感、触摸与设备OTA升级重启待验收。
+图标逻辑见 [LAUNCHER_ICONS](GeekTool-IDF/LAUNCHER_ICONS.md)，完整证据见
+[发布记录](GeekTool-IDF/PORTING_NOTES.md#2026-10-04-v17-beta18-图标发布核对)。
+
+2026-10-05 已发布 [v1.7-beta.19](https://github.com/soBigRice/soRound_os/releases/tag/v1.7-beta.19) 至GitHub/R2/国内OTA：
+图标恢复2px白色外圈、名字24px；设置改为四分类及逐级返回，Wi-Fi分离连接状态、附近网络与独立密码输入。
+LVGL9.5/9.6各15组回归及发布构建通过；发布包3,175,440B，须使用双4MiB布局（当前设备此前已迁移）。
+GitHub/R2/国内整包与摘要一致，两个OTA地址的条件Range验证通过；镜像程序旧3MiB限制已修正并部署，
+13组镜像回归通过。两个地址正式包全文摘要仍为v1.6.1，正式通道保持不变。
+USB未连接，本次未烧录；真实观感、设置/密码页触摸、无线连接及设备OTA重启待验收。
+调用链见 [设置与Wi-Fi](GeekTool-IDF/SETTINGS_LOCATION_DESIGN.md)，状态见
+[发布记录](GeekTool-IDF/PORTING_NOTES.md#2026-10-05-v17-beta19-发布与镜像上限核对)。
+
+2026-10-06 已发布 [v1.7-beta.25](https://github.com/soBigRice/soRound_os/releases/tag/v1.7-beta.25) 内测版：
+修正旧出厂熊猫覆盖三组默认山景，保留真正自定义图片；按设计稿校正十五款字体比例、环形分段、
+红色标记、天气与信息栏，并修正超长SSID挤压IP。保留索引、AOD、按键及已获准的TLS PSRAM配置。
+LVGL9.5/9.6各三项表盘/图片缓存/设置预览回归及素材校验通过；CI发布包4,087,360B，符合双4MiB槽。
+GitHub/R2/国内OTA整包摘要一致，国内条件Range通过；正式通道仍为v1.6.1且全文摘要未变。
+在设备OTA页面开启内测后升级；本次未USB刷写，beta.25的设备下载/重启及主观显示仍待验证。
+逻辑与原生预览见[锁屏表盘](GeekTool-IDF/WATCHFACES_UI.md)，证据见
+[发布记录](GeekTool-IDF/PORTING_NOTES.md#2026-10-06-v17-beta25-表盘纠正发布)。

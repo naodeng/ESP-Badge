@@ -1,0 +1,16 @@
+#pragma once
+// 点描图标通用画法:沿 圆/弧/线 均匀撒小圆点(Nothing 点描轮廓风)。
+// OTA 等点描页面及点阵数字共用;启动器几何图标见 launcher_icons.h。
+#include "lvgl_compat.h"
+
+lv_obj_t *glyph_dot(lv_obj_t *par, int x, int y, int r, uint32_t color);
+void glyph_arc(lv_obj_t *par, int cx, int cy, int r, float a0, float a1, int step, int dotr, uint32_t color);
+void glyph_line(lv_obj_t *par, int x0, int y0, int x1, int y1, int step, int dotr, uint32_t color);
+void glyph_circle(lv_obj_t *par, int cx, int cy, int r, int step, int dotr, uint32_t color);
+
+// 5×7 点阵数字字模 0-9('1'=亮点),各表盘/计时 app 共用。glyph_font5x7[d][row] 是 5 字符串。
+extern const char *const glyph_font5x7[10][7];
+
+// 固定点距的数字控件(0-9、冒号、空格);保留点阵外观,更新不再创建/删除每个圆点。
+lv_obj_t *glyph_digits_create(lv_obj_t *parent, int pitch, int radius);
+void glyph_digits_set(lv_obj_t *obj, const char *text, uint32_t color, uint32_t colon_color);

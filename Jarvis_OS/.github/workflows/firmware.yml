@@ -1,0 +1,119 @@
+name: build-firmware
+
+# 双通道发版:
+#   正式:git tag v1.6        → Release + R2 两个对象都覆盖(GeekTool.bin + GeekTool-beta.bin)
+#   内测:git tag v1.6-beta.1 → Release(标 prerelease)+ R2 只覆盖 GeekTool-beta.bin
+# 设备端:beta 开关关=拉 GeekTool.bin,开=拉 GeekTool-beta.bin;
+# 正式版也覆盖 beta 对象 → 开着内测也能收到正式更新,且无需设备端比较版本新旧。
+on:
+  push:
+    tags:
+      - 'v*'
+  workflow_dispatch:      # 也可在 Actions 页面手动触发(手动跑不发 Release,只验证能否构建)
+    inputs:
+      host_checks_only:
+        description: Resolve release dependencies and check Linux host targets without building firmware
+        type: boolean
+        default: false
+
+permissions:
+  contents: write         # 建 Release / 传资产需要
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # ★拉全历史 + tag:esp_app_desc 的版本号来自 git describe,浅克隆会变 unknown
+
+      - name: Build (ESP-IDF v6.0.1, esp32s3)
+        uses: espressif/esp-idf-ci-action@v1
+        with:
+          esp_idf_version: v6.0.1   # 若该镜像拉取失败,改成 release-v6.0
+          target: esp32s3
+          path: GeekTool-IDF        # 固件工程在子目录;sdkconfig 被 gitignore,CI 从 sdkconfig.defaults 重生成
+          # 手动预检只解析同套依赖；标签发布始终完整构建，不跳过门禁。
+          # Manual preflight resolves the same dependencies; tag releases always build the complete firmware.
+          command: ${{ github.event_name == 'workflow_dispatch' && inputs.host_checks_only && 'idf.py reconfigure' || 'idf.py build' }}
+
+      # Preserve the exact ELF/config for device backtraces. Manual runs can
+      # provide a reviewable candidate without updating either OTA channel.
+      - name: Preserve firmware diagnostics
+        if: github.event_name != 'workflow_dispatch' || !inputs.host_checks_only
+        uses: actions/upload-artifact@v7
+        with:
+          name: firmware-${{ github.sha }}-${{ github.run_attempt }}
+          retention-days: 7
+          if-no-files-found: error
+          path: |
+            GeekTool-IDF/build/GeekTool.bin
+            GeekTool-IDF/build/GeekTool.elf
+            GeekTool-IDF/build/GeekTool.map
+            GeekTool-IDF/sdkconfig
+            GeekTool-IDF/dependencies.lock
+
+      - name: Check firmware UI and storage with release LVGL
+        run: |
+          # 固定像素检查器依赖，避免依赖 runner 偶然预装的软件包。
+          # Pin the pixel-check dependency instead of relying on runner packages.
+          python3 -m venv "$RUNNER_TEMP/ui-test-python"
+          source "$RUNNER_TEMP/ui-test-python/bin/activate"
+          python3 -m pip install --disable-pip-version-check --no-cache-dir "Pillow==12.2.0"
+          # Existing LVGL compatibility calls remain supported in 9.6;
+          # suppress only their deprecation warnings in this host fixture.
+          cmake -S GeekTool-IDF/tests/host -B "$RUNNER_TEMP/startup-host" \
+            -DCMAKE_BUILD_TYPE=Debug -DCMAKE_C_FLAGS=-Wno-deprecated-declarations \
+            -DPython3_EXECUTABLE="$VIRTUAL_ENV/bin/python"
+          # 收齐本轮编译错误；任一构建失败仍阻止测试和发布，不关闭警告。
+          # Collect all compilation errors; any failed build still blocks tests and publication, with warnings intact.
+          build_failed=0
+          cmake --build "$RUNNER_TEMP/startup-host" --parallel 4 -- -k || build_failed=1
+          cmake -S GeekTool-IDF/tests/companion_apps -B "$RUNNER_TEMP/companion-host" \
+            -DCMAKE_BUILD_TYPE=Debug -DCMAKE_C_FLAGS=-Wno-deprecated-declarations
+          cmake --build "$RUNNER_TEMP/companion-host" --parallel 4 -- -k || build_failed=1
+          if [ "$build_failed" -ne 0 ]; then exit 1; fi
+          ctest --test-dir "$RUNNER_TEMP/startup-host" --output-on-failure --timeout 90
+          ctest --test-dir "$RUNNER_TEMP/companion-host" --output-on-failure --timeout 90
+          cc -std=c11 -Wall -Wextra -Werror -fsanitize=address,undefined -pthread \
+            -I GeekTool-IDF/tests/remote_media/stubs -I GeekTool-IDF/main \
+            GeekTool-IDF/tests/remote_media/remote_media_tests.c -o "$RUNNER_TEMP/remote-media-tests"
+          ASAN_OPTIONS=detect_leaks=0 "$RUNNER_TEMP/remote-media-tests"
+          python3 -m unittest discover -s GeekTool-IDF/tools/ota_mirror -p 'test_*.py'
+
+      - name: Publish firmware to Release
+        if: startsWith(github.ref, 'refs/tags/')
+        uses: softprops/action-gh-release@v2
+        with:
+          files: GeekTool-IDF/build/GeekTool.bin
+          body_path: GeekTool-IDF/RELEASE_NOTES.md
+          fail_on_unmatched_files: true   # bin 没生成就让工作流红掉,别发空 Release
+          prerelease: ${{ contains(github.ref_name, '-beta') }}   # beta tag 标为预发布
+
+      # 国内分发:传到 Cloudflare R2(S3 兼容接口),设备从 ota.miaozong.cc 直链拉(GitHub 资产国内常被墙)。
+      # 覆盖同名对象 → always-latest(旧包被覆盖即"删除",R2 不堆积历史;历史归档在 GitHub Release)。
+      # Cache-Control:no-store 让边缘不缓存,永远拉最新(免设缓存规则)。
+      # 只需 2 个 Secret(R2 → Manage R2 API Tokens 建 Object Read & Write 令牌):R2_ACCESS_KEY_ID、R2_SECRET_ACCESS_KEY。
+      # account id + 桶名非敏感(本就在 S3 endpoint 里),直接写死。
+      - name: Upload firmware to Cloudflare R2
+        if: startsWith(github.ref, 'refs/tags/')
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.R2_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.R2_SECRET_ACCESS_KEY }}
+          AWS_DEFAULT_REGION: auto
+          EP: https://cd87480e09b939c24f041bc003e5391d.r2.cloudflarestorage.com
+        run: |
+          put() {
+            aws s3api put-object \
+              --endpoint-url "$EP" \
+              --bucket geektool-fw \
+              --key "$1" \
+              --body GeekTool-IDF/build/GeekTool.bin \
+              --content-type application/octet-stream \
+              --cache-control "no-store, max-age=0"
+          }
+          # beta 通道永远更新(正式版对内测用户也是最新);正式通道只在非 beta tag 更新
+          put GeekTool-beta.bin
+          if [[ "${{ github.ref_name }}" != *-beta* ]]; then
+            put GeekTool.bin
+          fi

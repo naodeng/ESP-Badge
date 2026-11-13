@@ -1,0 +1,77 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="466" height="466" viewBox="0 0 466 466" role="img" aria-label="Jarvis OS 关于本机设计稿">
+<circle cx="233" cy="233" r="233" fill="#000"/>
+<circle cx="233" cy="233" r="225" fill="none" stroke="#101517" stroke-width="8"/>
+<path d="M233 8 A225 225 0 1 1 8.44 247.13" fill="none" stroke="#f4f5f5" stroke-width="8" stroke-linecap="round"/>
+<g font-family="Helvetica Neue, Arial, PingFang SC, sans-serif" text-anchor="middle">
+<circle cx="123" cy="74" r="22" fill="#181818"/>
+<path d="M126 67 L119 74 L126 81" fill="none" stroke="#f4f5f5" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+<text x="233" y="77" font-size="24" fill="#f4f5f5">关于本机</text>
+<g transform="translate(163 105) scale(1.75)"><g aria-label="JARVIS OS dot-matrix mark">
+<circle cx="53.072" cy="26.928" r="1.200" fill="#f4f5f5"/>
+<circle cx="55.001" cy="29.129" r="1.200" fill="#f4f5f5"/>
+<circle cx="56.627" cy="31.562" r="1.200" fill="#f4f5f5"/>
+<circle cx="57.922" cy="34.187" r="1.200" fill="#f4f5f5"/>
+<circle cx="58.863" cy="36.959" r="1.200" fill="#f4f5f5"/>
+<circle cx="59.434" cy="39.829" r="1.200" fill="#f4f5f5"/>
+<circle cx="59.625" cy="42.750" r="1.200" fill="#f4f5f5"/>
+<circle cx="59.434" cy="45.671" r="1.200" fill="#f4f5f5"/>
+<circle cx="58.863" cy="48.541" r="1.200" fill="#f4f5f5"/>
+<circle cx="57.922" cy="51.313" r="1.200" fill="#f4f5f5"/>
+<circle cx="56.627" cy="53.938" r="1.200" fill="#f4f5f5"/>
+<circle cx="55.001" cy="56.371" r="1.200" fill="#f4f5f5"/>
+<circle cx="53.072" cy="58.572" r="1.200" fill="#f4f5f5"/>
+<circle cx="50.871" cy="60.501" r="1.200" fill="#f4f5f5"/>
+<circle cx="48.438" cy="62.127" r="1.200" fill="#f4f5f5"/>
+<circle cx="45.813" cy="63.422" r="1.200" fill="#f4f5f5"/>
+<circle cx="43.041" cy="64.363" r="1.200" fill="#f4f5f5"/>
+<circle cx="40.171" cy="64.934" r="1.200" fill="#f4f5f5"/>
+<circle cx="37.250" cy="65.125" r="1.200" fill="#f4f5f5"/>
+<circle cx="34.329" cy="64.934" r="1.200" fill="#f4f5f5"/>
+<circle cx="31.459" cy="64.363" r="1.200" fill="#f4f5f5"/>
+<circle cx="28.687" cy="63.422" r="1.200" fill="#f4f5f5"/>
+<circle cx="26.063" cy="62.127" r="1.200" fill="#f4f5f5"/>
+<circle cx="23.629" cy="60.501" r="1.200" fill="#f4f5f5"/>
+<circle cx="21.428" cy="58.572" r="1.200" fill="#f4f5f5"/>
+<circle cx="19.499" cy="56.371" r="1.200" fill="#f4f5f5"/>
+<circle cx="17.873" cy="53.938" r="1.200" fill="#f4f5f5"/>
+<circle cx="16.578" cy="51.313" r="1.200" fill="#f4f5f5"/>
+<circle cx="15.637" cy="48.541" r="1.200" fill="#f4f5f5"/>
+<circle cx="15.066" cy="45.671" r="1.200" fill="#f4f5f5"/>
+<circle cx="14.875" cy="42.750" r="1.200" fill="#f4f5f5"/>
+<circle cx="15.066" cy="39.829" r="1.200" fill="#f4f5f5"/>
+<circle cx="15.637" cy="36.959" r="1.200" fill="#f4f5f5"/>
+<circle cx="16.578" cy="34.187" r="1.200" fill="#f4f5f5"/>
+<circle cx="17.873" cy="31.562" r="1.200" fill="#f4f5f5"/>
+<circle cx="19.499" cy="29.129" r="1.200" fill="#f4f5f5"/>
+<circle cx="21.428" cy="26.928" r="1.200" fill="#f4f5f5"/>
+<circle cx="23.629" cy="24.999" r="1.200" fill="#f4f5f5"/>
+<circle cx="26.062" cy="23.373" r="1.200" fill="#f4f5f5"/>
+<circle cx="28.687" cy="22.078" r="1.200" fill="#f4f5f5"/>
+<circle cx="31.459" cy="21.137" r="1.200" fill="#f4f5f5"/>
+<circle cx="34.329" cy="20.566" r="1.200" fill="#f4f5f5"/>
+<circle cx="37.250" cy="20.375" r="1.200" fill="#f4f5f5"/>
+<circle cx="40.171" cy="20.566" r="1.200" fill="#f4f5f5"/>
+<circle cx="43.041" cy="21.137" r="1.200" fill="#f4f5f5"/>
+<circle cx="45.813" cy="22.078" r="1.200" fill="#f4f5f5"/>
+<circle cx="48.438" cy="23.373" r="1.200" fill="#f4f5f5"/>
+<circle cx="50.871" cy="24.999" r="1.200" fill="#f4f5f5"/>
+<circle cx="37.250" cy="30.150" r="1.100" fill="#f4f5f5"/>
+<circle cx="41.450" cy="30.150" r="1.100" fill="#f4f5f5"/>
+<circle cx="45.650" cy="30.150" r="1.100" fill="#f4f5f5"/>
+<circle cx="41.450" cy="34.350" r="1.100" fill="#f4f5f5"/>
+<circle cx="41.450" cy="38.550" r="1.100" fill="#f4f5f5"/>
+<circle cx="41.450" cy="42.750" r="1.100" fill="#f4f5f5"/>
+<circle cx="41.450" cy="46.950" r="1.100" fill="#f4f5f5"/>
+<circle cx="28.850" cy="51.150" r="1.100" fill="#f4f5f5"/>
+<circle cx="41.450" cy="51.150" r="1.100" fill="#f4f5f5"/>
+<circle cx="33.050" cy="55.350" r="1.100" fill="#f4f5f5"/>
+<circle cx="37.250" cy="55.350" r="1.100" fill="#f4f5f5"/>
+<circle cx="62.750" cy="17.250" r="3.400" fill="#e54230"/>
+</g></g>
+<text x="233" y="279" font-size="34" font-weight="500" letter-spacing="-.6" fill="#f4f5f5">JARVIS OS</text>
+<text x="233" y="315" font-size="19" fill="#a1a4a6">v1.7-beta.27</text>
+<path d="M180 342 H286" stroke="#24282a" stroke-width="1"/>
+<text x="233" y="376" font-size="19" fill="#a1a4a6">ESP32-S3</text>
+<text x="233" y="406" font-size="16" fill="#757b7e">466 × 466 AMOLED</text>
+</g>
+</svg>

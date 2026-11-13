@@ -1,0 +1,272 @@
+#include "demo_mode.h"
+// 倒计时 app —— 圆形递减点环(从 12 点顺时针变暗)+ 中心 MM:SS 大点阵。
+// 一触式预设(1/3/5/10/25 分)立即开始;PWR 实体键或点中心 = 开始/暂停/继续(DONE=重置),reset 重置;
+// 归零中心红字闪烁。Nothing 单色 + 唯一红强调。时间用 esp_timer 计(暂停/继续不丢精度)。
+#include "app.h"
+#include "glyph.h"
+#include "ui_update.h"
+#include "audio_out.h"
+#include "buttons.h"
+#include "esp_timer.h"
+#include <stdio.h>
+#include <math.h>
+
+#define CX      233
+#define CY      233
+#define RING_R  205
+#define RING_N  60
+#define RING_DR 3
+#define CP      13        // 数字点距
+#define CDR     5         // 数字点半径
+
+/* 5×7 点阵字模在 glyph_font5x7[](glyph.c),各计时/表盘 app 共用 */
+
+typedef enum { ST_IDLE, ST_RUN, ST_PAUSE, ST_DONE } cd_state_t;
+static cd_state_t s_state;
+static int64_t    s_end_us;       // RUN:结束时刻
+static int64_t    s_remain_us;    // PAUSE:剩余
+static int        s_total_s = 300; // 选定总秒(默认 5:00,可 ± 自定义)
+static int        s_last_shown = -1, s_last_remn = -1;
+static bool       s_blink_on;
+static int64_t    s_done_us, s_next_alarm_us; // 闪烁/重复闹铃均按真实时间推进
+
+static lv_obj_t *g_ringbox, *g_ring[RING_N], *g_center, *g_centerbtn, *g_hint, *g_reset, *g_idle;
+
+static const int PRESETS[] = { 1, 3, 5, 10, 25 };
+#define NPRE (int)(sizeof(PRESETS) / sizeof(PRESETS[0]))
+
+static lv_obj_t *mkdot(lv_obj_t *p, int x, int y, int r, uint32_t color, lv_opa_t opa) {
+    lv_obj_t *d = lv_obj_create(p);
+    lv_obj_remove_style_all(d);
+    lv_obj_set_size(d, r * 2, r * 2);
+    lv_obj_set_pos(d, x - r, y - r);
+    lv_obj_set_style_radius(d, LV_RADIUS_CIRCLE, 0);
+    lv_obj_set_style_bg_color(d, lv_color_hex(color), 0);
+    lv_obj_set_style_bg_opa(d, opa, 0);
+    lv_obj_remove_flag(d, LV_OBJ_FLAG_SCROLLABLE);
+    lv_obj_add_flag(d, LV_OBJ_FLAG_EVENT_BUBBLE);
+    return d;
+}
+
+static void vis(lv_obj_t *o, bool on) {
+    if (!o) return;
+    if (on) lv_obj_remove_flag(o, LV_OBJ_FLAG_HIDDEN);
+    else    lv_obj_add_flag(o, LV_OBJ_FLAG_HIDDEN);
+}
+
+static void draw_mmss(int secs) {
+    // 有符号余数可能含负号；覆盖“-99:-59”和结尾，不改变已有时间显示规则。
+    // Signed remainders may include minus signs; fit "-99:-59" and its terminator without changing display rules.
+    char b[8]; snprintf(b, sizeof b, "%02d:%02d", (secs / 60) % 100, secs % 60);
+    uint32_t col = s_state == ST_DONE ? (s_blink_on ? COL_RED : COL_BG) : COL_TXT;
+    glyph_digits_set(g_center, b, col, col);
+}
+
+static void draw_ring(int remainN) {
+    int elapsed = RING_N - remainN;
+    for (int i = 0; i < RING_N; i++) {
+        ui_bg_color(g_ring[i], i == elapsed ? COL_RED : COL_TXT);
+        ui_bg_opa(g_ring[i], i < elapsed ? LV_OPA_20 : LV_OPA_COVER);
+    }
+}
+
+static void show_state(cd_state_t st) {
+    s_state = st;
+    if (!launcher_app_visible()) return;
+    bool idle = (st == ST_IDLE);
+    vis(g_idle, idle);                 // 设定面板(±/预设/提示)仅 IDLE
+    vis(g_ringbox, !idle);             // 递减环仅运行态
+    vis(g_hint, !idle);
+    vis(g_reset, !idle);
+    vis(g_center, true);               // 计时区两态都显示(IDLE 显示待设定时间)
+    vis(g_centerbtn, true);            // 点计时区:IDLE=开始 / RUN=暂停 / PAUSE=继续 / DONE=重置
+    if (idle) {
+        draw_mmss(s_total_s);          // 显示当前选择
+    } else {
+        const char *h = tr((st == ST_RUN) ? S_CD_PAUSE : (st == ST_PAUSE) ? S_CD_RESUME : S_CD_DONE);
+        lv_label_set_text(g_hint, h);
+        lv_obj_set_style_text_color(g_hint, lv_color_hex(st == ST_DONE ? COL_RED : COL_TXT2), 0);
+    }
+}
+
+static void begin_run(int total_s) {
+    s_total_s = total_s;
+    s_end_us = esp_timer_get_time() + (int64_t)total_s * 1000000;
+    s_last_shown = -1; s_last_remn = -1;
+    show_state(ST_RUN);
+}
+
+static void preset_cb(lv_event_t *e) {
+    int idx = (int)(intptr_t)lv_obj_get_user_data(lv_event_get_target_obj(e));
+    begin_run(PRESETS[idx] * 60);
+}
+
+static void cd_toggle(void) {              // PWR 键 / 点计时区共用:IDLE=开始 RUN=暂停 PAUSE=继续 DONE=重置
+    int64_t now = esp_timer_get_time();
+    if (s_state == ST_IDLE) { if (s_total_s >= 5) begin_run(s_total_s); return; }   // 用自定义时间开始
+    if (s_state == ST_RUN) {
+        s_remain_us = s_end_us - now; if (s_remain_us < 0) s_remain_us = 0;
+        show_state(ST_PAUSE);
+    } else if (s_state == ST_PAUSE) {
+        s_end_us = now + s_remain_us;
+        s_last_shown = -1; s_last_remn = -1;
+        show_state(ST_RUN);
+    } else if (s_state == ST_DONE) {
+        show_state(ST_IDLE);
+    }
+}
+static void center_cb(lv_event_t *e) { cd_toggle(); }
+
+static void reset_cb(lv_event_t *e) { show_state(ST_IDLE); }
+
+static void clamp_total(void) {
+    if (s_total_s < 5) s_total_s = 5;                         // 最少 5 秒
+    if (s_total_s > 99 * 60 + 59) s_total_s = 99 * 60 + 59;   // 最多 99:59
+}
+static void step_cb(lv_event_t *e) {                          // ±1m / ±10s(按住连发)
+    int k = (int)(intptr_t)lv_obj_get_user_data(lv_event_get_target_obj(e));
+    s_total_s += (k == 0) ? -60 : (k == 1) ? 60 : (k == 2) ? -10 : 10;
+    clamp_total();
+    draw_mmss(s_total_s);
+}
+
+static lv_obj_t *mk_button(lv_obj_t *par, const char *txt, int w, int h, uint32_t bg, lv_event_cb_t cb) {
+    lv_obj_t *b = lv_button_create(par);
+    lv_obj_set_size(b, w, h);
+    lv_obj_set_style_bg_color(b, lv_color_hex(bg), 0);
+    lv_obj_set_style_radius(b, 12, 0);
+    if (cb) lv_obj_add_event_cb(b, cb, LV_EVENT_CLICKED, NULL);
+    lv_obj_t *l = lv_label_create(b);
+    lv_label_set_text(l, txt);
+    lv_obj_set_style_text_color(l, lv_color_white(), 0);
+    lv_obj_center(l);
+    return b;
+}
+
+static void countdown_build(lv_obj_t *parent) {
+    // 扬声器由正常入口持有，演示只复用绘制。/ Normal entry owns audio; demo only builds widgets.
+    // 递减点环
+    g_ringbox = lv_obj_create(parent);
+    lv_obj_remove_style_all(g_ringbox);
+    lv_obj_set_size(g_ringbox, lv_pct(100), lv_pct(100));
+    lv_obj_remove_flag(g_ringbox, LV_OBJ_FLAG_SCROLLABLE);
+    lv_obj_add_flag(g_ringbox, LV_OBJ_FLAG_EVENT_BUBBLE);
+    for (int i = 0; i < RING_N; i++) {
+        float a = i / (float)RING_N * 6.2832f - 1.5708f;
+        g_ring[i] = mkdot(g_ringbox, CX + (int)(cosf(a) * RING_R), CY + (int)(sinf(a) * RING_R),
+                          RING_DR, COL_TXT, LV_OPA_COVER);
+    }
+
+    // 中心 MM:SS 容器
+    g_center = glyph_digits_create(parent, CP, CDR);
+    lv_obj_set_pos(g_center, CX - (25 * CP) / 2, CY - (7 * CP) / 2 - 24);
+
+    g_hint = lv_label_create(parent);
+    lv_obj_set_style_text_font(g_hint, UI_FONT_M, 0);
+    lv_obj_set_style_text_color(g_hint, lv_color_hex(COL_TXT2), 0);
+    lv_label_set_text(g_hint, "");
+    lv_obj_align(g_hint, LV_ALIGN_TOP_MID, 0, 292);
+
+    // 计时区透明点击区(只盖时间数字,不挡下方 ±/预设):IDLE=开始,RUN/PAUSE=暂停/继续,DONE=重置
+    g_centerbtn = lv_obj_create(parent);
+    lv_obj_remove_style_all(g_centerbtn);
+    lv_obj_set_size(g_centerbtn, 240, 104);
+    lv_obj_align(g_centerbtn, LV_ALIGN_TOP_MID, 0, 150);
+    lv_obj_remove_flag(g_centerbtn, LV_OBJ_FLAG_SCROLLABLE);
+    lv_obj_add_flag(g_centerbtn, LV_OBJ_FLAG_CLICKABLE);
+    lv_obj_add_event_cb(g_centerbtn, center_cb, LV_EVENT_CLICKED, NULL);
+
+    g_reset = mk_button(parent, tr(S_RESET), 120, 46, 0x1c1c22, reset_cb);
+    lv_obj_set_style_text_color(lv_obj_get_child(g_reset, 0), lv_color_hex(COL_RED), 0);   // 红字强调,与全局风格一致
+    lv_obj_align(g_reset, LV_ALIGN_TOP_MID, 0, 332);   // 上移到下半圆内,别贴底边
+
+    // IDLE 设定面板:容器本身不可点(让计时区的点击穿透到 g_centerbtn 去"开始"),按钮各自可点
+    g_idle = lv_obj_create(parent);
+    lv_obj_remove_style_all(g_idle);
+    lv_obj_set_size(g_idle, lv_pct(100), lv_pct(100));
+    lv_obj_remove_flag(g_idle, LV_OBJ_FLAG_SCROLLABLE);
+    lv_obj_remove_flag(g_idle, LV_OBJ_FLAG_CLICKABLE);
+
+    lv_obj_t *tip = lv_label_create(g_idle);
+    lv_obj_set_style_text_font(tip, UI_FONT_M, 0);
+    lv_obj_set_style_text_color(tip, lv_color_hex(COL_TXT2), 0);
+    lv_label_set_text(tip, tr(S_CD_TAP_START));
+    lv_obj_align(tip, LV_ALIGN_TOP_MID, 0, 96);
+
+    // 自定义:±1m / ±10s(按住连发)
+    static const char *const SLAB[4] = { "-1m", "+1m", "-10s", "+10s" };
+    int sw = 62, sg = 8, sx0 = (466 - (4 * sw + 3 * sg)) / 2;
+    for (int i = 0; i < 4; i++) {
+        lv_obj_t *b = mk_button(g_idle, SLAB[i], sw, 44, 0x1c1c22, NULL);
+        lv_obj_set_user_data(b, (void *)(intptr_t)i);
+        lv_obj_add_event_cb(b, step_cb, LV_EVENT_PRESSED, NULL);
+        lv_obj_add_event_cb(b, step_cb, LV_EVENT_LONG_PRESSED_REPEAT, NULL);
+        lv_obj_set_pos(b, sx0 + i * (sw + sg), 272);
+    }
+
+    // 快捷预设(分钟):点了立即开始
+    int bw = 56, bg = 10, px0 = (466 - (NPRE * bw + (NPRE - 1) * bg)) / 2;
+    for (int i = 0; i < NPRE; i++) {
+        char t[6]; snprintf(t, sizeof t, "%d", PRESETS[i]);
+        lv_obj_t *b = mk_button(g_idle, t, bw, 46, 0x1c1c22, preset_cb);
+        lv_obj_set_user_data(b, (void *)(intptr_t)i);
+        lv_obj_set_pos(b, px0 + i * (bw + bg), 330);
+    }
+
+    buttons_reset_control();      // 清掉前一页面的 PWR 控制事件
+    s_state = ST_IDLE;
+    show_state(ST_IDLE);
+}
+
+static void countdown_enter(lv_obj_t *parent){audio_out_init();countdown_build(parent);}
+
+static void countdown_tick(void) {
+    if (!g_center) return;
+    bool visible = launcher_app_visible();
+    if (visible && buttons_control_pressed()) cd_toggle();
+    int64_t now = esp_timer_get_time();
+    if (s_state == ST_RUN) {
+        int64_t us = s_end_us - now;
+        if (us <= 0) {
+            s_blink_on = true; s_done_us = now; s_next_alarm_us = now + 3000000;
+            show_state(ST_DONE);
+            if (visible) { draw_ring(0); s_last_shown = 0; draw_mmss(0); }
+            audio_out_alarm();                                   // 时间到 → 闹铃(静音模式不响)
+            return;
+        }
+        int left = (int)((us + 999999) / 1000000);            // 向上取整
+        if (visible && left != s_last_shown) { draw_mmss(left); s_last_shown = left; }
+        int remn = (int)ceilf((float)us / 1e6f / s_total_s * RING_N);
+        if (remn > RING_N) remn = RING_N;
+        if (visible && remn != s_last_remn) { draw_ring(remn); s_last_remn = remn; }
+    } else if (s_state == ST_DONE) {
+        bool blink = ((now - s_done_us) / 500000 % 2) == 0;
+        if (blink != s_blink_on) { s_blink_on = blink; if (visible) draw_mmss(0); }
+        if (now >= s_next_alarm_us) {
+            s_next_alarm_us += ((now - s_next_alarm_us) / 3000000 + 1) * 3000000;
+            audio_out_alarm(); // 忙帧跳过积压,保持每 3 秒提醒且不集中补响
+        }
+    }
+}
+
+static void countdown_exit(void) {
+    audio_out_deinit();
+    g_ringbox = g_center = g_centerbtn = g_hint = g_reset = g_idle = NULL;
+    s_last_shown = s_last_remn = -1;
+}
+
+static void countdown_visibility(bool visible) {
+    if (!visible) return;
+    s_last_shown = s_last_remn = -1;
+    show_state(s_state);
+    if (s_state == ST_PAUSE) draw_mmss((int)((s_remain_us + 999999) / 1000000));
+    if (s_state == ST_DONE) { draw_ring(0); draw_mmss(0); }
+}
+
+const app_t app_countdown = { "countdown", COL_TXT, countdown_enter, countdown_tick, countdown_exit, NULL, 0, countdown_visibility, true };
+
+// 拍摄用RAM视图；不触发真实操作。/ RAM-only filming adapter; no real actions.
+static void demo_countdown_enter(lv_obj_t *parent,unsigned variant){countdown_build(parent);s_state=variant?ST_RUN:ST_IDLE;show_state(s_state);}
+static void demo_countdown_frame(uint32_t elapsed){if(s_state==ST_RUN){int left=300-(int)(elapsed/1000);draw_mmss(left);draw_ring((left+4)/5);}}
+static void demo_countdown_exit(void){g_ringbox=g_center=g_centerbtn=g_hint=g_reset=g_idle=NULL;s_last_shown=s_last_remn=-1;}
+const demo_page_t demo_countdown={.count=2,.enter=demo_countdown_enter,.frame=demo_countdown_frame,.exit=demo_countdown_exit};
