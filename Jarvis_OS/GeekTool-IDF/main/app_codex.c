@@ -36,6 +36,8 @@ static lv_obj_t *s_buddy_state;
 static lv_obj_t *s_buddy_tasks;
 static lv_obj_t *s_page_index;
 static lv_obj_t *s_page_control;
+static lv_obj_t *s_page_marks[CODEX_PAGE_COUNT];
+static unsigned s_page_target_index[CODEX_PAGE_COUNT];
 static unsigned s_page;
 static bool s_visible;
 
@@ -298,12 +300,19 @@ static void paint(void) {
 
 static void page_update(void) {
     if (!s_root) return;
-    for (unsigned i = 0; i < CODEX_PAGE_COUNT; ++i) ui_obj_set_hidden(s_pages[i], i != s_page);
+    for (unsigned i = 0; i < CODEX_PAGE_COUNT; ++i) {
+        ui_obj_set_hidden(s_pages[i], i != s_page);
+        if (s_page_marks[i]) {
+            bool active = i == s_page;
+            lv_obj_set_size(s_page_marks[i], active ? 20 : 8, 8);
+            lv_obj_set_style_bg_color(s_page_marks[i],
+                                      lv_color_hex(active ? TOOLS_WHITE : TOOLS_GRAY), 0);
+        }
+    }
     bool can_next = s_page + 1 < CODEX_PAGE_COUNT;
-    lv_label_set_text_fmt(s_page_index, can_next ? "%u / %u  >" : "%u / %u",
-                          s_page + 1, CODEX_PAGE_COUNT);
+    lv_label_set_text_fmt(s_page_index, "%u / %u", s_page + 1, CODEX_PAGE_COUNT);
     ui_obj_set_clickable(s_page_control, can_next);
-    lv_obj_set_style_opa(s_page_control, can_next ? LV_OPA_COVER : LV_OPA_60, 0);
+    lv_obj_set_style_opa(s_page_control, LV_OPA_COVER, 0);
     paint();
 }
 
@@ -317,6 +326,13 @@ bool app_codex_next_page(void) {
 static void page_control_click(lv_event_t *event) {
     (void)event;
     (void)app_codex_next_page();
+}
+
+static void page_indicator_click(lv_event_t *event) {
+    const unsigned *target = lv_event_get_user_data(event);
+    if (!target || *target >= CODEX_PAGE_COUNT || *target == s_page) return;
+    s_page = *target;
+    page_update();
 }
 
 static bool codex_handle_swipe(lv_dir_t direction) {
@@ -403,6 +419,37 @@ static void create_buddy(lv_obj_t *parent) {
     label(parent, "CODEX COMPANION", &font_tools_19, 233, 282, 350, TOOLS_GRAY, 2);
 }
 
+static void create_page_control(lv_obj_t *parent) {
+    s_page_control = codex_surface(parent, 161, 318, 144, 56);
+    s_page_index = label(s_page_control, "1 / 4", &font_tools_19, 72, 12, 72, TOOLS_WHITE, 0);
+    ui_obj_set_clickable(s_page_control, true);
+    lv_obj_add_event_cb(s_page_control, page_control_click, LV_EVENT_CLICKED, NULL);
+
+    for (unsigned i = 0; i < CODEX_PAGE_COUNT; ++i) {
+        lv_obj_t *target = lv_obj_create(s_page_control);
+        lv_obj_remove_style_all(target);
+        lv_obj_set_size(target, 32, 24);
+        lv_obj_set_pos(target, 8 + (int)i * 32, 28);
+        ui_obj_set_scrollable(target, false);
+        ui_obj_set_clickable(target, true);
+        ui_obj_set_event_bubble(target, false);
+        ui_obj_set_gesture_bubble(target, true);
+        s_page_target_index[i] = i;
+        lv_obj_add_event_cb(target, page_indicator_click, LV_EVENT_CLICKED, &s_page_target_index[i]);
+
+        lv_obj_t *mark = lv_obj_create(target);
+        lv_obj_remove_style_all(mark);
+        lv_obj_set_size(mark, i == s_page ? 20 : 8, 8);
+        lv_obj_align(mark, LV_ALIGN_CENTER, 0, 0);
+        lv_obj_set_style_bg_color(mark, lv_color_hex(i == s_page ? TOOLS_WHITE : TOOLS_GRAY), 0);
+        lv_obj_set_style_bg_opa(mark, LV_OPA_COVER, 0);
+        lv_obj_set_style_radius(mark, LV_RADIUS_CIRCLE, 0);
+        ui_obj_set_scrollable(mark, false);
+        ui_obj_set_clickable(mark, false);
+        s_page_marks[i] = mark;
+    }
+}
+
 static void codex_enter(lv_obj_t *parent) {
     launcher_set_title("Codex");
     s_page = CODEX_PAGE_USAGE;
@@ -421,10 +468,7 @@ static void codex_enter(lv_obj_t *parent) {
     create_radar(s_pages[CODEX_PAGE_RADAR]);
     create_activity(s_pages[CODEX_PAGE_ACTIVITY]);
     create_buddy(s_pages[CODEX_PAGE_BUDDY]);
-    s_page_control = codex_surface(s_root, 177, 326, 112, 44);
-    s_page_index = label(s_page_control, "1 / 4  >", &font_tools_19, 56, 22, 112, TOOLS_WHITE, 1);
-    ui_obj_set_clickable(s_page_control, true);
-    lv_obj_add_event_cb(s_page_control, page_control_click, LV_EVENT_CLICKED, NULL);
+    create_page_control(s_root);
     lv_obj_add_event_cb(s_root, codex_gesture, LV_EVENT_GESTURE, NULL);
     codex_client_set_visible(true);
     page_update();
@@ -462,6 +506,7 @@ static void codex_exit(void) {
     s_activity_battery = s_activity_radar = s_activity_sync = NULL;
     s_buddy_art = s_buddy_state = s_buddy_tasks = NULL;
     s_page_index = s_page_control = NULL;
+    memset(s_page_marks, 0, sizeof(s_page_marks));
 }
 
 const app_t app_codex = {

@@ -76,6 +76,7 @@ void app_main(void) {
     settings_init();                 // 读 NVS + 应用亮度(需 display 已 init)
     i18n_init();                     // 语言表 + CJK fallback 字体(需在建主题/launcher 前)
     bool touch_ready=touch_init(s_i2c_bus,disp);
+    display_attach_te_interrupt();
 
     lv_obj_t *boot=NULL;bool launcher_ready=false;
     ESP_LOGI(TAG,"startup stage=UI begin touch=%d",touch_ready);

@@ -4,6 +4,8 @@
 
 // 初始化 CO5300 QSPI 面板 + lvgl_port(双缓冲/DMA),返回 LVGL 显示句柄
 lv_display_t *display_init(void);
+// Call after touch_init; LVGL's touch port installs the shared GPIO ISR service.
+void display_attach_te_interrupt(void);
 // 在 LVGL 锁内调用；仅天气页使用临时 PSRAM 完整帧与 TE 同步。
 void display_weather_mode(bool enabled);
 

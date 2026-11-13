@@ -9,7 +9,7 @@ typedef struct {lv_obj_t obj; uint32_t elapsed_ms;} reactor_t;
 typedef struct {lv_obj_t obj; lv_obj_t *logo,*name,*status; bool elapsed,ready;} boot_t;
 static lv_obj_t *s_boot;
 static const char *s_jarvis_matrix[]={"00111","00010","00010","00010","00010","10010","01100"};
-enum { REACTOR_SIZE=176, REACTOR_RADIUS=74, REACTOR_DOT_COUNT=72 };
+enum { REACTOR_SIZE=176, REACTOR_RADIUS=74, REACTOR_DOT_COUNT=72, BOOT_REACTOR_SIZE=240 };
 #define REACTOR_CYAN 0x00d9f2
 #define REACTOR_ICE  0xbefaff
 #define REACTOR_DIM  0x174550
@@ -251,9 +251,9 @@ lv_obj_t *identity_boot_create(lv_obj_t *parent) {
     lv_obj_set_clickable(obj,true);
     s_boot=obj;lv_obj_add_event_cb(obj,boot_deleted,LV_EVENT_DELETE,NULL);
     boot_t *boot=(boot_t *)obj;
-    boot->logo=reactor_create(obj,176);boot->name=lv_label_create(obj);boot->status=lv_label_create(obj);
+    boot->logo=reactor_create(obj,BOOT_REACTOR_SIZE);boot->name=lv_label_create(obj);boot->status=lv_label_create(obj);
     if(!boot->logo||!boot->name||!boot->status){lv_obj_delete(obj);return NULL;}
-    lv_obj_set_pos(boot->logo,145,145);
+    lv_obj_set_pos(boot->logo,(466-BOOT_REACTOR_SIZE)/2,82);
     lv_obj_set_gesture_bubble(boot->logo,false);
     lv_obj_set_clickable(boot->name,false);lv_obj_set_gesture_bubble(boot->name,false);
     lv_label_set_text(boot->name,"JARVIS OS");lv_obj_set_width(boot->name,300);lv_obj_set_x(boot->name,83);

@@ -27,7 +27,7 @@ static esp_lcd_panel_handle_t    s_panel;    // 用于熄屏/亮屏
 static lv_display_t *s_disp;
 static SemaphoreHandle_t s_te,s_dma;
 static volatile bool s_frame_sending;
-static bool s_te_ready,s_te_warned;
+static bool s_te_gpio_ready,s_te_ready,s_te_warned;
 static volatile uint32_t s_transfer_count;
 static display_frame_gate_t s_frame_gate;
 #if CONFIG_PM_ENABLE
@@ -266,10 +266,8 @@ lv_display_t *display_init(void) {
     s_refresh.wait_te=wait_te;s_refresh.send=send_frame_tile;s_refresh.wait_send=wait_frame_tile;
     lv_display_set_flush_cb(disp,synchronized_flush);
     gpio_config_t te={.pin_bit_mask=1ULL<<LCD_TE,.mode=GPIO_MODE_INPUT,.intr_type=GPIO_INTR_POSEDGE};
-    esp_err_t isr=gpio_install_isr_service(0);
-    s_te_ready=(isr==ESP_OK||isr==ESP_ERR_INVALID_STATE)&&gpio_config(&te)==ESP_OK&&gpio_isr_handler_add(LCD_TE,te_edge,NULL)==ESP_OK;
-    if(!s_te_ready)ESP_LOGW(TAG,"TE setup unavailable; complete-frame refresh remains enabled for weather");
-    else gpio_intr_disable(LCD_TE);
+    s_te_gpio_ready=gpio_config(&te)==ESP_OK;
+    if(!s_te_gpio_ready)ESP_LOGW(TAG,"TE GPIO unavailable; complete-frame refresh remains enabled for weather");
 #if CONFIG_PM_ENABLE
     if(esp_pm_lock_create(ESP_PM_NO_LIGHT_SLEEP,0,"weather_te",&s_te_awake)!=ESP_OK)
         ESP_LOGW(TAG,"TE light-sleep guard unavailable");
@@ -280,6 +278,25 @@ lv_display_t *display_init(void) {
     lv_display_add_event_cb(disp,weather_timing_event,LV_EVENT_REFR_READY,NULL);
     lvgl_port_unlock();
     return disp;
+}
+
+void display_attach_te_interrupt(void) {
+    if(!s_disp||!s_te_gpio_ready||s_te_ready)return;
+    if(!lvgl_port_lock(5000)) {
+        ESP_LOGW(TAG,"TE setup skipped; LVGL lock unavailable");
+        return;
+    }
+    // lvgl_port_add_touch installs the shared GPIO ISR service. Attach the
+    // display TE handler afterward instead of installing that service twice.
+    esp_err_t err=gpio_isr_handler_add(LCD_TE,te_edge,NULL);
+    if(err==ESP_OK) {
+        s_te_ready=true;
+        gpio_intr_disable(LCD_TE);
+    } else {
+        ESP_LOGW(TAG,"TE interrupt unavailable (%s); complete-frame refresh remains enabled for weather",
+                 esp_err_to_name(err));
+    }
+    lvgl_port_unlock();
 }
 
 void display_set_brightness(uint8_t level) {
