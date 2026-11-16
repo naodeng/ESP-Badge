@@ -1,18 +1,21 @@
-# 文档索引
+# 项目文档
 
-## 当前项目文档
+## 当前使用与交付
 
-- [README](../README.md)：功能概览、构建、安装和 bridge 启动。
-- [PRODUCT](../PRODUCT.md)：产品范围、用户任务和体验约束。
-- [系统设计](../design.md)：模块边界、导航、电源行为、数据流与分区。
-- [AGENTS](../AGENTS.md)：代码修改、仓库边界、本地文件和验证约定。
-- [第三方来源](../THIRD_PARTY.md)：上游、组件、素材和许可说明。
+- [架构总览](architecture/system-overview.md)：固件、iOS、网关和共享协议的边界。
+- [开发指南](development/README.md)：工具链、目录、固件/iOS/后端开发入口。
+- [部署指南](deployment/README.md)：唯一固件包、Cloudflare Worker、R2 与 iOS 网关地址。
+- [调试与验收](debugging/README.md)：两种本地调试工具、串口和设备安装检查。
+- [过程与迭代](process/README.md)：范围变更、提交与发布记录约定。
+- [当前项目状态](project-status.md)：已完成项目调整、构建产物和仍需真机验证的项目。
+- [产品范围](../PRODUCT.md) · [系统架构](../design.md) · [许可声明](../THIRD_PARTY.md)
 
-## 设计与计划归档
+## 归档材料
 
-- [`design/history/`](design/history/)：已经实施、调整或被当前固件替代的设计稿。当前实现以根目录 `design.md` 和源码为准。
-- [`plans/`](plans/)：对应历史工作的实施步骤，不代表待办事项或当前代码状态。
+- [`design/history/`](design/history/)：已完成或被当前设计替代的设计记录。
+- [`plans/`](plans/)：历史实施计划，不代表尚未完成的当前任务。
+- [`hardware/`](hardware/)：板卡硬件和接口资料。
+- [`spikes/`](spikes/)：阶段性验证/探索记录。
+- [`../archive/legacy-jarvis/`](../archive/legacy-jarvis/)：不进入当前产品构建的旧 App、工具和网站原型源码。
 
-## 固件模块文档
-
-详细主题文档保留在 [`Jarvis_OS/GeekTool-IDF/`](../Jarvis_OS/GeekTool-IDF/)，例如应用清单、启动流程、网络、表盘、录音和 UI 说明。上游历史说明保留在 [`Jarvis_OS/UPSTREAM_README.md`](../Jarvis_OS/UPSTREAM_README.md)。
+上游 soRound_os 历史 README 保留在 [`../Jarvis_OS/`](../Jarvis_OS/)；当前 Jarvis_OS 使用和维护说明以根目录与本索引为准。

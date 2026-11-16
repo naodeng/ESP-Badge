@@ -1,0 +1,1075 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 77;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		049175E43F70E5C19297B0C7 /* JinanDemoFixture.generated.swift in Sources */ = {isa = PBXBuildFile; fileRef = 409AABB1F255FC1E18E62742 /* JinanDemoFixture.generated.swift */; };
+		0FA48E09091DDFDFCF9CEBC7 /* ble_protocol.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 28DDE3A24C9D3315D0034273 /* ble_protocol.cpp */; };
+		117966187855C12A0CD0B325 /* NavigationModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = DEFC07E8E2DC7DD73EA37F55 /* NavigationModels.swift */; };
+		13D04C0A9892C214F367175C /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 900078CE17BF25FF4421BFB1 /* Assets.xcassets */; };
+		17CBF5F367B5535C71F7B0A8 /* MotoGPSApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0AE10F36584D05DF1E81C0C /* MotoGPSApp.swift */; };
+		198324C2FBF207B3F2B04397 /* SurroundingMapStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = BEF410F2DA87E4E26AB39C47 /* SurroundingMapStore.swift */; };
+		21C7B5448E62F8770545E26F /* RoutePreviewSupportTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 30C4BB9772C51A6F7D3931C8 /* RoutePreviewSupportTests.swift */; };
+		263512E5737519809B62C205 /* GatewaySettingsUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F96B7EEF857CE52E812A459D /* GatewaySettingsUITests.swift */; };
+		27A45BD8D14CA8C4FA5A650C /* MotoNavigationCore.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 17C4D3200B88571F3B412E3D /* MotoNavigationCore.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		3606DD2D692382E740FB6041 /* nav_core.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 432575C8B8283AB587889F58 /* nav_core.cpp */; };
+		38C8B5DDBA1528ADAECDE20F /* BLEWritePumpPolicyTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9B99A2EC4BA3479ACC368164 /* BLEWritePumpPolicyTests.swift */; };
+		3C800CEDC4592C1E33F7E1D4 /* MapTilePlannerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5A9377D4B7ECCB0FAEAEF193 /* MapTilePlannerTests.swift */; };
+		3F326891C6766BB2DDD9D417 /* shanghai-online-map-tile.json in Resources */ = {isa = PBXBuildFile; fileRef = D348F00651E46676563C0B30 /* shanghai-online-map-tile.json */; };
+		41166545A48530EE8EB434DE /* SurroundingMapStoreTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 28E353499168504346A5E341 /* SurroundingMapStoreTests.swift */; };
+		461E2FE8F715D08A82FAB1F2 /* AmapGatewayPlaceProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2400E01E9F95DFA4CF7F36A4 /* AmapGatewayPlaceProvider.swift */; };
+		4797482B32F39ACDFD41F250 /* RouteOverviewMap.swift in Sources */ = {isa = PBXBuildFile; fileRef = BFCA5D9A5FAC2A7864E5E6A8 /* RouteOverviewMap.swift */; };
+		4A5D16EF99FECF080BB49811 /* OfflineMapSceneTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 16D0BA43A7799DCD681B87E9 /* OfflineMapSceneTests.swift */; };
+		4D183927596BE47F48690E61 /* SharedNavigationRuntime.swift in Sources */ = {isa = PBXBuildFile; fileRef = FBFC9A7D3C835A52A635FD20 /* SharedNavigationRuntime.swift */; };
+		51112BDDE396954EE098A099 /* MapTilePlanner.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7DE6DAD261B6C739E14C2A2F /* MapTilePlanner.swift */; };
+		53BCC3F110798C4523F6FA9B /* MotoGPSUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2CCA577D70A51755F11A8718 /* MotoGPSUITests.swift */; };
+		55DF26A60D13C079A463CE1F /* OfflineMapScene.swift in Sources */ = {isa = PBXBuildFile; fileRef = 64D2919955C8F5B02F1E17FF /* OfflineMapScene.swift */; };
+		574EB281C47B9722843FC27E /* MotoNavCoreBridge.mm in Sources */ = {isa = PBXBuildFile; fileRef = 5FBB5370543E12F20AF69669 /* MotoNavCoreBridge.mm */; };
+		5C9DE94A935D7524DD07C0A0 /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = 8DD3EC3D7819C56F1C26D7D7 /* PrivacyInfo.xcprivacy */; };
+		5D0521013439D9888B8B6F83 /* nav_app.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1768AAD971D450E2DE471190 /* nav_app.cpp */; };
+		5E165F83CEE6568B713BD005 /* AmapGatewayRouteProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4642991C2238E6D4F31C43EB /* AmapGatewayRouteProvider.swift */; };
+		6087255CF6283DD6D03E397D /* AppleMusicRemoteController.swift in Sources */ = {isa = PBXBuildFile; fileRef = D6EF5D893E682571B8463215 /* AppleMusicRemoteController.swift */; };
+		664FB0D3DE2AC94F6F2E992F /* NavigationSession.swift in Sources */ = {isa = PBXBuildFile; fileRef = F2ED3DA718DEECA10821F3B8 /* NavigationSession.swift */; };
+		6B7D9019C241B029D8E6F1F0 /* MotoBLEProtocolBridge.mm in Sources */ = {isa = PBXBuildFile; fileRef = AA197BB42294CDC29192D471 /* MotoBLEProtocolBridge.mm */; };
+		6B933A9C5E435CDFC43E20F4 /* AppModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2BA3D9CECC4F092CB80A764E /* AppModel.swift */; };
+		6C0972391072D1A96DC5D1FE /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FEB0C26A1A939B0DD1E16711 /* ContentView.swift */; };
+		7B1C4743C5E40448B052797E /* AppConfiguration.swift in Sources */ = {isa = PBXBuildFile; fileRef = A68027C76750470035A83894 /* AppConfiguration.swift */; };
+		8319199DC05F0B233FB6C8D4 /* ConnectionPolicies.swift in Sources */ = {isa = PBXBuildFile; fileRef = C3D8AC402B3952E90A2A4DDB /* ConnectionPolicies.swift */; };
+		908B538F3201B98A6BB2E247 /* coordinates.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 957F4ED9082D82CC9FF88239 /* coordinates.cpp */; };
+		939B2ECB9109302C42370410 /* jinan-v1.sqlite in Resources */ = {isa = PBXBuildFile; fileRef = A9DEF84548FAD21B5AC93575 /* jinan-v1.sqlite */; };
+		99ABC5C48B0938DA02D9C666 /* NavigationContracts.swift in Sources */ = {isa = PBXBuildFile; fileRef = 40E49AA1E7532130973D3C28 /* NavigationContracts.swift */; };
+		9A661955AA1BC48D5B819884 /* MotoNavigationCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 17C4D3200B88571F3B412E3D /* MotoNavigationCore.framework */; };
+		9F1FC502DE2F598FF42C970A /* jinan_map_scene_sample.json in Resources */ = {isa = PBXBuildFile; fileRef = 2C19D291886044A1C4997A21 /* jinan_map_scene_sample.json */; };
+		9FBCC4B174B09CF4FA1153BB /* jinan_map_scene_sample.json in Resources */ = {isa = PBXBuildFile; fileRef = 2C19D291886044A1C4997A21 /* jinan_map_scene_sample.json */; };
+		A9044D6B454A164AD9E75B3A /* BLEProtocolGoldenCheck.swift in Sources */ = {isa = PBXBuildFile; fileRef = B20252EC58C67FD6682C55C7 /* BLEProtocolGoldenCheck.swift */; };
+		AE46E8718EFDF9ED0A8E662B /* ble-navigation-v1.golden.txt in Resources */ = {isa = PBXBuildFile; fileRef = 32F124214ED971CDF8249AE8 /* ble-navigation-v1.golden.txt */; };
+		B2062BC2CFD7FA2385E92CF3 /* LICENSE.md in Resources */ = {isa = PBXBuildFile; fileRef = 3E4A1B6890189BC4475269D4 /* LICENSE.md */; };
+		B69F47788CF94C06C641784E /* SearchLocationBiasSource.swift in Sources */ = {isa = PBXBuildFile; fileRef = BD8F95E80074DA797953E94F /* SearchLocationBiasSource.swift */; };
+		BC176169385E1699BC74BB44 /* NOTICE in Resources */ = {isa = PBXBuildFile; fileRef = D57F9F11F8DCD3F54FC54553 /* NOTICE */; };
+		BE3CC47E0CE34646A7DA76B4 /* SQLiteOfflineMapSceneIndex.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9DBA51E53BDE2FA1372D7B73 /* SQLiteOfflineMapSceneIndex.swift */; };
+		C20DB423DB140A5A6C4A1A87 /* CoreLocationNavigationSource.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5CEB08A0E0A5CF31CD0711F9 /* CoreLocationNavigationSource.swift */; };
+		C51A3A2C50CCF458753F203E /* DataUseView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AE508A0E515967088C123DC7 /* DataUseView.swift */; };
+		C6FA5722A959A4FE92153FDC /* DemoNavigationSupport.swift in Sources */ = {isa = PBXBuildFile; fileRef = B452196B21A780149241E997 /* DemoNavigationSupport.swift */; };
+		CBE85065EED9F59B7D74D0B8 /* MapDownloadsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9D0A25DF32B53EC734AA9F9D /* MapDownloadsView.swift */; };
+		D2F2B1D0968AB4803C98DE3A /* THIRD_PARTY_NOTICES.md in Resources */ = {isa = PBXBuildFile; fileRef = 90419AAB065F07B13113A7D8 /* THIRD_PARTY_NOTICES.md */; };
+		E70E207270ACBFF1650B3C82 /* ESP32BLECentral.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0C2AD5F356A921AA80344466 /* ESP32BLECentral.swift */; };
+		EC271347EFB8A97D737D945E /* GatewayConfiguration.swift in Sources */ = {isa = PBXBuildFile; fileRef = 78535F861085768C62E33374 /* GatewayConfiguration.swift */; };
+		F04A2ACDC9AF5EDB5C0E7DFD /* libsqlite3.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = 8942D0D867332F30E3A95F25 /* libsqlite3.tbd */; };
+		F144903669947BB629D9C96A /* OnlineMapWireTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 89BD7429898D3D68716EA449 /* OnlineMapWireTests.swift */; };
+		F56CA70E9D28D2E38F433BC5 /* GatewaySettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 43C6251759A90BB969C5E871 /* GatewaySettingsView.swift */; };
+		FF0C85B88BCE36E6291F2D81 /* RoutePreviewSupport.swift in Sources */ = {isa = PBXBuildFile; fileRef = A324523380D91E555B8DE1B2 /* RoutePreviewSupport.swift */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		02DC2E1365DBB54DA71E30F1 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 4F3F1D667CD87A104268D513 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 6A753CA38B573D7AC5D8FF35;
+			remoteInfo = MotoNavigationCore;
+		};
+		62FD25B18E88CE34DB31E307 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 4F3F1D667CD87A104268D513 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 6C3699E918C19EDD29B3341F;
+			remoteInfo = MotoGPS;
+		};
+		7385B5A0BFA0E11934ED9E6B /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 4F3F1D667CD87A104268D513 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 6C3699E918C19EDD29B3341F;
+			remoteInfo = MotoGPS;
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXCopyFilesBuildPhase section */
+		D5D0AFF81253F83158167BC6 /* Embed Frameworks */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 10;
+			files = (
+				27A45BD8D14CA8C4FA5A650C /* MotoNavigationCore.framework in Embed Frameworks */,
+			);
+			name = "Embed Frameworks";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
+
+/* Begin PBXFileReference section */
+		03F492F5C936AB77C00397B3 /* MotoBLEProtocolBridge.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MotoBLEProtocolBridge.h; sourceTree = "<group>"; };
+		0C2AD5F356A921AA80344466 /* ESP32BLECentral.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ESP32BLECentral.swift; sourceTree = "<group>"; };
+		16D0BA43A7799DCD681B87E9 /* OfflineMapSceneTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OfflineMapSceneTests.swift; sourceTree = "<group>"; };
+		1768AAD971D450E2DE471190 /* nav_app.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = nav_app.cpp; sourceTree = "<group>"; };
+		17C4D3200B88571F3B412E3D /* MotoNavigationCore.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = MotoNavigationCore.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		2400E01E9F95DFA4CF7F36A4 /* AmapGatewayPlaceProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AmapGatewayPlaceProvider.swift; sourceTree = "<group>"; };
+		28DDE3A24C9D3315D0034273 /* ble_protocol.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = ble_protocol.cpp; sourceTree = "<group>"; };
+		28E353499168504346A5E341 /* SurroundingMapStoreTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SurroundingMapStoreTests.swift; sourceTree = "<group>"; };
+		2BA3D9CECC4F092CB80A764E /* AppModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppModel.swift; sourceTree = "<group>"; };
+		2BAE7B929E8A15DCCCC67F02 /* MotoGPSUnitTests.xctest */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.cfbundle; path = MotoGPSUnitTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		2C19D291886044A1C4997A21 /* jinan_map_scene_sample.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = jinan_map_scene_sample.json; sourceTree = "<group>"; };
+		2CCA577D70A51755F11A8718 /* MotoGPSUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MotoGPSUITests.swift; sourceTree = "<group>"; };
+		30C4BB9772C51A6F7D3931C8 /* RoutePreviewSupportTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RoutePreviewSupportTests.swift; sourceTree = "<group>"; };
+		32F124214ED971CDF8249AE8 /* ble-navigation-v1.golden.txt */ = {isa = PBXFileReference; lastKnownFileType = text; path = "ble-navigation-v1.golden.txt"; sourceTree = "<group>"; };
+		3A7B643E40D24FFF11E43752 /* MotoGPSUITests.xctest */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.cfbundle; path = MotoGPSUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		3E4A1B6890189BC4475269D4 /* LICENSE.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = LICENSE.md; sourceTree = "<group>"; };
+		409AABB1F255FC1E18E62742 /* JinanDemoFixture.generated.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JinanDemoFixture.generated.swift; sourceTree = "<group>"; };
+		40E49AA1E7532130973D3C28 /* NavigationContracts.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NavigationContracts.swift; sourceTree = "<group>"; };
+		432575C8B8283AB587889F58 /* nav_core.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = nav_core.cpp; sourceTree = "<group>"; };
+		43C6251759A90BB969C5E871 /* GatewaySettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GatewaySettingsView.swift; sourceTree = "<group>"; };
+		4642991C2238E6D4F31C43EB /* AmapGatewayRouteProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AmapGatewayRouteProvider.swift; sourceTree = "<group>"; };
+		5A9377D4B7ECCB0FAEAEF193 /* MapTilePlannerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MapTilePlannerTests.swift; sourceTree = "<group>"; };
+		5CEB08A0E0A5CF31CD0711F9 /* CoreLocationNavigationSource.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CoreLocationNavigationSource.swift; sourceTree = "<group>"; };
+		5FBB5370543E12F20AF69669 /* MotoNavCoreBridge.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = MotoNavCoreBridge.mm; sourceTree = "<group>"; };
+		64D2919955C8F5B02F1E17FF /* OfflineMapScene.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OfflineMapScene.swift; sourceTree = "<group>"; };
+		6A58F293F4A4FAF145F7C87C /* MotoGPS.app */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.application; path = MotoGPS.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		78535F861085768C62E33374 /* GatewayConfiguration.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GatewayConfiguration.swift; sourceTree = "<group>"; };
+		7DE6DAD261B6C739E14C2A2F /* MapTilePlanner.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MapTilePlanner.swift; sourceTree = "<group>"; };
+		8942D0D867332F30E3A95F25 /* libsqlite3.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = libsqlite3.tbd; path = usr/lib/libsqlite3.tbd; sourceTree = SDKROOT; };
+		89BD7429898D3D68716EA449 /* OnlineMapWireTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnlineMapWireTests.swift; sourceTree = "<group>"; };
+		8DD3EC3D7819C56F1C26D7D7 /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; path = PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
+		900078CE17BF25FF4421BFB1 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		90419AAB065F07B13113A7D8 /* THIRD_PARTY_NOTICES.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = THIRD_PARTY_NOTICES.md; sourceTree = "<group>"; };
+		957F4ED9082D82CC9FF88239 /* coordinates.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = coordinates.cpp; sourceTree = "<group>"; };
+		9B99A2EC4BA3479ACC368164 /* BLEWritePumpPolicyTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BLEWritePumpPolicyTests.swift; sourceTree = "<group>"; };
+		9D0A25DF32B53EC734AA9F9D /* MapDownloadsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MapDownloadsView.swift; sourceTree = "<group>"; };
+		9DBA51E53BDE2FA1372D7B73 /* SQLiteOfflineMapSceneIndex.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SQLiteOfflineMapSceneIndex.swift; sourceTree = "<group>"; };
+		A0AE10F36584D05DF1E81C0C /* MotoGPSApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MotoGPSApp.swift; sourceTree = "<group>"; };
+		A324523380D91E555B8DE1B2 /* RoutePreviewSupport.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RoutePreviewSupport.swift; sourceTree = "<group>"; };
+		A68027C76750470035A83894 /* AppConfiguration.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppConfiguration.swift; sourceTree = "<group>"; };
+		A9DEF84548FAD21B5AC93575 /* jinan-v1.sqlite */ = {isa = PBXFileReference; lastKnownFileType = file; path = "jinan-v1.sqlite"; sourceTree = "<group>"; };
+		AA197BB42294CDC29192D471 /* MotoBLEProtocolBridge.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = MotoBLEProtocolBridge.mm; sourceTree = "<group>"; };
+		AE508A0E515967088C123DC7 /* DataUseView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DataUseView.swift; sourceTree = "<group>"; };
+		B20252EC58C67FD6682C55C7 /* BLEProtocolGoldenCheck.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BLEProtocolGoldenCheck.swift; sourceTree = "<group>"; };
+		B452196B21A780149241E997 /* DemoNavigationSupport.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DemoNavigationSupport.swift; sourceTree = "<group>"; };
+		BD8F95E80074DA797953E94F /* SearchLocationBiasSource.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SearchLocationBiasSource.swift; sourceTree = "<group>"; };
+		BEF410F2DA87E4E26AB39C47 /* SurroundingMapStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SurroundingMapStore.swift; sourceTree = "<group>"; };
+		BFCA5D9A5FAC2A7864E5E6A8 /* RouteOverviewMap.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RouteOverviewMap.swift; sourceTree = "<group>"; };
+		C3D8AC402B3952E90A2A4DDB /* ConnectionPolicies.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConnectionPolicies.swift; sourceTree = "<group>"; };
+		D348F00651E46676563C0B30 /* shanghai-online-map-tile.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = "shanghai-online-map-tile.json"; sourceTree = "<group>"; };
+		D57F9F11F8DCD3F54FC54553 /* NOTICE */ = {isa = PBXFileReference; path = NOTICE; sourceTree = "<group>"; };
+		D6EF5D893E682571B8463215 /* AppleMusicRemoteController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppleMusicRemoteController.swift; sourceTree = "<group>"; };
+		DDD7E8BAB66738DE80AE7703 /* MotoGPS-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "MotoGPS-Bridging-Header.h"; sourceTree = "<group>"; };
+		DEFC07E8E2DC7DD73EA37F55 /* NavigationModels.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NavigationModels.swift; sourceTree = "<group>"; };
+		F2ED3DA718DEECA10821F3B8 /* NavigationSession.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NavigationSession.swift; sourceTree = "<group>"; };
+		F96B7EEF857CE52E812A459D /* GatewaySettingsUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GatewaySettingsUITests.swift; sourceTree = "<group>"; };
+		FBFC9A7D3C835A52A635FD20 /* SharedNavigationRuntime.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SharedNavigationRuntime.swift; sourceTree = "<group>"; };
+		FEA3F6EC99BF56EACD177A90 /* MotoNavCoreBridge.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MotoNavCoreBridge.h; sourceTree = "<group>"; };
+		FEB0C26A1A939B0DD1E16711 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		649EF3BFBA3D932FAA65FA56 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				9A661955AA1BC48D5B819884 /* MotoNavigationCore.framework in Frameworks */,
+				F04A2ACDC9AF5EDB5C0E7DFD /* libsqlite3.tbd in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		04927CFDA09F8845AC8972B8 /* demo_fixture */ = {
+			isa = PBXGroup;
+			children = (
+				2C19D291886044A1C4997A21 /* jinan_map_scene_sample.json */,
+			);
+			path = demo_fixture;
+			sourceTree = "<group>";
+		};
+		1269C642BBB3CED54CDCDEA1 /* packages */ = {
+			isa = PBXGroup;
+			children = (
+				D22AFEE9D80E885FC565C4AB /* moto-gps */,
+			);
+			path = packages;
+			sourceTree = "<group>";
+		};
+		18E1730E4848521BF58DC5A3 /* Sources */ = {
+			isa = PBXGroup;
+			children = (
+				67D895020E9F46AEC15DAE55 /* MotoNavigationCore */,
+			);
+			path = Sources;
+			sourceTree = "<group>";
+		};
+		1DA83FA332D4CF567B1943FC /* fixtures */ = {
+			isa = PBXGroup;
+			children = (
+				32F124214ED971CDF8249AE8 /* ble-navigation-v1.golden.txt */,
+			);
+			path = fixtures;
+			sourceTree = "<group>";
+		};
+		3019859A85DD7E9167AE5A8C /* ble_protocol */ = {
+			isa = PBXGroup;
+			children = (
+				6898C50F5EBAA05C7B7A3E43 /* src */,
+			);
+			path = ble_protocol;
+			sourceTree = "<group>";
+		};
+		3AE0F68ABC1B76FB27B3CC52 /* OfflineMap */ = {
+			isa = PBXGroup;
+			children = (
+				7DE6DAD261B6C739E14C2A2F /* MapTilePlanner.swift */,
+				64D2919955C8F5B02F1E17FF /* OfflineMapScene.swift */,
+				9DBA51E53BDE2FA1372D7B73 /* SQLiteOfflineMapSceneIndex.swift */,
+				BEF410F2DA87E4E26AB39C47 /* SurroundingMapStore.swift */,
+			);
+			path = OfflineMap;
+			sourceTree = "<group>";
+		};
+		3F0DF8DE8956C1E8E67D44CD /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				6A58F293F4A4FAF145F7C87C /* MotoGPS.app */,
+				3A7B643E40D24FFF11E43752 /* MotoGPSUITests.xctest */,
+				2BAE7B929E8A15DCCCC67F02 /* MotoGPSUnitTests.xctest */,
+				17C4D3200B88571F3B412E3D /* MotoNavigationCore.framework */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		408A79A4980F9F0F07E7A5FA /* App */ = {
+			isa = PBXGroup;
+			children = (
+				A68027C76750470035A83894 /* AppConfiguration.swift */,
+				2BA3D9CECC4F092CB80A764E /* AppModel.swift */,
+				900078CE17BF25FF4421BFB1 /* Assets.xcassets */,
+				FEB0C26A1A939B0DD1E16711 /* ContentView.swift */,
+				AE508A0E515967088C123DC7 /* DataUseView.swift */,
+				43C6251759A90BB969C5E871 /* GatewaySettingsView.swift */,
+				9D0A25DF32B53EC734AA9F9D /* MapDownloadsView.swift */,
+				DDD7E8BAB66738DE80AE7703 /* MotoGPS-Bridging-Header.h */,
+				A0AE10F36584D05DF1E81C0C /* MotoGPSApp.swift */,
+				8DD3EC3D7819C56F1C26D7D7 /* PrivacyInfo.xcprivacy */,
+				BFCA5D9A5FAC2A7864E5E6A8 /* RouteOverviewMap.swift */,
+				F61F3FF1D4B7B0BD69519948 /* Adapters */,
+			);
+			path = App;
+			sourceTree = "<group>";
+		};
+		47BD9C4B4983F52E660664A3 /* shared */ = {
+			isa = PBXGroup;
+			children = (
+				3019859A85DD7E9167AE5A8C /* ble_protocol */,
+				AF8331A789163D8E7B4A4F57 /* coordinates */,
+				04927CFDA09F8845AC8972B8 /* demo_fixture */,
+				C842D721E962ADA65CDFE0C0 /* nav_app */,
+				DFAFD52276DD208920763DBA /* nav_core */,
+				E7F5143CAAE1781BFB88A05A /* offline_map */,
+				CEDAADDA346BA748CD496D92 /* protocol */,
+			);
+			path = shared;
+			sourceTree = "<group>";
+		};
+		5334275531C4B6D57128AD7F /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				8942D0D867332F30E3A95F25 /* libsqlite3.tbd */,
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
+		67D895020E9F46AEC15DAE55 /* MotoNavigationCore */ = {
+			isa = PBXGroup;
+			children = (
+				C3D8AC402B3952E90A2A4DDB /* ConnectionPolicies.swift */,
+				78535F861085768C62E33374 /* GatewayConfiguration.swift */,
+				40E49AA1E7532130973D3C28 /* NavigationContracts.swift */,
+				DEFC07E8E2DC7DD73EA37F55 /* NavigationModels.swift */,
+				F2ED3DA718DEECA10821F3B8 /* NavigationSession.swift */,
+			);
+			path = MotoNavigationCore;
+			sourceTree = "<group>";
+		};
+		6898C50F5EBAA05C7B7A3E43 /* src */ = {
+			isa = PBXGroup;
+			children = (
+				28DDE3A24C9D3315D0034273 /* ble_protocol.cpp */,
+			);
+			path = src;
+			sourceTree = "<group>";
+		};
+		6A323ADF2CB30BDE57CA6139 /* Fixtures */ = {
+			isa = PBXGroup;
+			children = (
+				D348F00651E46676563C0B30 /* shanghai-online-map-tile.json */,
+			);
+			path = Fixtures;
+			sourceTree = "<group>";
+		};
+		7963B5E14B968D4BC78C42E7 /* ESP-Badge */ = {
+			isa = PBXGroup;
+			children = (
+				B76604612233DF6A30D28A57 /* licenses */,
+				1269C642BBB3CED54CDCDEA1 /* packages */,
+			);
+			name = "ESP-Badge";
+			path = ../../..;
+			sourceTree = "<group>";
+		};
+		7F37CA93A56E8B0B09174B57 /* Navigation */ = {
+			isa = PBXGroup;
+			children = (
+				2400E01E9F95DFA4CF7F36A4 /* AmapGatewayPlaceProvider.swift */,
+				4642991C2238E6D4F31C43EB /* AmapGatewayRouteProvider.swift */,
+				B452196B21A780149241E997 /* DemoNavigationSupport.swift */,
+				409AABB1F255FC1E18E62742 /* JinanDemoFixture.generated.swift */,
+				FEA3F6EC99BF56EACD177A90 /* MotoNavCoreBridge.h */,
+				5FBB5370543E12F20AF69669 /* MotoNavCoreBridge.mm */,
+				A324523380D91E555B8DE1B2 /* RoutePreviewSupport.swift */,
+				FBFC9A7D3C835A52A635FD20 /* SharedNavigationRuntime.swift */,
+			);
+			path = Navigation;
+			sourceTree = "<group>";
+		};
+		888CA30B9FE2EBC20DDD7923 /* Location */ = {
+			isa = PBXGroup;
+			children = (
+				5CEB08A0E0A5CF31CD0711F9 /* CoreLocationNavigationSource.swift */,
+				BD8F95E80074DA797953E94F /* SearchLocationBiasSource.swift */,
+			);
+			path = Location;
+			sourceTree = "<group>";
+		};
+		9D96000AD55D48E73B46D9E7 /* UITests */ = {
+			isa = PBXGroup;
+			children = (
+				F96B7EEF857CE52E812A459D /* GatewaySettingsUITests.swift */,
+				2CCA577D70A51755F11A8718 /* MotoGPSUITests.swift */,
+			);
+			path = UITests;
+			sourceTree = "<group>";
+		};
+		AF8331A789163D8E7B4A4F57 /* coordinates */ = {
+			isa = PBXGroup;
+			children = (
+				957F4ED9082D82CC9FF88239 /* coordinates.cpp */,
+			);
+			path = coordinates;
+			sourceTree = "<group>";
+		};
+		B76604612233DF6A30D28A57 /* licenses */ = {
+			isa = PBXGroup;
+			children = (
+				C5DB941E6E5BB23F286B66D8 /* moto-gps */,
+			);
+			path = licenses;
+			sourceTree = "<group>";
+		};
+		C372AD2741FCF1C46F09FB74 /* AppTests */ = {
+			isa = PBXGroup;
+			children = (
+				9B99A2EC4BA3479ACC368164 /* BLEWritePumpPolicyTests.swift */,
+				5A9377D4B7ECCB0FAEAEF193 /* MapTilePlannerTests.swift */,
+				16D0BA43A7799DCD681B87E9 /* OfflineMapSceneTests.swift */,
+				89BD7429898D3D68716EA449 /* OnlineMapWireTests.swift */,
+				30C4BB9772C51A6F7D3931C8 /* RoutePreviewSupportTests.swift */,
+				28E353499168504346A5E341 /* SurroundingMapStoreTests.swift */,
+				6A323ADF2CB30BDE57CA6139 /* Fixtures */,
+			);
+			path = AppTests;
+			sourceTree = "<group>";
+		};
+		C5DB941E6E5BB23F286B66D8 /* moto-gps */ = {
+			isa = PBXGroup;
+			children = (
+				3E4A1B6890189BC4475269D4 /* LICENSE.md */,
+				D57F9F11F8DCD3F54FC54553 /* NOTICE */,
+				90419AAB065F07B13113A7D8 /* THIRD_PARTY_NOTICES.md */,
+			);
+			path = "moto-gps";
+			sourceTree = "<group>";
+		};
+		C6E7ECBC4CC8400C309342ED /* Media */ = {
+			isa = PBXGroup;
+			children = (
+				D6EF5D893E682571B8463215 /* AppleMusicRemoteController.swift */,
+			);
+			path = Media;
+			sourceTree = "<group>";
+		};
+		C842D721E962ADA65CDFE0C0 /* nav_app */ = {
+			isa = PBXGroup;
+			children = (
+				1768AAD971D450E2DE471190 /* nav_app.cpp */,
+			);
+			path = nav_app;
+			sourceTree = "<group>";
+		};
+		CEDAADDA346BA748CD496D92 /* protocol */ = {
+			isa = PBXGroup;
+			children = (
+				1DA83FA332D4CF567B1943FC /* fixtures */,
+			);
+			path = protocol;
+			sourceTree = "<group>";
+		};
+		D1496A803333C3FD7A0C1494 /* BLE */ = {
+			isa = PBXGroup;
+			children = (
+				B20252EC58C67FD6682C55C7 /* BLEProtocolGoldenCheck.swift */,
+				0C2AD5F356A921AA80344466 /* ESP32BLECentral.swift */,
+				03F492F5C936AB77C00397B3 /* MotoBLEProtocolBridge.h */,
+				AA197BB42294CDC29192D471 /* MotoBLEProtocolBridge.mm */,
+			);
+			path = BLE;
+			sourceTree = "<group>";
+		};
+		D22AFEE9D80E885FC565C4AB /* moto-gps */ = {
+			isa = PBXGroup;
+			children = (
+				47BD9C4B4983F52E660664A3 /* shared */,
+			);
+			path = "moto-gps";
+			sourceTree = "<group>";
+		};
+		DFAFD52276DD208920763DBA /* nav_core */ = {
+			isa = PBXGroup;
+			children = (
+				432575C8B8283AB587889F58 /* nav_core.cpp */,
+			);
+			path = nav_core;
+			sourceTree = "<group>";
+		};
+		E47A21B71B4F9C9259809669 = {
+			isa = PBXGroup;
+			children = (
+				408A79A4980F9F0F07E7A5FA /* App */,
+				C372AD2741FCF1C46F09FB74 /* AppTests */,
+				7963B5E14B968D4BC78C42E7 /* ESP-Badge */,
+				18E1730E4848521BF58DC5A3 /* Sources */,
+				9D96000AD55D48E73B46D9E7 /* UITests */,
+				5334275531C4B6D57128AD7F /* Frameworks */,
+				3F0DF8DE8956C1E8E67D44CD /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		E7F5143CAAE1781BFB88A05A /* offline_map */ = {
+			isa = PBXGroup;
+			children = (
+				A9DEF84548FAD21B5AC93575 /* jinan-v1.sqlite */,
+			);
+			path = offline_map;
+			sourceTree = "<group>";
+		};
+		F61F3FF1D4B7B0BD69519948 /* Adapters */ = {
+			isa = PBXGroup;
+			children = (
+				D1496A803333C3FD7A0C1494 /* BLE */,
+				888CA30B9FE2EBC20DDD7923 /* Location */,
+				C6E7ECBC4CC8400C309342ED /* Media */,
+				7F37CA93A56E8B0B09174B57 /* Navigation */,
+				3AE0F68ABC1B76FB27B3CC52 /* OfflineMap */,
+			);
+			path = Adapters;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		6A753CA38B573D7AC5D8FF35 /* MotoNavigationCore */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 217FE6068A442A2D9C32CE82 /* Build configuration list for PBXNativeTarget "MotoNavigationCore" */;
+			buildPhases = (
+				AEF7B0E9296D73EA61C0B35E /* Sources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = MotoNavigationCore;
+			packageProductDependencies = (
+			);
+			productName = MotoNavigationCore;
+			productReference = 17C4D3200B88571F3B412E3D /* MotoNavigationCore.framework */;
+			productType = "com.apple.product-type.framework";
+		};
+		6C3699E918C19EDD29B3341F /* MotoGPS */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = EE7F05764FA16C573A59A1E0 /* Build configuration list for PBXNativeTarget "MotoGPS" */;
+			buildPhases = (
+				34E2CE68F682D895758EF2FC /* Sources */,
+				9F2373F226039E2D68269402 /* Resources */,
+				649EF3BFBA3D932FAA65FA56 /* Frameworks */,
+				D5D0AFF81253F83158167BC6 /* Embed Frameworks */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				8A6B45E52B3F319A580AD4DC /* PBXTargetDependency */,
+			);
+			name = MotoGPS;
+			packageProductDependencies = (
+			);
+			productName = MotoGPS;
+			productReference = 6A58F293F4A4FAF145F7C87C /* MotoGPS.app */;
+			productType = "com.apple.product-type.application";
+		};
+		B557BCBD4EE1ED28CBED1106 /* MotoGPSUnitTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 1183F58CCAAB25E7367C582E /* Build configuration list for PBXNativeTarget "MotoGPSUnitTests" */;
+			buildPhases = (
+				3DBFED22532F1F73D719FF5F /* Sources */,
+				2EB3F028A9620B3C9B794553 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				1CE5FFA606C1FD87F411BD95 /* PBXTargetDependency */,
+			);
+			name = MotoGPSUnitTests;
+			packageProductDependencies = (
+			);
+			productName = MotoGPSUnitTests;
+			productReference = 2BAE7B929E8A15DCCCC67F02 /* MotoGPSUnitTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
+		BE90135D8892001600BA7C83 /* MotoGPSUITests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 4A39A3FC3327B5C14164E0B9 /* Build configuration list for PBXNativeTarget "MotoGPSUITests" */;
+			buildPhases = (
+				0C2F27864E72B6C8785B6160 /* Sources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				74265A86ED9D154ADE8DDD5B /* PBXTargetDependency */,
+			);
+			name = MotoGPSUITests;
+			packageProductDependencies = (
+			);
+			productName = MotoGPSUITests;
+			productReference = 3A7B643E40D24FFF11E43752 /* MotoGPSUITests.xctest */;
+			productType = "com.apple.product-type.bundle.ui-testing";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		4F3F1D667CD87A104268D513 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				BuildIndependentTargetsInParallel = YES;
+				LastUpgradeCheck = 1600;
+				TargetAttributes = {
+					6C3699E918C19EDD29B3341F = {
+						DevelopmentTeam = "";
+						ProvisioningStyle = Automatic;
+					};
+					BE90135D8892001600BA7C83 = {
+						TestTargetID = 6C3699E918C19EDD29B3341F;
+					};
+				};
+			};
+			buildConfigurationList = D60F679BD245A4BCAAEEE106 /* Build configuration list for PBXProject "MotoGPS" */;
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				Base,
+				en,
+			);
+			mainGroup = E47A21B71B4F9C9259809669;
+			minimizedProjectReferenceProxies = 1;
+			preferredProjectObjectVersion = 77;
+			productRefGroup = 3F0DF8DE8956C1E8E67D44CD /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				6A753CA38B573D7AC5D8FF35 /* MotoNavigationCore */,
+				6C3699E918C19EDD29B3341F /* MotoGPS */,
+				BE90135D8892001600BA7C83 /* MotoGPSUITests */,
+				B557BCBD4EE1ED28CBED1106 /* MotoGPSUnitTests */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		2EB3F028A9620B3C9B794553 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				9FBCC4B174B09CF4FA1153BB /* jinan_map_scene_sample.json in Resources */,
+				3F326891C6766BB2DDD9D417 /* shanghai-online-map-tile.json in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		9F2373F226039E2D68269402 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				13D04C0A9892C214F367175C /* Assets.xcassets in Resources */,
+				B2062BC2CFD7FA2385E92CF3 /* LICENSE.md in Resources */,
+				BC176169385E1699BC74BB44 /* NOTICE in Resources */,
+				5C9DE94A935D7524DD07C0A0 /* PrivacyInfo.xcprivacy in Resources */,
+				D2F2B1D0968AB4803C98DE3A /* THIRD_PARTY_NOTICES.md in Resources */,
+				AE46E8718EFDF9ED0A8E662B /* ble-navigation-v1.golden.txt in Resources */,
+				939B2ECB9109302C42370410 /* jinan-v1.sqlite in Resources */,
+				9F1FC502DE2F598FF42C970A /* jinan_map_scene_sample.json in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		0C2F27864E72B6C8785B6160 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				263512E5737519809B62C205 /* GatewaySettingsUITests.swift in Sources */,
+				53BCC3F110798C4523F6FA9B /* MotoGPSUITests.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		34E2CE68F682D895758EF2FC /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				461E2FE8F715D08A82FAB1F2 /* AmapGatewayPlaceProvider.swift in Sources */,
+				5E165F83CEE6568B713BD005 /* AmapGatewayRouteProvider.swift in Sources */,
+				7B1C4743C5E40448B052797E /* AppConfiguration.swift in Sources */,
+				6B933A9C5E435CDFC43E20F4 /* AppModel.swift in Sources */,
+				6087255CF6283DD6D03E397D /* AppleMusicRemoteController.swift in Sources */,
+				A9044D6B454A164AD9E75B3A /* BLEProtocolGoldenCheck.swift in Sources */,
+				6C0972391072D1A96DC5D1FE /* ContentView.swift in Sources */,
+				C20DB423DB140A5A6C4A1A87 /* CoreLocationNavigationSource.swift in Sources */,
+				C51A3A2C50CCF458753F203E /* DataUseView.swift in Sources */,
+				C6FA5722A959A4FE92153FDC /* DemoNavigationSupport.swift in Sources */,
+				E70E207270ACBFF1650B3C82 /* ESP32BLECentral.swift in Sources */,
+				F56CA70E9D28D2E38F433BC5 /* GatewaySettingsView.swift in Sources */,
+				049175E43F70E5C19297B0C7 /* JinanDemoFixture.generated.swift in Sources */,
+				CBE85065EED9F59B7D74D0B8 /* MapDownloadsView.swift in Sources */,
+				51112BDDE396954EE098A099 /* MapTilePlanner.swift in Sources */,
+				6B7D9019C241B029D8E6F1F0 /* MotoBLEProtocolBridge.mm in Sources */,
+				17CBF5F367B5535C71F7B0A8 /* MotoGPSApp.swift in Sources */,
+				574EB281C47B9722843FC27E /* MotoNavCoreBridge.mm in Sources */,
+				55DF26A60D13C079A463CE1F /* OfflineMapScene.swift in Sources */,
+				4797482B32F39ACDFD41F250 /* RouteOverviewMap.swift in Sources */,
+				FF0C85B88BCE36E6291F2D81 /* RoutePreviewSupport.swift in Sources */,
+				BE3CC47E0CE34646A7DA76B4 /* SQLiteOfflineMapSceneIndex.swift in Sources */,
+				B69F47788CF94C06C641784E /* SearchLocationBiasSource.swift in Sources */,
+				4D183927596BE47F48690E61 /* SharedNavigationRuntime.swift in Sources */,
+				198324C2FBF207B3F2B04397 /* SurroundingMapStore.swift in Sources */,
+				0FA48E09091DDFDFCF9CEBC7 /* ble_protocol.cpp in Sources */,
+				908B538F3201B98A6BB2E247 /* coordinates.cpp in Sources */,
+				5D0521013439D9888B8B6F83 /* nav_app.cpp in Sources */,
+				3606DD2D692382E740FB6041 /* nav_core.cpp in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		3DBFED22532F1F73D719FF5F /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				38C8B5DDBA1528ADAECDE20F /* BLEWritePumpPolicyTests.swift in Sources */,
+				3C800CEDC4592C1E33F7E1D4 /* MapTilePlannerTests.swift in Sources */,
+				4A5D16EF99FECF080BB49811 /* OfflineMapSceneTests.swift in Sources */,
+				F144903669947BB629D9C96A /* OnlineMapWireTests.swift in Sources */,
+				21C7B5448E62F8770545E26F /* RoutePreviewSupportTests.swift in Sources */,
+				41166545A48530EE8EB434DE /* SurroundingMapStoreTests.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		AEF7B0E9296D73EA61C0B35E /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				8319199DC05F0B233FB6C8D4 /* ConnectionPolicies.swift in Sources */,
+				EC271347EFB8A97D737D945E /* GatewayConfiguration.swift in Sources */,
+				99ABC5C48B0938DA02D9C666 /* NavigationContracts.swift in Sources */,
+				117966187855C12A0CD0B325 /* NavigationModels.swift in Sources */,
+				664FB0D3DE2AC94F6F2E992F /* NavigationSession.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		1CE5FFA606C1FD87F411BD95 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 6C3699E918C19EDD29B3341F /* MotoGPS */;
+			targetProxy = 62FD25B18E88CE34DB31E307 /* PBXContainerItemProxy */;
+		};
+		74265A86ED9D154ADE8DDD5B /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 6C3699E918C19EDD29B3341F /* MotoGPS */;
+			targetProxy = 7385B5A0BFA0E11934ED9E6B /* PBXContainerItemProxy */;
+		};
+		8A6B45E52B3F319A580AD4DC /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 6A753CA38B573D7AC5D8FF35 /* MotoNavigationCore */;
+			targetProxy = 02DC2E1365DBB54DA71E30F1 /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
+
+/* Begin XCBuildConfiguration section */
+		07A9D9B83FEB9929B4E16F00 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				MTL_FAST_MATH = YES;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				SWIFT_COMPILATION_MODE = wholemodule;
+				SWIFT_OPTIMIZATION_LEVEL = "-O";
+				SWIFT_VERSION = 5.0;
+			};
+			name = Release;
+		};
+		4FAF1B74847BA817E1AA838A /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				GENERATE_INFOPLIST_FILE = YES;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = org.example.motogps.uitests;
+				SDKROOT = iphoneos;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_TARGET_NAME = MotoGPS;
+			};
+			name = Debug;
+		};
+		6035F387A56EF9B4D334E7AB /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CLANG_CXX_LANGUAGE_STANDARD = "c++17";
+				CLANG_CXX_LIBRARY = "libc++";
+				CODE_SIGN_ENTITLEMENTS = App/MotoGPS.entitlements;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 6;
+				DEVELOPMENT_TEAM = "";
+				GENERATE_INFOPLIST_FILE = NO;
+				HEADER_SEARCH_PATHS = (
+					"$(SRCROOT)/../../../packages/moto-gps/shared/ble_protocol/include",
+					"$(SRCROOT)/../../../packages/moto-gps/shared/coordinates/include",
+					"$(SRCROOT)/../../../packages/moto-gps/shared",
+					"$(SRCROOT)/../../../packages/moto-gps/shared/nav_app/include",
+				);
+				INFOPLIST_FILE = App/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = 0.3.1;
+				PRODUCT_BUNDLE_IDENTIFIER = org.example.motogps;
+				PRODUCT_NAME = "MOTO GPS";
+				SDKROOT = iphoneos;
+				SWIFT_OBJC_BRIDGING_HEADER = "App/MotoGPS-Bridging-Header.h";
+				SWIFT_STRICT_CONCURRENCY = targeted;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = 1;
+			};
+			name = Debug;
+		};
+		B182AB330DB2BAA022DF96D7 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				GENERATE_INFOPLIST_FILE = YES;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = org.example.motogps.unittests;
+				SDKROOT = iphoneos;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/MOTO GPS.app/MOTO GPS";
+			};
+			name = Release;
+		};
+		CC5CC66B24D592BF787BF102 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				GENERATE_INFOPLIST_FILE = YES;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = org.example.motogps.uitests;
+				SDKROOT = iphoneos;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_TARGET_NAME = MotoGPS;
+			};
+			name = Release;
+		};
+		D07270B5C6D9B459AF4975F6 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_IDENTITY = "";
+				CURRENT_PROJECT_VERSION = 1;
+				DEFINES_MODULE = YES;
+				DYLIB_COMPATIBILITY_VERSION = 1;
+				DYLIB_CURRENT_VERSION = 1;
+				DYLIB_INSTALL_NAME_BASE = "@rpath";
+				GENERATE_INFOPLIST_FILE = YES;
+				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = org.example.motogps.core;
+				SDKROOT = iphoneos;
+				SKIP_INSTALL = YES;
+				SWIFT_VERSION = 6.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				VERSIONING_SYSTEM = "apple-generic";
+			};
+			name = Debug;
+		};
+		E8243348A120DDF6108BC788 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_IDENTITY = "";
+				CURRENT_PROJECT_VERSION = 1;
+				DEFINES_MODULE = YES;
+				DYLIB_COMPATIBILITY_VERSION = 1;
+				DYLIB_CURRENT_VERSION = 1;
+				DYLIB_INSTALL_NAME_BASE = "@rpath";
+				GENERATE_INFOPLIST_FILE = YES;
+				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = org.example.motogps.core;
+				SDKROOT = iphoneos;
+				SKIP_INSTALL = YES;
+				SWIFT_VERSION = 6.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				VERSIONING_SYSTEM = "apple-generic";
+			};
+			name = Release;
+		};
+		EE5D7FF671A721FE93096A56 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CLANG_CXX_LANGUAGE_STANDARD = "c++17";
+				CLANG_CXX_LIBRARY = "libc++";
+				CODE_SIGN_ENTITLEMENTS = App/MotoGPS.entitlements;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 6;
+				DEVELOPMENT_TEAM = "";
+				GENERATE_INFOPLIST_FILE = NO;
+				HEADER_SEARCH_PATHS = (
+					"$(SRCROOT)/../../../packages/moto-gps/shared/ble_protocol/include",
+					"$(SRCROOT)/../../../packages/moto-gps/shared/coordinates/include",
+					"$(SRCROOT)/../../../packages/moto-gps/shared",
+					"$(SRCROOT)/../../../packages/moto-gps/shared/nav_app/include",
+				);
+				INFOPLIST_FILE = App/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = 0.3.1;
+				PRODUCT_BUNDLE_IDENTIFIER = org.example.motogps;
+				PRODUCT_NAME = "MOTO GPS";
+				SDKROOT = iphoneos;
+				SWIFT_OBJC_BRIDGING_HEADER = "App/MotoGPS-Bridging-Header.h";
+				SWIFT_STRICT_CONCURRENCY = targeted;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = 1;
+			};
+			name = Release;
+		};
+		F238FC8E6BC68CBB73288CBF /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"$(inherited)",
+					"DEBUG=1",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_VERSION = 5.0;
+			};
+			name = Debug;
+		};
+		FACD111980AB2876E1853EB0 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				GENERATE_INFOPLIST_FILE = YES;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = org.example.motogps.unittests;
+				SDKROOT = iphoneos;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/MOTO GPS.app/MOTO GPS";
+			};
+			name = Debug;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		1183F58CCAAB25E7367C582E /* Build configuration list for PBXNativeTarget "MotoGPSUnitTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				FACD111980AB2876E1853EB0 /* Debug */,
+				B182AB330DB2BAA022DF96D7 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+		217FE6068A442A2D9C32CE82 /* Build configuration list for PBXNativeTarget "MotoNavigationCore" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				D07270B5C6D9B459AF4975F6 /* Debug */,
+				E8243348A120DDF6108BC788 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+		4A39A3FC3327B5C14164E0B9 /* Build configuration list for PBXNativeTarget "MotoGPSUITests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				4FAF1B74847BA817E1AA838A /* Debug */,
+				CC5CC66B24D592BF787BF102 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+		D60F679BD245A4BCAAEEE106 /* Build configuration list for PBXProject "MotoGPS" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				F238FC8E6BC68CBB73288CBF /* Debug */,
+				07A9D9B83FEB9929B4E16F00 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+		EE7F05764FA16C573A59A1E0 /* Build configuration list for PBXNativeTarget "MotoGPS" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				6035F387A56EF9B4D334E7AB /* Debug */,
+				EE5D7FF671A721FE93096A56 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = 4F3F1D667CD87A104268D513 /* Project object */;
+}

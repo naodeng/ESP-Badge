@@ -22,13 +22,22 @@ venv/
 *.pcm
 
 # Jarvis_OS firmware build and local configuration
-Jarvis_OS/GeekTool-IDF/build/
-Jarvis_OS/GeekTool-IDF/managed_components/
-Jarvis_OS/GeekTool-IDF/sdkconfig
-Jarvis_OS/GeekTool-IDF/sdkconfig.old
-Jarvis_OS/GeekTool-IDF/main/secrets.h
-Jarvis_OS/GeekTool-IDF/main/snippets.h
+firmware/jarvis_os/build/
+firmware/jarvis_os/managed_components/
+firmware/jarvis_os/sdkconfig
+firmware/jarvis_os/sdkconfig.old
+firmware/jarvis_os/main/secrets.h
+firmware/jarvis_os/main/snippets.h
 Jarvis_OS/tools/.venv/
+
+# Imported app/service dependencies and local build state
+**/node_modules
+**/.wrangler/
+**/DerivedData/
+**/xcuserdata/
+tools/debug/moto-gps-simulator/shell/runtime/
+release/*.bin
+release/*.sha256
 
 # Local coding-agent state
 .impeccable/

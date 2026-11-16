@@ -1,94 +1,66 @@
-# Jarvis_OS 系统设计
+# Jarvis_OS 系统架构
 
-本文描述当前固件的模块边界、页面结构和数据流。历史方案不作为当前行为的依据；相关记录放在 [`docs/design/history/`](docs/design/history/)。
+当前实现以本文件、`firmware/jarvis_os/` 和 `packages/moto-gps/shared/` 为准。旧方案保留在 `docs/design/history/` 或 `archive/legacy-jarvis/`，不代表当前产品行为。
 
-## 系统边界
+## 系统组成
 
-| 层级 | 职责 | 主要实现 |
+| 层 | 职责 | 主要目录 |
 |---|---|---|
-| 硬件与显示 | AMOLED、触摸、I²C、RTC、IMU、电源和音频 | `display.c`、`power.c`、`rtc.c`、`imu.c`、`audio_bus.c` |
-| 启动与输入 | 启动自检、启动器、锁屏、省电、两个实体按键 | `main.c`、`startup.c`、`launcher.c`、`lock.c`、`buttons.c` |
-| 表盘与覆盖层 | 表盘选择与渲染、快速控制面板、启动画面 | `watchface*.c`、`quickpanel.c`、`identity_ui.c` |
-| 应用 | soRound_os 工具、游戏、录音和新增 Codex 页面 | `app_*.c`、应用专用状态与 UI 模块 |
-| 状态与服务 | NVS 设置、网络、媒体、bridge、OTA 和文件资源 | `settings.c`、`wifi_service.c`、`codex_client.c`、`ota_update.c` 等 |
+| 圆屏固件 | 启动、锁屏/表盘、设置、触摸和按键、IMU、Moto GPS UI 与 BLE | `firmware/jarvis_os/` |
+| iOS App | 定位、地点搜索、路线/地图、离线缓存、媒体控制、BLE 外设连接 | `apps/ios/moto-gps/` |
+| 网关服务 | 搜索、路线、城市、地图瓦片代理与缓存 | `services/moto-gps-gateway/` |
+| 共享协议与导航 | BLE 帧、坐标、导航状态机、Presenter/UI 和地图数据 | `packages/moto-gps/shared/` |
+| 调试 | 圆屏/IMU BLE 调试器与 Moto GPS 浏览器模拟器 | `tools/debug/` |
 
-运行环境是 ESP-IDF 与 LVGL。硬件与依赖版本以 `Jarvis_OS/GeekTool-IDF/` 的项目配置为准；系统源码不依赖 Android Wear。根目录 [`PRODUCT.md`](PRODUCT.md) 描述产品目标，详细应用实现见 [固件文档](Jarvis_OS/GeekTool-IDF/)。
-
-## 启动与页面生命周期
-
-1. `app_main()` 初始化 NVS、时区、动态调频、音频总线、I²C、IMU、RTC、显示、设置和触摸。
-2. 创建启动身份画面和启动器，执行核心自检；设备时间、联网状态与启动结果会反馈到启动界面。
-3. 自检通过后显示主页；锁屏表盘由 `watchface.c` 管理，应用由 `launcher.c` 按需进入。
-4. 快速控制面板作为覆盖层显示，不退出当前应用。应用的 tick 与 visibility 回调跟随可见状态调度。
-
-启动覆盖层用 240 × 240 的青蓝点阵反应堆作为主视觉，再显示系统名和检查状态；必须同时满足最短动画时间与启动自检条件才会结束。
-
-应用通过 `app_t` 提供 `enter`、`tick`、`exit`、`back` 等生命周期回调。切页或遮挡页面时应暂停不必要的视觉更新；退出应用时释放页面对象和专属资源。
-
-## 导航与电源行为
-
-- 主页通过横向滑动浏览应用，点图标进入应用；应用内右滑通常执行返回，应用可以先消费返回以退出内部子页。
-- BOOT 短按锁定或解锁，长按执行关机。解锁使用 BOOT 键，避免表盘上的上滑手势误解锁。
-- PWR 键由当前可见应用消费。在 Codex 页面长按向前翻页；其他应用按自身定义响应。
-- 锁屏空闲约 12 秒后进入低亮度 AOD；启用自动熄屏并处于放电状态时，空闲超过约 30 秒后关闭显示。触摸或按键会唤醒屏幕。
-- 这些时长和策略来自 `lock.c`，更改时同步更新设备行为、文档和电源回归。
-
-## Codex 数据与页面
-
-```text
-Mac 本地 Codex 数据
-        │
-        ▼
-Codex bridge ── UDP 服务发现 / HTTP :8790
-        │                    /codex.json
-        ▼
-设备 Wi-Fi → codex_client → codex_data → app_codex
-                                  │            ├─ Usage
-                                  │            ├─ Radar
-                                  │            ├─ Activity
-                                  │            └─ VibeBuddy
-                                  └─ 最近一次有效快照
+```mermaid
+flowchart LR
+    GPS["iPhone 定位与导航"] --> APP["Moto GPS iOS App"]
+    APP <-->|"加密 BLE / Moto GPS 协议"| FW["Jarvis_OS 固件"]
+    APP -->|"HTTPS 搜索、路线、地图"| GW["Cloudflare Worker / Node 网关"]
+    GW --> AMAP["AMap Web Service"]
+    GW --> MAP["Protomaps / OSM 地图源"]
+    GW <--> R2["私有 Cloudflare R2 缓存"]
+    SHARED["共享协议与导航核心"] -. "复用" .-> APP
+    SHARED -. "编译/集成" .-> FW
 ```
 
-- bridge 由 `Jarvis_OS/tools/run_codex_bridge.sh` 启动；固件在 Wi-Fi 可用时用 UDP 发现 bridge，再请求 HTTP `8790` 的 JSON 摘要。
-- `codex_data.c` 负责校验和事务式解析数据；无效响应不能覆盖最近一次有效快照。离线或数据过期时，页面保留缓存并显示对应状态。
-- `app_codex.c` 负责四个页面的 LVGL 展示与页码切换。左滑下一页、右滑上一页；第一页右滑离开 Codex。底部页码可前进，四个进度点可直达对应页面；PWR 长按继续支持下一页。
-- Usage 的百分比和进度来自 bridge，是只读信息；设备上没有手动滑动添加用量的控件。
-- Radar 最多展示 16 行。不可用数据用 `--` 或明确状态表示，不以占位值伪装在线数据。
+固件不连接地图网关或 Wi-Fi。iOS App 负责联网、路线规划与地图下载，再经 BLE 发送设备显示所需状态；共享协议用于保持两端消息格式与导航状态一致。
 
-数据结构和本机运行说明见 [`Jarvis_OS/tools/codex_bridge/README.md`](Jarvis_OS/tools/codex_bridge/README.md)。该服务与设备应处于可互通的局域网；本设计不要求另建 BLE 数据连接。
+## 固件模块和生命周期
 
-## 表情时钟
+- `main/main.c` 执行 NVS、时钟、显示、输入、电源和设备传感器初始化，并启动启动界面。
+- `main/launcher.c` 注册当前固件应用：设置、表盘和 MOTO GPS。固件中不登记 OTA、Web 或旧 Codex/Travel 应用。
+- 应用沿用 `app_t` 生命周期，页面进入、遮挡、恢复和退出应维护 timer、触摸可见性及资源释放。
+- `main/app_moto_gps.cpp` 管理导航 Presenter、UI、设备 IMU 航向辅助与 BLE 传输。
+- `main/ble_nav_transport_nimble.cpp` 提供 Jarvis_OS 的 MOTO GATT 服务；协议状态机、坐标、Presenter 和导航 UI 复用 `packages/moto-gps/shared/`。
+- 显示目标为 466 × 466 圆屏。重要文字和触控目标须落在可视安全区域，保持黑底、白灰文字与红色强调。
 
-表情时钟通过 `watchface.c` 与表盘目录注册，绘制实现位于 `watchface_grok.c`。它包含 13 种矢量表情，按表盘快照显示系统时间、电量和眨眼状态。进入表盘、锁屏显示或完整睡眠唤醒时选择新表情；AOD 时停止眨眼并降低刷新频率，熄屏时停止表盘 timer。
+## BLE 连接与数据边界
 
-它是 soRound_os 的原生表盘与锁屏显示，不是独立宠物应用。修改表盘选择、睡眠或锁屏流程时，保留原有表盘 ID、NVS 选择值和省电生命周期。
+- iOS App 为定位和导航状态的主数据源；固件只显示通过当前版本 BLE 协议验证后的消息。
+- BLE 消息需要完成长度、序号、会话和载荷校验；不完整帧与旧连接快照不能覆盖当前导航状态。
+- 连接或导航超时需清理设备页上的位置和路线状态，明确显示断开/过期状态。
+- 设备 BLE 配对信息与设置位于 NVS；更新时不初始化擦除 NVS。
+- 当前 Jarvis GeekTwin 工具使用旧 IMU 服务 UUID 和 20-byte 帧，和 Moto GPS GATT 不相同；将其重连到当前固件前必须做协议兼容工作。
 
-## 存储与升级
+## iOS 与服务端
 
-当前分区定义见 [`Jarvis_OS/GeekTool-IDF/partitions.csv`](Jarvis_OS/GeekTool-IDF/partitions.csv)：
+- App 网关地址由 `apps/ios/moto-gps/project.yml` 提供默认值，并可在 App 设置中覆盖。
+- 搜索、路线、行政区划和在线地图请求由 `services/moto-gps-gateway/` 提供；Cloudflare Worker 与 Node 服务共享处理逻辑。
+- Cloudflare 部署配置位于 `services/moto-gps-gateway/cloudflare/wrangler.jsonc`，R2 仅用于地图缓存。
+- `AMAP_WEB_SERVICE_KEY` 是 Worker Secret，不进入 App、设备固件、Wrangler vars 或 Git。
+- Cron 当前配置为 UTC `17 3 * * *`，用于地图源元数据刷新；它不是固件升级服务。
 
-| 分区 | 用途 |
-|---|---|
-| `nvs` | 设备设置和小型状态 |
-| `ota_0` / `ota_1` | 双 OTA 固件槽 |
-| `storage` | 系统资源 FAT 区 |
-| `capsule_meta` / `capsules` | 录音元数据和录音文件 |
+## 电源与设备数据
 
-只更新 app 镜像时使用 `app-flash`；完整烧录会更新启动器和分区表。更改分区、文件系统格式或录音读写路径前，先明确现有设备数据的保留方式，并提供可执行的迁移步骤。
+- AOD、亮度和语言使用现有设置/NVS 接口；不要改已有键名或值格式。
+- 保持 `app_t` 与锁屏遮挡的 visibility、tick 和退出清理语义。
+- 只刷新应用槽的固件安装不触碰 NVS、分区表、storage、capsule_meta 或 capsules。
+- 改分区表、格式或录音数据模型之前必须先制定备份与迁移步骤。本次不改分区布局。
 
-## 界面约束
+## 历史保留与验证
 
-- 目标画布为 466 × 466 圆屏，靠近四角的矩形区域会被圆形玻璃边界裁掉；重要文字和触控目标必须置于圆形安全范围。
-- 新页面延续 soRound_os 的黑色背景、白灰文字和红色状态强调；Codex 与表情时钟复用现有字体、触摸和导航约定。
-- 页面按一眼可读来组织。辅助入口要有足够大的触摸面积，状态文字避免与仪表图形重叠。
-- 异步数据需区分在线、缓存、过期、断连和错误；不要仅靠颜色传达唯一含义。
-
-## 主要代码与验证
-
-- 固件和 app 注册：[`Jarvis_OS/GeekTool-IDF/main/`](Jarvis_OS/GeekTool-IDF/main/)
-- Codex UI：`main/app_codex.c`；bridge 客户端：`main/codex_client.c`；快照解析：`main/codex_data.c`
-- 表情时钟：`main/watchface.c`、`main/watchface_grok.c`
-- 应用清单：[`COMPANION_APPS.md`](Jarvis_OS/GeekTool-IDF/COMPANION_APPS.md)
-- 原生 Codex UI 测试：`tests/codex/codex_ui_tests.c`
-- 完整测试命令：[`README.md`](README.md) 与 [`AGENTS.md`](AGENTS.md)
+- `Jarvis_OS/UPSTREAM.md`、`Jarvis_OS/UPSTREAM_README.md` 和英文版说明是 soRound_os 来源/历史材料，保留其原位置。
+- 旧实现按来源和许可要求放入 `archive/legacy-jarvis/`，不纳入当前固件 CMake 源文件或发布包。
+- 固件构建、iOS 开发、Worker 部署和真机调试分别见 `docs/development/`、`docs/deployment/` 与 `docs/debugging/`。
+- 主机/模拟器构建通过不代表已验证 iPhone BLE、后台定位、地图服务、触摸、休眠或音乐控制。
