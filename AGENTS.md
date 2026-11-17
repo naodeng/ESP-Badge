@@ -8,7 +8,7 @@
 - iOS App：`apps/ios/moto-gps/`。
 - Node.js 与 Cloudflare Worker 网关：`services/moto-gps-gateway/`。
 - BLE、坐标、导航核心、UI 和离线地图共享代码：`packages/moto-gps/shared/`。
-- 两个仅用于本地开发的调试工具：`tools/debug/`。
+- 三个仅用于本地开发的调试工具：`tools/debug/jarvis-geektwin/`、`tools/debug/moto-gps-simulator/` 和 `tools/debug/jarvis-screen-viewer/`。
 - 项目名与正式固件名固定为 `Jarvis_OS`。只生成一个发布固件，不维护 stable/beta 两个产品镜像。
 - Android App、独立 Moto GPS ESP 固件、产品网站、OTA、旧 Codex/Travel/音频等 app 不属于当前产品。
 - `Jarvis_OS/UPSTREAM_README.md` 与英文版是保留的 soRound_os 历史说明；当前使用说明以根目录文档为准。

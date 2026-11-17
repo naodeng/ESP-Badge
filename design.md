@@ -10,7 +10,7 @@
 | iOS App | 定位、地点搜索、路线/地图、离线缓存、媒体控制、BLE 外设连接 | `apps/ios/moto-gps/` |
 | 网关服务 | 搜索、路线、城市、地图瓦片代理与缓存 | `services/moto-gps-gateway/` |
 | 共享协议与导航 | BLE 帧、坐标、导航状态机、Presenter/UI 和地图数据 | `packages/moto-gps/shared/` |
-| 调试 | 圆屏/IMU BLE 调试器与 Moto GPS 浏览器模拟器 | `tools/debug/` |
+| 调试 | 圆屏/IMU BLE 调试器、Moto GPS 浏览器模拟器与 USB 实屏预览 | `tools/debug/` |
 
 ```mermaid
 flowchart LR

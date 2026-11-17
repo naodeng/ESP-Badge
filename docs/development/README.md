@@ -26,6 +26,10 @@ idf.py -C firmware/jarvis_os \
 
 正式源配置为 `firmware/jarvis_os/sdkconfig.defaults`，组件版本由 `dependencies.lock` 固定。不要直接编辑 `managed_components/`；依赖变更必须修改组件清单和锁文件。构建时若碰到组件管理器的进程权限限制，需要在受控权限下重跑构建，不要手动修改组件缓存。
 
+## 查看设备实屏
+
+使用 [Jarvis_OS USB 实屏预览说明](../../tools/debug/jarvis-screen-viewer/README.md) 在本地浏览器查看真实设备画面、保存 PNG 或录制 WebM。该工具需要单独构建的调试固件，正式构建默认关闭镜像功能。
+
 ## iOS App
 
 要求 Xcode 16 或更新版本、iOS 17 SDK 与 XcodeGen。进入 `apps/ios/moto-gps/`：

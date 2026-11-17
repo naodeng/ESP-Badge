@@ -7,7 +7,7 @@ Jarvis_OS 是一个面向 Waveshare ESP32-S3-Touch-AMOLED-1.75C 的圆屏系统�
 - **Jarvis_OS 固件**：圆屏启动与锁屏、时钟表盘、亮度和必要系统设置、Moto GPS 导航显示、BLE 与触摸/按键驱动。
 - **Moto GPS iOS App**：定位、地点搜索、路线与地图、离线缓存、Apple Music 控制；通过 BLE 向设备发送导航状态。
 - **Moto GPS 网关**：Node.js 本地服务和 Cloudflare Worker 实现，为 App 提供搜索、路线和地图接口。
-- **开发调试**：Jarvis GeekTwin 硬件调试器、Moto GPS WASM 模拟器。它们只用于开发，不作为产品网站发布。
+- **开发调试**：Jarvis GeekTwin 硬件调试器、Moto GPS WASM 模拟器和 Jarvis_OS USB 实屏预览。它们只用于本地开发，不作为产品网站发布。
 
 本项目不包含 Android App、独立 Moto GPS ESP 固件、产品网站、OTA 服务或旧 Codex / Travel 等应用。上游来源说明及必要许可证仍保留。
 
@@ -18,7 +18,7 @@ apps/ios/moto-gps/             iOS 伴侣 App
 firmware/jarvis_os/            唯一 ESP-IDF 固件工程
 services/moto-gps-gateway/     Node.js 与 Cloudflare Worker 网关
 packages/moto-gps/shared/      BLE 协议、导航核心、共享资源和地图数据
-tools/debug/                   两个本地调试工具
+tools/debug/                   三个本地调试工具
 licenses/moto-gps/             Moto GPS 来源、许可证和第三方声明
 docs/                          架构、开发、部署、调试与过程文档
 archive/legacy-jarvis/         已从当前产品和固件中移除的历史工具/原型
@@ -51,6 +51,7 @@ idf.py -C firmware/jarvis_os \
 - [后端服务部署](docs/backend/deployment.md)
 - [MOTO GPS 连接指南](docs/connection-guide.md)
 - [调试与设备验收](docs/debugging/README.md)
+- [Jarvis_OS USB 实屏预览](tools/debug/jarvis-screen-viewer/README.md)
 - [项目过程与迭代约定](docs/process/README.md)
 - [当前状态和已知验证边界](docs/project-status.md)
 - [第三方来源与许可](THIRD_PARTY.md)

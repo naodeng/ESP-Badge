@@ -31,6 +31,7 @@ Jarvis_OS 是运行在 Waveshare ESP32-S3-Touch-AMOLED-1.75C 上的圆屏系统�
 
 - Jarvis GeekTwin：用于调试设备 IMU 数值和 BLE 数字孪生链路。
 - Moto GPS 模拟器：用于浏览器中预览圆屏 Moto GPS 导航 UI 和共享场景数据。
+- Jarvis_OS USB 实屏预览：通过 USB Serial/JTAG 在本地浏览器查看设备当前画面，并保存截图或录制 WebM。它需要单独构建的调试固件。正式固件默认关闭屏幕镜像。
 - 工具仅用于开发，不属于产品服务或网站部署内容。GeekTwin 使用旧的 IMU BLE 协议；当前最终固件的 MOTO GATT 服务与它不同，直接连接能力需要后续兼容适配。
 
 ## 不包含

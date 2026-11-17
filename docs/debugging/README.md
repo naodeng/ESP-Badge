@@ -45,7 +45,16 @@ idf.py -C firmware/jarvis_os \
 
 ## Jarvis_OS 实屏预览
 
-目录：`tools/debug/jarvis-screen-viewer/`。它在本地浏览器中查看设备当前真实画面，可保存 PNG 和录制 WebM。需要先用目录中的脚本构建并按 app-only 部署说明安装调试固件；标准固件默认关闭该功能。USB 串口同时承载调试日志和画面数据，查看器会解析并显示日志。首帧与大面积动画受 USB 吞吐影响，不代表固定帧率。
+使用[完整实屏预览说明](../../tools/debug/jarvis-screen-viewer/README.md)查看构建、安装和浏览器连接步骤。工具通过 USB Serial/JTAG 在本地浏览器显示设备的真实画面，并可保存 PNG 或录制 WebM。
+
+快速开始：
+
+1. 运行 `bash tools/debug/jarvis-screen-viewer/build-mirror-firmware.sh` 构建调试固件。
+2. 只把生成的 `Jarvis_OS.bin` 写入活动应用槽。具体命令见[部署指南](../deployment/README.md)。
+3. 运行 `python3 -m http.server 8765 --directory tools/debug/jarvis-screen-viewer`，然后打开 `http://localhost:8765`。
+4. 连接 ESP32-S3 USB 串口并开始预览。
+
+标准固件默认关闭屏幕镜像。预览和日志共用 USB Serial/JTAG，预览时不要同时运行 `idf.py monitor`。USB 吞吐会影响首帧和大面积动画，录制帧率不固定。实屏预览也不能代替手动检查触摸、页面切换和设备显示效果。
 
 ## Jarvis GeekTwin
 

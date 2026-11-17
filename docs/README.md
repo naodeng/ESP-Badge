@@ -8,7 +8,8 @@
 - [手机 App 配置指南](mobile-app/configuration.md)：网关地址、Xcode 签名、iOS 权限和真机安装。
 - [后端服务部署指南](backend/deployment.md)：Node 本地服务、Cloudflare Worker、AMap Key、R2、Cron 和健康检查。
 - [手机与圆屏连接指南](connection-guide.md)：首次 BLE 配对、导航同步和常见问题排查。
-- [调试与验收](debugging/README.md)：两种本地调试工具、串口和设备安装检查。
+- [调试与验收](debugging/README.md)：三种本地调试工具、串口、设备安装检查和 USB 实屏预览。
+- [Jarvis_OS USB 实屏预览](../tools/debug/jarvis-screen-viewer/README.md)：构建调试固件，在本地浏览器查看屏幕、保存截图和录制画面。
 - [过程与迭代](process/README.md)：范围变更、提交与发布记录约定。
 - [当前项目状态](project-status.md)：已完成项目调整、构建产物和仍需真机验证的项目。
 - [产品范围](../PRODUCT.md) · [系统架构](../design.md) · [许可声明](../THIRD_PARTY.md)

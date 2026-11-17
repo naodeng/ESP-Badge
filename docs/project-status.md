@@ -6,7 +6,8 @@
 
 - 单一项目名和固件名：`Jarvis_OS`。
 - 产品组成：Jarvis_OS 固件、Moto GPS iOS App、Node/Cloudflare 网关、共享 Moto GPS 协议/导航代码。
-- 开发工具：Jarvis GeekTwin 与 Moto GPS WASM 模拟器；它们不发布为网站。
+- 开发工具：Jarvis GeekTwin、Moto GPS WASM 模拟器与 Jarvis_OS USB 实屏预览；它们不发布为网站。
+- USB 实屏预览使用独立调试固件和本地浏览器，正式固件默认关闭镜像功能。预览可以查看设备当前画面、保存 PNG 和录制 WebM。
 - 不包括 Android、独立 Moto GPS ESP 固件、OTA、Codex/Travel/音频/天气等旧固件应用。
 - 上游来源、许可、NOTICE 和地图署名仍保留。
 
@@ -32,6 +33,7 @@
 | 项目 | 状态 |
 |---|---|
 | Jarvis_OS 固件干净构建 | 已通过 |
+| USB 实屏预览工具 | 已实现并构建；切页后的稳定性仍需真机复核 |
 | 本轮 UI/按键/锁屏/字体/手势修改构建 | 已通过，ESP-IDF 5.5.4 |
 | 本轮固件刷写与镜像校验 | 已通过，最终镜像写入 `0x20000`，esptool hash verified |
 | 固件尺寸进入 8 MiB 应用槽 | 已确认，余量约 53% |
