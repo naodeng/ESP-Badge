@@ -3,6 +3,7 @@
 #include "weather_refresh.h"
 #include "display_frame_gate.h"
 #include "render_power.h"
+#include "screen_mirror.h"
 
 #include "driver/spi_master.h"
 #include "esp_lcd_panel_io.h"
@@ -105,6 +106,7 @@ static void wait_frame_tile(void *arg) {
     s_weather_timing.wait_us+=(uint64_t)(esp_timer_get_time()-started);
 }
 static void synchronized_flush(lv_display_t *disp,const lv_area_t *a,uint8_t *pixels) {
+    screen_mirror_flush(disp,a,pixels,lv_display_flush_is_last(disp));
     if(s_refresh.frame.pixels) {
         s_weather_timing.painted=true;
         int64_t started=esp_timer_get_time();
@@ -276,6 +278,7 @@ lv_display_t *display_init(void) {
     lv_display_add_event_cb(disp, rounder_cb, LV_EVENT_INVALIDATE_AREA, NULL);
     lv_display_add_event_cb(disp,weather_timing_event,LV_EVENT_REFR_START,NULL);
     lv_display_add_event_cb(disp,weather_timing_event,LV_EVENT_REFR_READY,NULL);
+    screen_mirror_init(disp);
     lvgl_port_unlock();
     return disp;
 }

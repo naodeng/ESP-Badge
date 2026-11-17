@@ -1,0 +1,62 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Jarvis_OS 屏幕预览</title>
+    <link rel="stylesheet" href="styles.css">
+  </head>
+  <body>
+    <main class="shell">
+      <header class="topbar">
+        <div>
+          <p class="eyebrow">本地 USB 调试工具</p>
+          <h1>Jarvis_OS 屏幕预览</h1>
+        </div>
+        <div class="connection" aria-live="polite">
+          <span id="statusDot" class="status-dot"></span>
+          <span id="statusText">未连接</span>
+        </div>
+      </header>
+
+      <section class="workspace" aria-label="屏幕预览与控制">
+        <div class="device-column">
+          <div class="screen-frame">
+            <canvas id="screen" width="466" height="466" aria-label="Jarvis_OS 实际屏幕画面"></canvas>
+            <div id="screenHint" class="screen-hint">连接设备后开始预览</div>
+          </div>
+          <p class="screen-caption">466 × 466 · RGB565 · USB Serial/JTAG</p>
+        </div>
+
+        <div class="control-column">
+          <section class="card">
+            <h2>设备连接</h2>
+            <p class="muted">请使用 Chrome 或 Edge，并打开本地调试固件。</p>
+            <div class="button-row">
+              <button id="connectButton" class="button primary">连接设备</button>
+              <button id="disconnectButton" class="button quiet" disabled>断开</button>
+            </div>
+            <div class="button-row">
+              <button id="previewButton" class="button secondary" disabled>开始预览</button>
+              <button id="snapshotButton" class="button quiet" disabled>保存截图</button>
+            </div>
+            <button id="recordButton" class="button record" disabled>
+              <span class="record-icon"></span><span>开始录制</span>
+            </button>
+            <p id="detailText" class="detail" aria-live="polite">等待连接电脑与设备。</p>
+          </section>
+
+          <section class="card log-card">
+            <div class="log-heading">
+              <h2>串口日志</h2>
+              <button id="clearLogButton" class="text-button" type="button">清空</button>
+            </div>
+            <pre id="logOutput" aria-live="off"></pre>
+          </section>
+        </div>
+      </section>
+      <footer>屏幕数据只通过本机 USB 串口传输。截图为 PNG，录制为 WebM。</footer>
+    </main>
+    <script src="app.js"></script>
+  </body>
+</html>

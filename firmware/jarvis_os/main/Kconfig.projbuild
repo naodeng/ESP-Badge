@@ -1,0 +1,11 @@
+menu "Jarvis_OS development tools"
+
+config JARVIS_SCREEN_MIRROR
+	bool "USB screen mirror (development only)"
+	depends on ESP_CONSOLE_USB_SERIAL_JTAG
+	default n
+	help
+		Stream actual LVGL panel updates to a local browser over USB Serial/JTAG.
+		This option is intended only for local UI development.
+
+endmenu

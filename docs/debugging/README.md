@@ -34,6 +34,10 @@ idf.py -C firmware/jarvis_os \
 
 目录：`tools/debug/moto-gps-simulator/`。该浏览器/WASM 工具供开发时查看共享圆屏 UI、路线样例和场景状态，不是生产网站。构建与运行细节见目录内 `shell/README.md` 和 `wasm/README.md`。模拟器通过不代表固件硬件显示、真实 BLE 或真实地图接口已通过。
 
+## Jarvis_OS 实屏预览
+
+目录：`tools/debug/jarvis-screen-viewer/`。它在本地浏览器中查看设备当前真实画面，可保存 PNG 和录制 WebM。需要先用目录中的脚本构建并按 app-only 部署说明安装调试固件；标准固件默认关闭该功能。USB 串口同时承载调试日志和画面数据，查看器会解析并显示日志。首帧与大面积动画受 USB 吞吐影响，不代表固定帧率。
+
 ## Jarvis GeekTwin
 
 目录：`tools/debug/jarvis-geektwin/`。它用于检查 IMU/电量帧并渲染数字孪生。当前工具仍使用旧 soRound Twin BLE 服务，与 Jarvis_OS 的 Moto GPS GATT 协议不同；当前发布固件不提供 Twin GATT 服务，所以它暂时不能直接连到这版固件。不要把旧 20-byte 帧误认为 Moto GPS 协议。需要用该工具调 IMU 时，应先在单一固件中完成明确的调试模式/协议适配。

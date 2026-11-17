@@ -1,0 +1,7 @@
+# Local development profile only. Keep sdkconfig.defaults and the release
+# profile unchanged. USB Serial/JTAG must be the primary console for commands.
+# CONFIG_ESP_CONSOLE_UART_DEFAULT is not set
+CONFIG_ESP_CONSOLE_USB_SERIAL_JTAG=y
+# CONFIG_ESP_CONSOLE_SECONDARY_USB_SERIAL_JTAG is not set
+CONFIG_JARVIS_SCREEN_MIRROR=y
+CONFIG_LOG_DEFAULT_LEVEL_INFO=y
