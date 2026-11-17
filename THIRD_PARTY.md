@@ -6,11 +6,12 @@
 |---|---|---|
 | soRound_os | `firmware/jarvis_os/` 中保留的系统与硬件适配代码；历史说明位于 `Jarvis_OS/` | 上游：[soBigRice/soRound_os](https://github.com/soBigRice/soRound_os)。上游快照未包含通用 LICENSE；项目所有者已确认取得作者源码复用和修改许可。该确认不等于上游发布了开放源代码许可证。 |
 | Moto GPS Waveshare | `apps/ios/moto-gps/`、`services/moto-gps-gateway/`、`packages/moto-gps/shared/`、`tools/debug/` | 来源：[mx3353672833-debug/moto-gps-waveshare](https://github.com/mx3353672833-debug/moto-gps-waveshare)。按来源仓库的 PolyForm Noncommercial 1.0.0 条款使用。完整文本、NOTICE 和第三方声明见 [`licenses/moto-gps/`](licenses/moto-gps/)。 |
+| MotoNav 视觉参考 | `packages/moto-gps/shared/nav_ui/` 的圆屏地图视觉层级 | 参考：[CharlesXu/MotoNav](https://github.com/CharlesXu/MotoNav)。仅借鉴道路层级与昼夜明暗对比的通用视觉思路；Jarvis_OS 的实现独立编写，未复制其代码、素材、截图、瓦片或地图数据。该参考不改变本仓库自身代码、地图数据或依赖的许可边界。 |
 | OpenStreetMap / Protomaps 地图数据 | 共享离线地图与网关瓦片链路 | OSM 数据受 ODbL 管辖；地图显示、导出或再分发时保留相应署名。详情见 `packages/moto-gps/shared/offline_map/ATTRIBUTION.txt` 和地图目录 README。 |
 | ESP-IDF 与组件 | 固件构建依赖 | 由 ESP-IDF Component Manager 按 `firmware/jarvis_os/dependencies.lock` 固定版本获取。依赖自身的许可证随组件元数据保留。 |
 | LVGL | 固件 UI 与 WASM 调试模拟器 | LVGL 采用 MIT License；仓库保留组件声明和依赖锁定信息。 |
 | Waveshare ESP LCD / touch drivers | 固件硬件接口 | 组件许可见 `licenses/moto-gps/LICENSES/` 和 ESP-IDF Component Manager 元数据。 |
-| Montserrat 与 Source Han Sans | 固件/iOS/地图界面的字体素材 | 字体许可及来源副本见 `licenses/moto-gps/LICENSES/` 与 Moto GPS 第三方声明。 |
+| Montserrat 与 Source Han Sans SC | 固件/iOS/地图界面的字体素材；常用中文音乐元数据字形生成于 `firmware/jarvis_os/main/font_music_cjk_24.c` | 字体许可及来源副本见 `licenses/moto-gps/LICENSES/` 与 Moto GPS 第三方声明。 |
 
 ## 发布检查
 

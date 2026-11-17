@@ -1,4 +1,4 @@
-// 锁屏控制:BOOT 短按=锁/解切换,长按 2 秒=关机;PWR 短按供计时 App 使用。
+// 锁屏控制:BOOT 短按=锁/解切换,长按 2 秒=关机;屏保上滑也可解锁。
 // 锁屏后放电超时熄屏、充电常显(M3b)。实体键由 buttons.c 统一轮询。
 #include "lock.h"
 #include "identity_ui.h"
@@ -12,8 +12,12 @@
 #define AOD_MS     12000   // 空闲进入低功耗"平静"态(变暗 + 停止闪烁 + 按分钟刷新)
 #define SLEEP_MS   30000   // 仅"自动熄屏"模式:空闲再久则熄屏
 #define BR_DIM     0x20    // 平静态亮度
+#define UNLOCK_SWIPE_START_Y 260
+#define UNLOCK_SWIPE_MIN_PX 80
 
 static bool s_locked = false;
+static lv_point_t s_unlock_start;
+static bool s_unlock_tracking;
 typedef enum { SCR_FULL, SCR_CALM, SCR_OFF } scr_t;
 static scr_t s_scr = SCR_FULL;
 
@@ -40,7 +44,33 @@ void lock_set(bool locked) {
 
 bool lock_is_locked(void) { return s_locked; }
 
-// 解锁用 BOOT 短按(button_cb),表盘上滑不再解锁 —— 避免看表盘时误触解锁。
+static void watchface_touch_cb(lv_event_t *event) {
+    const lv_event_code_t code = lv_event_get_code(event);
+    lv_indev_t *input = lv_indev_active();
+    if (code == LV_EVENT_PRESSED) {
+        if (input != NULL) {
+            lv_indev_get_point(input, &s_unlock_start);
+            s_unlock_tracking = true;
+        }
+        return;
+    }
+    if (code == LV_EVENT_RELEASED) {
+        s_unlock_tracking = false;
+        return;
+    }
+    if (code != LV_EVENT_GESTURE || input == NULL || !s_unlock_tracking) return;
+
+    lv_point_t end;
+    lv_indev_get_point(input, &end);
+    const bool deliberate_up_swipe = s_unlock_tracking &&
+        s_unlock_start.y >= UNLOCK_SWIPE_START_Y &&
+        s_unlock_start.y - end.y >= UNLOCK_SWIPE_MIN_PX;
+    if (s_locked && deliberate_up_swipe &&
+        lv_indev_get_gesture_dir(input) == LV_DIR_TOP) {
+        s_unlock_tracking = false;
+        lock_set(false);
+    }
+}
 
 /* 省电:仅锁屏时按空闲超时进入平静/熄屏;触摸/按键唤醒。
    空闲即进入"平静"(变暗+停闪+按分钟刷新),无论充放电都生效(插着 USB 也能看到变暗)。
@@ -59,7 +89,7 @@ static void powersave_cb(lv_timer_t *t) {
         set_screen(SCR_CALM);
 }
 
-/* BOOT 全局锁屏/关机;PWR 只有在 App 可见时发布控制事件。 */
+/* BOOT 全局锁屏/关机;PWR 仅在桌面或 App 可见时发布控制事件。 */
 static void button_cb(lv_timer_t *t) {
     (void)t;
     bool control_active=!identity_boot_active()&&(launcher_home_visible()||launcher_app_visible());
@@ -72,7 +102,12 @@ static void button_cb(lv_timer_t *t) {
 
 bool lock_init(void) {
     watchface_init();
-    // 不再挂上滑解锁手势;解锁用 BOOT 短按(见 button_cb)
+    lv_obj_add_event_cb(watchface_root(), watchface_touch_cb,
+                        LV_EVENT_PRESSED, NULL);
+    lv_obj_add_event_cb(watchface_root(), watchface_touch_cb,
+                        LV_EVENT_RELEASED, NULL);
+    lv_obj_add_event_cb(watchface_root(), watchface_touch_cb,
+                        LV_EVENT_GESTURE, NULL);
 
     buttons_init();
     lv_timer_t *buttons=lv_timer_create(button_cb,20,NULL);

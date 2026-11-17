@@ -16,6 +16,7 @@ public enum GatewayAddressError: LocalizedError {
 
 public enum GatewayConfiguration {
     public static let defaultsKey = "MotoGPS.GatewayBaseURL.v1"
+    public static let unconfiguredURL = URL(string: "https://example.invalid/")!
 
     public static func normalizedURL(_ input: String) throws -> URL {
         let value = input.trimmingCharacters(in: .whitespacesAndNewlines)

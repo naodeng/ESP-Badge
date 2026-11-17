@@ -46,7 +46,7 @@ Jarvis GeekTwin 与 MOTO GPS WASM 模拟器仅供本地开发，不部署为产�
 
 ## 当前部署基线
 
-- Worker `https://moto-gps-gateway.naodeng.workers.dev/` 已部署，`/healthz` 返回 `ready_for_live_navigation=true`，provider 为 `amap`，地图使用 R2。
+- Moto GPS Worker 已部署并使用 AMap provider 与 R2 地图缓存；具体地址属于部署者的 Cloudflare 账户配置，不写入仓库或 App 默认值。
 - Cloudflare Secret `AMAP_WEB_SERVICE_KEY` 已存在；Secret 值不得复制进仓库。
 - 私有 R2 桶 `moto-gps-map-cache` 已配置 `tiles/` 前缀 30 天过期。
 - Worker Cron 为 `17 3 * * *` UTC；它属于地图源刷新，不是固件 OTA。

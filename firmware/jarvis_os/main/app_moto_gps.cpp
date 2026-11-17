@@ -6,6 +6,7 @@ extern "C" {
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
 #include "imu.h"
+LV_FONT_DECLARE(font_music_cjk_24);
 }
 
 #include "esp_lvgl_port.h"
@@ -112,8 +113,15 @@ void motion_heading_task(void* context) {
 
 void app_enter(lv_obj_t* parent) {
   if (parent == nullptr) return;
+  for (lv_indev_t* indev = lv_indev_get_next(nullptr); indev != nullptr;
+       indev = lv_indev_get_next(indev)) {
+    if (lv_indev_get_type(indev) == LV_INDEV_TYPE_POINTER) {
+      lv_indev_set_gesture_min_distance(indev, 48);
+    }
+  }
 
   if (s_screen != parent) {
+    moto_nav_ui_set_music_font_fallback(&font_music_cjk_24);
     moto_nav_ui_create_in(parent, 0U);
     s_screen = parent;
     s_bridge.install_ui_callbacks();
@@ -149,13 +157,25 @@ void app_enter(lv_obj_t* parent) {
     s_bridge.install_ui_callbacks();
   }
 
+  moto_nav_ui_set_visible(1U);
   launcher_set_title("MOTO GPS");
+}
+
+void app_visibility(bool visible) {
+  moto_nav_ui_set_visible(visible ? 1U : 0U);
 }
 
 void app_exit() {
   // BLE and its renderer stay alive while the launcher is shown. The launcher
   // retains this screen object so the background renderer never holds stale
   // LVGL pointers.
+  moto_nav_ui_set_visible(0U);
+  for (lv_indev_t* indev = lv_indev_get_next(nullptr); indev != nullptr;
+       indev = lv_indev_get_next(indev)) {
+    if (lv_indev_get_type(indev) == LV_INDEV_TYPE_POINTER) {
+      lv_indev_set_gesture_min_distance(indev, 64);
+    }
+  }
 }
 
 void app_gesture(lv_dir_t direction) {
@@ -178,5 +198,6 @@ extern "C" bool board_port_lock(uint32_t timeout_ms) {
 extern "C" void board_port_unlock(void) { lvgl_port_unlock(); }
 
 extern "C" const app_t app_moto_gps = {
-    "MOTO GPS", COL_TXT, app_enter, nullptr, app_exit, nullptr, 0, nullptr,
+    "MOTO GPS", COL_TXT, app_enter, nullptr, app_exit, nullptr, 0,
+    app_visibility,
     false, app_gesture, true};

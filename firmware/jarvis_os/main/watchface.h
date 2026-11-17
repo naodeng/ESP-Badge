@@ -1,8 +1,8 @@
 #pragma once
 // TYPE / ORBIT / SHIFT 各五款 + HAND 六款 + STUDIO 四十一款；旧 NVS ID 0..55 保持不变。
 // Five legacy kinds per TYPE/ORBIT/SHIFT, six HAND and forty-one STUDIO; persisted IDs 0..55 stay stable.
-// 设置页选择；BOOT 解锁和空闲策略由 lock.c 管理。
-// Settings owns selection; lock.c owns BOOT unlock and the idle policy.
+// 设置页选择；BOOT/上滑解锁与空闲策略由 lock.c 管理。
+// Settings owns selection; lock.c owns BOOT/swipe unlock and the idle policy.
 #include "lvgl.h"
 #include <stdbool.h>
 
@@ -10,7 +10,7 @@ void watchface_init(void);        // 构建一次(隐藏)+ 载入上次选择的
 void watchface_show(void);
 void watchface_hide(void);
 bool watchface_visible(void);
-lv_obj_t *watchface_root(void);   // 顶层全屏对象；不响应上滑解锁，解锁由 BOOT 侧键控制
+lv_obj_t *watchface_root(void);   // 顶层全屏对象；锁屏时接收从内容冒泡的手势
 
 // 低功耗:AOD 态停止闪烁/秒点,只按分钟刷新(变暗由 lock.c 控亮度)
 void watchface_set_aod(bool aod);

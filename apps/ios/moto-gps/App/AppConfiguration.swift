@@ -10,6 +10,6 @@ enum AppConfiguration {
         #endif
         return GatewayConfiguration.resolvedURL(
             bundledAddress: Bundle.main.object(forInfoDictionaryKey: "MOTOGPSGatewayBaseURL") as? String
-        ) ?? URL(string: "https://moto-gps-gateway.naodeng.workers.dev/")!
+        ) ?? GatewayConfiguration.unconfiguredURL
     }
 }

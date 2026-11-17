@@ -33,7 +33,7 @@ typedef struct {
     void (*enter)(lv_obj_t *parent);  // 在 parent(整屏)建 UI
     void (*tick)(void);               // 周期回调(可 NULL),由 lv_timer 调度
     void (*exit)(void);               // 退出清理(可 NULL)
-    bool (*back)(void);               // 返回键/右滑时先调(可 NULL):返 true=已消费(退子页),false=退出 app
+    bool (*back)(void);               // PWR 长按/右滑先调(可 NULL):true=退子页,false=退出 app
     uint16_t tick_period_ms;          // 0=原有 50ms;动态页面可独立选择节拍
     void (*visibility)(bool visible); // 遮挡/恢复时暂停纯视觉任务
     bool tick_in_background;         // 仅有到期/提醒等业务的页面继续 tick

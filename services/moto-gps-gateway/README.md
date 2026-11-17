@@ -9,21 +9,24 @@
 要求 Node.js 20+。在仓库根目录运行：
 
 ```sh
-npm ci --prefix services/moto-gps-gateway
-npm start --prefix services/moto-gps-gateway
+cd services/moto-gps-gateway
+npm ci
+cp .env.example .env
+node --env-file=.env src/server.js
 ```
 
-本地服务默认使用 fixture/disabled 配置，不会自动访问真实地图服务。真实 AMap Key 放在忽略的 `.env` 或进程环境中；不要写入 App、设备固件或 Git。
+`.env.example` 默认使用 `MOTO_PROVIDER=disabled`，不会访问真实地图服务。需要实时联调时再将本地忽略的 `.env` 改为 `MOTO_PROVIDER=amap` 并通过安全的本机方式提供 Key；不要写入 App、设备固件或 Git。
 
 ## Cloudflare Worker
 
-Worker 配置、测试与 R2 binding 位于 `cloudflare/`。生产部署、Key、Cron 和健康检查流程见根目录[部署文档](../../docs/deployment/README.md)。简要命令：
+Worker 配置、测试与 R2 binding 位于 `cloudflare/`。生产部署、Key、Cron、AMap 白名单和健康检查流程见[后端服务部署指南](../../docs/backend/deployment.md)。简要命令：
 
 ```sh
 cd services/moto-gps-gateway/cloudflare
 npm ci
 npm test
 npx wrangler login
+npx wrangler whoami
 npx wrangler secret put AMAP_WEB_SERVICE_KEY
 npm run deploy
 ```

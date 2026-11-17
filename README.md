@@ -46,10 +46,13 @@ idf.py -C firmware/jarvis_os \
 
 - [项目架构](docs/architecture/system-overview.md)
 - [开发环境与构建](docs/development/README.md)
-- [部署和固件安装](docs/deployment/README.md)
+- [固件部署和设备安装](docs/deployment/README.md)
+- [手机 App 配置](docs/mobile-app/configuration.md)
+- [后端服务部署](docs/backend/deployment.md)
+- [MOTO GPS 连接指南](docs/connection-guide.md)
 - [调试与设备验收](docs/debugging/README.md)
 - [项目过程与迭代约定](docs/process/README.md)
 - [当前状态和已知验证边界](docs/project-status.md)
 - [第三方来源与许可](THIRD_PARTY.md)
 
-后端 Worker 的 Secret 只通过 Wrangler/Cloudflare 控制台输入，不写入聊天、源码或配置文件。当前 iOS 默认网关地址和线上 Worker 资源状态见[部署文档](docs/deployment/README.md)；不要将密钥复制到仓库。
+后端 Worker 的 Secret 只通过 Wrangler/Cloudflare 控制台输入，不写入聊天、源码或配置文件。仓库不内置维护者的个人 Worker 地址；每位使用者应在 iOS App 中配置自己有权使用的网关。部署流程见[部署文档](docs/deployment/README.md)。

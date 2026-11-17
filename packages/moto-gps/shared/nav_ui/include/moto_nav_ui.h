@@ -153,12 +153,16 @@ typedef struct {
 void moto_nav_ui_create(void);
 /** Attach the navigation UI to a caller-owned screen object. */
 void moto_nav_ui_create_in(lv_obj_t *screen, uint8_t handle_gestures);
+/** Set the fallback font for dynamic music metadata; call before create_in. */
+void moto_nav_ui_set_music_font_fallback(const lv_font_t *font);
 /** Apply a horizontal page gesture when the host owns gesture dispatch. */
 void moto_nav_ui_handle_gesture(moto_ui_gesture_t gesture);
 /** Draw the monochrome power-on wordmark before the full UI is created. */
 void moto_nav_ui_show_boot_screen(void);
 /** Draw the final monochrome frame before the PMIC removes power. */
 void moto_nav_ui_show_power_off_screen(void);
+/** Pause/resume low-rate visual work when the owning app is covered. */
+void moto_nav_ui_set_visible(uint8_t visible);
 void moto_nav_ui_set_state(const moto_ui_state_t *state);
 /** Apply only high-rate route/heading motion to the currently visible page. */
 void moto_nav_ui_set_motion_state(const moto_ui_state_t *state);

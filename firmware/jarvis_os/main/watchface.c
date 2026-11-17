@@ -104,7 +104,11 @@ void watchface_init(void) {
     wf_screen=lv_obj_create(lv_layer_top());lv_obj_remove_style_all(wf_screen);lv_obj_set_size(wf_screen,466,466);
     lv_obj_set_style_bg_color(wf_screen,lv_color_black(),0);lv_obj_set_style_bg_opa(wf_screen,LV_OPA_COVER,0);
     ui_obj_set_scrollable(wf_screen,false);ui_obj_set_gesture_bubble(wf_screen,false);ui_obj_set_hidden(wf_screen,true);
-    wf_content=surface(wf_screen,466,0);s_aod=s_sleep=false;watchface_select(settings_face());
+    wf_content=surface(wf_screen,466,0);
+    // Only the live lock screen bubbles gestures to wf_screen; previews stay inert.
+    ui_obj_set_clickable(wf_content,true);
+    ui_obj_set_gesture_bubble(wf_content,true);
+    s_aod=s_sleep=false;watchface_select(settings_face());
 }
 void watchface_show(void) {
     if(!wf_screen)return;

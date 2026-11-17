@@ -19,7 +19,7 @@ Jarvis_OS 是主产品；Moto GPS iOS App、服务端与设备端适配在同一
 
 ## iOS App
 
-`apps/ios/moto-gps/` 是定位、路线和地图的主交互端。App 用 HTTPS 访问网关，用加密 BLE 将设备所需导航状态发给 Jarvis_OS。默认网关地址来自 `project.yml`，运行时可从 App 网关设置覆盖。
+`apps/ios/moto-gps/` 是定位、路线和地图的主交互端。App 用 HTTPS 访问网关，用加密 BLE 将设备所需导航状态发给 Jarvis_OS。仓库和安装包不提供共享的默认网关地址；每位使用者在 App 网关设置中填写自己有权使用的服务地址。
 
 ## 网关
 

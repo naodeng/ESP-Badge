@@ -30,7 +30,7 @@ Simulator 可以检查不依赖蓝牙、真实定位、后台执行或音乐控�
 
 ## 网关与签名
 
-默认网关根地址配置在 `project.yml` 的 `MOTOGPSGatewayBaseURL`。App 也提供网关设置覆盖运行时地址。Worker Key 不进入此 App，也不存储在设备上。网关部署见[仓库部署文档](../../../docs/deployment/README.md)。
+App 不内置任何人的 Worker 地址；首次使用时在“网关设置”中填写自己的网关根地址。Worker Key 不进入此 App，也不存储在设备上。详细的网关、签名和权限说明见[手机 App 配置指南](../../../docs/mobile-app/configuration.md)；服务端部署见[后端服务部署指南](../../../docs/backend/deployment.md)；设备首次配对见[手机与圆屏连接指南](../../../docs/connection-guide.md)。
 
 Bundle ID、Apple Team、签名证书和 TestFlight 上传凭据使用开发者自己的 Apple 账户配置，不随仓库提供。隐私文案和权限描述位于 `App/DataUseView.swift`、`App/Info.plist` 与 `App/PrivacyInfo.xcprivacy`。
 

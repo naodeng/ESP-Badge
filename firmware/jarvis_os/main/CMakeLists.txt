@@ -29,6 +29,7 @@ idf_component_register(
         "buttons.c"
         "i18n.c"
         "font_cn16.c"
+        "font_music_cjk_24.c"
         "quickpanel.c"
         "tools_ui.c"
         "font_tools.c"

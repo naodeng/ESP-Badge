@@ -5,11 +5,30 @@
 #include <cstdint>
 #include <cstdio>
 #include <cstring>
+#include <ctime>
 #include <type_traits>
 
 #include "lvgl.h"
 
 LV_FONT_DECLARE(moto_font_nav_16);
+
+namespace {
+
+const lv_font_t *s_music_font_fallback = &moto_font_nav_16;
+lv_font_t s_music_font_fallback_chain{};
+lv_font_t s_music_title_font{};
+lv_font_t s_music_artist_font{};
+
+void configure_music_fonts() {
+    s_music_font_fallback_chain = *s_music_font_fallback;
+    s_music_font_fallback_chain.fallback = &moto_font_nav_16;
+    s_music_title_font = lv_font_montserrat_20;
+    s_music_title_font.fallback = &s_music_font_fallback_chain;
+    s_music_artist_font = lv_font_montserrat_16;
+    s_music_artist_font.fallback = &s_music_font_fallback_chain;
+}
+
+}
 
 namespace {
 
@@ -25,6 +44,15 @@ constexpr lv_color_t kRoadMajor = LV_COLOR_MAKE(0x62, 0x69, 0x6D);
 constexpr lv_color_t kRoadMinor = LV_COLOR_MAKE(0x2B, 0x30, 0x33);
 constexpr lv_color_t kBuildingGray = LV_COLOR_MAKE(0x24, 0x29, 0x2C);
 constexpr lv_color_t kBuildingLandmark = LV_COLOR_MAKE(0x38, 0x40, 0x44);
+constexpr lv_color_t kDayMapBackground = LV_COLOR_MAKE(0xD1, 0xD3, 0xD4);
+constexpr lv_color_t kDayRoadMajor = LV_COLOR_MAKE(0xF2, 0xF3, 0xF0);
+constexpr lv_color_t kDayRoadGray = LV_COLOR_MAKE(0xE0, 0xE2, 0xE1);
+constexpr lv_color_t kDayRoadMinor = LV_COLOR_MAKE(0xA8, 0xAD, 0xAE);
+constexpr lv_color_t kDayBuildingGray = LV_COLOR_MAKE(0x98, 0x9D, 0x9F);
+constexpr lv_color_t kDayBuildingLandmark = LV_COLOR_MAKE(0x7E, 0x84, 0x86);
+constexpr lv_color_t kDayStatusQuiet = LV_COLOR_MAKE(0x50, 0x56, 0x59);
+constexpr lv_color_t kDayStatusAccent = LV_COLOR_MAKE(0x72, 0x57, 0x00);
+constexpr lv_color_t kDayStatusGood = LV_COLOR_MAKE(0x27, 0x62, 0x3D);
 constexpr lv_color_t kQuiet = LV_COLOR_MAKE(0x78, 0x7E, 0x7F);
 constexpr lv_color_t kSoft = LV_COLOR_MAKE(0xAE, 0xB2, 0xB0);
 constexpr lv_color_t kAmber = LV_COLOR_MAKE(0xE6, 0xC8, 0x4F);
@@ -35,6 +63,7 @@ constexpr int kCompassTickCount = 24;
 constexpr int kSpeedTickCount = 18;
 constexpr int kDesignWidth = 360;
 constexpr std::uint32_t kPageDotsVisibleMs = 5'000;
+constexpr std::uint32_t kMapPaletteRefreshMs = 60'000;
 // Keep LVGL and map interpolation on the same cadence. Jarvis_OS refreshes
 // LVGL every 20 ms; the upstream 25 ms cadence remains supported elsewhere.
 constexpr std::uint32_t kRouteMotionFrameMs = LV_DEF_REFR_PERIOD;
@@ -51,6 +80,56 @@ enum class LifecycleVisual : std::uint8_t {
     Connected,
     Ready,
     Planning,
+};
+
+enum class MapPalette : std::uint8_t {
+    Night = 0,
+    Day,
+};
+
+enum class NavStatusTone : std::uint8_t {
+    Quiet = 0,
+    Accent,
+    Good,
+    Primary,
+};
+
+struct MapPaletteColors {
+    lv_color_t background;
+    lv_color_t road_major;
+    lv_color_t road_secondary;
+    lv_color_t road_minor;
+    lv_color_t building;
+    lv_color_t building_landmark;
+    lv_color_t status_quiet;
+    lv_color_t status_accent;
+    lv_color_t status_good;
+    lv_color_t status_primary;
+};
+
+constexpr MapPaletteColors kNightMapColors{
+    kBlack,
+    kRoadMajor,
+    kRoadGray,
+    kRoadMinor,
+    kBuildingGray,
+    kBuildingLandmark,
+    kQuiet,
+    kAmber,
+    kGreen,
+    kWhite,
+};
+constexpr MapPaletteColors kDayMapColors{
+    kDayMapBackground,
+    kDayRoadMajor,
+    kDayRoadGray,
+    kDayRoadMinor,
+    kDayBuildingGray,
+    kDayBuildingLandmark,
+    kDayStatusQuiet,
+    kDayStatusAccent,
+    kDayStatusGood,
+    kGraphite,
 };
 
 constexpr int px(int value) {
@@ -80,6 +159,12 @@ struct Ui {
     bool page_dots_visible = true;
 
     lv_obj_t *nav_map = nullptr;
+    lv_timer_t *nav_map_palette_timer = nullptr;
+    MapPalette nav_map_palette = MapPalette::Night;
+    bool nav_map_palette_initialized = false;
+    bool nav_map_palette_timer_paused = false;
+    bool screen_visible = true;
+    NavStatusTone nav_status_tone = NavStatusTone::Quiet;
     lv_obj_t *nav_buildings[MOTO_UI_BUILDING_FOOTPRINT_CAPACITY]{};
     MapPolyline nav_building_lines[MOTO_UI_BUILDING_FOOTPRINT_CAPACITY]{};
     lv_point_precise_t nav_building_points[
@@ -184,9 +269,21 @@ struct Ui {
     bool handle_gestures = true;
 } ui;
 
+void delete_map_palette_timer() {
+    if(ui.nav_map_palette_timer != nullptr) {
+        lv_timer_delete(ui.nav_map_palette_timer);
+        ui.nav_map_palette_timer = nullptr;
+    }
+    ui.nav_map_palette_timer_paused = false;
+}
+
 void reset_ui_state() {
     static_assert(std::is_trivially_copyable_v<Ui>,
                   "Ui must remain safe to reset without a stack temporary");
+
+    // A palette timer retains access to map widgets, so stop it before its
+    // handles are cleared and before the LVGL object tree can be replaced.
+    delete_map_palette_timer();
 
     // `ui = {}` materializes the complete aggregate as a temporary.  The
     // offline map buffers make Ui about 15 KiB, so that temporary can consume
@@ -195,6 +292,11 @@ void reset_ui_state() {
     std::memset(&ui, 0, sizeof(ui));
     ui.page = MOTO_UI_PAGE_NAVIGATION;
     ui.page_dots_visible = true;
+    ui.nav_map_palette = MapPalette::Night;
+    ui.nav_map_palette_initialized = false;
+    ui.nav_map_palette_timer_paused = false;
+    ui.screen_visible = true;
+    ui.nav_status_tone = NavStatusTone::Quiet;
     ui.nav_maneuver_type = MOTO_MANEUVER_STRAIGHT;
     ui.phone_connection = MOTO_UI_PHONE_OFFLINE;
     ui.lifecycle_visual = LifecycleVisual::Hidden;
@@ -243,6 +345,111 @@ lv_color_t traffic_color(moto_traffic_t traffic) {
     }
 }
 
+const MapPaletteColors &map_palette_colors(MapPalette palette) {
+    return palette == MapPalette::Day ? kDayMapColors : kNightMapColors;
+}
+
+MapPalette select_map_palette() {
+    const std::time_t now = std::time(nullptr);
+    std::tm local_time{};
+    if(now < 0 || localtime_r(&now, &local_time) == nullptr ||
+       local_time.tm_year < 124) {
+        return MapPalette::Night;
+    }
+    return local_time.tm_hour >= 6 && local_time.tm_hour < 18
+               ? MapPalette::Day
+               : MapPalette::Night;
+}
+
+void style_map_road(std::uint8_t index) {
+    if(ui.nav_roads[index] == nullptr) return;
+    const std::uint8_t road_class = ui.nav_road_spans[index].road_class;
+    const bool major = road_class <= 2U;
+    const bool service = road_class >= 4U;
+    const MapPaletteColors &colors = map_palette_colors(ui.nav_map_palette);
+    lv_obj_set_style_line_width(
+        ui.nav_roads[index], px(major ? 4 : (service ? 2 : 3)), 0);
+    lv_obj_set_style_line_color(
+        ui.nav_roads[index],
+        major ? colors.road_major
+              : (service ? colors.road_minor : colors.road_secondary),
+        0);
+}
+
+void style_map_building(std::uint8_t index) {
+    if(ui.nav_buildings[index] == nullptr) return;
+    const bool landmark = ui.nav_building_spans[index].building_class == 1U;
+    const MapPaletteColors &colors = map_palette_colors(ui.nav_map_palette);
+    lv_obj_set_style_line_color(
+        ui.nav_buildings[index],
+        landmark ? colors.building_landmark : colors.building, 0);
+    lv_obj_set_style_line_width(ui.nav_buildings[index], px(landmark ? 2 : 1), 0);
+}
+
+lv_color_t nav_status_color() {
+    const MapPaletteColors &colors = map_palette_colors(ui.nav_map_palette);
+    switch(ui.nav_status_tone) {
+        case NavStatusTone::Accent: return colors.status_accent;
+        case NavStatusTone::Good: return colors.status_good;
+        case NavStatusTone::Primary: return colors.status_primary;
+        case NavStatusTone::Quiet: return colors.status_quiet;
+    }
+    return colors.status_quiet;
+}
+
+void apply_nav_status_color() {
+    if(ui.nav_status != nullptr) {
+        lv_obj_set_style_text_color(ui.nav_status, nav_status_color(), 0);
+    }
+}
+
+void apply_map_palette(MapPalette palette) {
+    if(ui.nav_map == nullptr) return;
+    ui.nav_map_palette = palette;
+    ui.nav_map_palette_initialized = true;
+    const MapPaletteColors &colors = map_palette_colors(palette);
+    lv_obj_set_style_bg_color(ui.nav_map, colors.background, 0);
+    lv_obj_set_style_bg_opa(ui.nav_map, LV_OPA_COVER, 0);
+    apply_nav_status_color();
+    for(std::uint8_t i = 0; i < MOTO_UI_ROAD_POLYLINE_CAPACITY; ++i) {
+        style_map_road(i);
+    }
+    for(std::uint8_t i = 0; i < MOTO_UI_BUILDING_FOOTPRINT_CAPACITY; ++i) {
+        style_map_building(i);
+    }
+    lv_obj_invalidate(ui.nav_map);
+}
+
+void map_palette_tick(lv_timer_t *) {
+    if(ui.nav_map == nullptr || !ui.screen_visible ||
+       ui.page != MOTO_UI_PAGE_NAVIGATION) return;
+    const MapPalette selected = select_map_palette();
+    if(!ui.nav_map_palette_initialized || selected != ui.nav_map_palette) {
+        apply_map_palette(selected);
+    }
+}
+
+void sync_map_palette_timer_visibility() {
+    if(ui.nav_map_palette_timer == nullptr) return;
+    const bool should_run = ui.nav_map != nullptr && ui.screen_visible &&
+                            ui.page == MOTO_UI_PAGE_NAVIGATION;
+    const bool is_running = !ui.nav_map_palette_timer_paused;
+    if(should_run == is_running) return;
+    if(!should_run) {
+        lv_timer_pause(ui.nav_map_palette_timer);
+        ui.nav_map_palette_timer_paused = true;
+        return;
+    }
+
+    const MapPalette selected = select_map_palette();
+    if(!ui.nav_map_palette_initialized || selected != ui.nav_map_palette) {
+        apply_map_palette(selected);
+    }
+    ui.nav_map_palette_timer_paused = false;
+    lv_timer_reset(ui.nav_map_palette_timer);
+    lv_timer_resume(ui.nav_map_palette_timer);
+}
+
 const char *cardinal_name(std::uint16_t heading) {
     static const char *names[] = {"N", "NE", "E", "SE", "S", "SW", "W", "NW"};
     return names[((heading + 22U) / 45U) % 8U];
@@ -273,6 +480,15 @@ void draw_vehicle_marker(lv_event_t *event) {
                      static_cast<lv_value_precise_t>(area.y1 + px(30))};
     triangle.p[2] = {static_cast<lv_value_precise_t>(area.x1 + px(28)),
                      static_cast<lv_value_precise_t>(area.y1 + px(30))};
+    lv_draw_triangle(layer, &triangle);
+
+    triangle.color = kRed;
+    triangle.p[0] = {static_cast<lv_value_precise_t>(area.x1 + px(17)),
+                     static_cast<lv_value_precise_t>(area.y1 + px(10))};
+    triangle.p[1] = {static_cast<lv_value_precise_t>(area.x1 + px(11)),
+                     static_cast<lv_value_precise_t>(area.y1 + px(26))};
+    triangle.p[2] = {static_cast<lv_value_precise_t>(area.x1 + px(23)),
+                     static_cast<lv_value_precise_t>(area.y1 + px(26))};
     lv_draw_triangle(layer, &triangle);
 }
 
@@ -323,6 +539,18 @@ void install_interaction_wake(lv_obj_t *object) {
     }
 }
 
+void install_gesture_bubble(lv_obj_t *object) {
+    if(object == nullptr) return;
+    const std::uint32_t child_count = lv_obj_get_child_count(object);
+    for(std::uint32_t index = 0; index < child_count; ++index) {
+        lv_obj_t *child = lv_obj_get_child(object, static_cast<int32_t>(index));
+        // Keep ui.screen as the terminal receiver; bubbling it would move the
+        // gesture target past the screen before its page-turn handler runs.
+        lv_obj_set_gesture_bubble(child, true);
+        install_gesture_bubble(child);
+    }
+}
+
 void show_page(moto_ui_page_t page, bool reveal_on_same_page = false) {
     if(page < MOTO_UI_PAGE_NAVIGATION || page >= MOTO_UI_PAGE_COUNT) return;
     if(page == MOTO_UI_PAGE_MUSIC && !ui.music_page_enabled) {
@@ -338,6 +566,7 @@ void show_page(moto_ui_page_t page, bool reveal_on_same_page = false) {
         }
     }
     update_page_dots();
+    sync_map_palette_timer_visibility();
     // Navigation state arrives continuously. Only a real page transition or
     // user action may restart the five-second affordance timer.
     if(changed || reveal_on_same_page) reveal_page_dots();
@@ -653,14 +882,7 @@ void update_road_geometry(const moto_ui_state_t *state) {
     if(spans_changed) {
         for(std::uint8_t i = 0; i < MOTO_UI_ROAD_POLYLINE_CAPACITY; ++i) {
             if(i < polyline_count) {
-                const std::uint8_t road_class = ui.nav_road_spans[i].road_class;
-                const bool major = road_class <= 2U;
-                const bool service = road_class >= 4U;
-                lv_obj_set_style_line_width(
-                    ui.nav_roads[i], px(major ? 4 : (service ? 2 : 3)), 0);
-                lv_obj_set_style_line_color(
-                    ui.nav_roads[i],
-                    major ? kRoadMajor : (service ? kRoadMinor : kRoadGray), 0);
+                style_map_road(i);
                 lv_obj_remove_flag(ui.nav_roads[i], LV_OBJ_FLAG_HIDDEN);
             } else {
                 lv_obj_add_flag(ui.nav_roads[i], LV_OBJ_FLAG_HIDDEN);
@@ -721,13 +943,7 @@ void update_building_geometry(const moto_ui_state_t *state) {
         for(std::uint8_t i = 0;
             i < MOTO_UI_BUILDING_FOOTPRINT_CAPACITY; ++i) {
             if(i < footprint_count) {
-                const bool landmark =
-                    ui.nav_building_spans[i].building_class == 1U;
-                lv_obj_set_style_line_color(
-                    ui.nav_buildings[i],
-                    landmark ? kBuildingLandmark : kBuildingGray, 0);
-                lv_obj_set_style_line_width(
-                    ui.nav_buildings[i], px(landmark ? 2 : 1), 0);
+                style_map_building(i);
                 lv_obj_remove_flag(ui.nav_buildings[i], LV_OBJ_FLAG_HIDDEN);
             } else {
                 lv_obj_add_flag(ui.nav_buildings[i], LV_OBJ_FLAG_HIDDEN);
@@ -1333,29 +1549,40 @@ void set_navigation_guidance_visible(bool visible) {
 
 void update_nav_status(const moto_ui_state_t *state) {
     const char *text = "";
-    lv_color_t color = kQuiet;
+    ui.nav_status_tone = NavStatusTone::Quiet;
     if(ui.demo_active) {
         lv_label_set_text(ui.nav_status, "DEMO RIDE");
-        lv_obj_set_style_text_color(ui.nav_status, kWhite, 0);
+        ui.nav_status_tone = NavStatusTone::Primary;
+        apply_nav_status_color();
         return;
     }
     if(state->mode != MOTO_UI_ARRIVED && state->route_point_count < 2) {
         // Empty navigation states are rendered by the full lifecycle surface,
         // never by a tiny diagnostic caption floating in a black screen.
         lv_label_set_text(ui.nav_status, "");
+        apply_nav_status_color();
         return;
     }
     switch(state->mode) {
-        case MOTO_UI_ACQUIRING_FIX: text = "ACQUIRING GPS"; color = kAmber; break;
-        case MOTO_UI_REROUTING: text = "REROUTING"; color = kAmber; break;
-        case MOTO_UI_OFFLINE: text = "ROUTE CACHED"; color = kQuiet; break;
-        case MOTO_UI_ARRIVED: text = "ARRIVED"; color = kGreen; break;
+        case MOTO_UI_ACQUIRING_FIX:
+            text = "ACQUIRING GPS";
+            ui.nav_status_tone = NavStatusTone::Accent;
+            break;
+        case MOTO_UI_REROUTING:
+            text = "REROUTING";
+            ui.nav_status_tone = NavStatusTone::Accent;
+            break;
+        case MOTO_UI_OFFLINE: text = "ROUTE CACHED"; break;
+        case MOTO_UI_ARRIVED:
+            text = "ARRIVED";
+            ui.nav_status_tone = NavStatusTone::Good;
+            break;
         case MOTO_UI_NAVIGATING:
             if(state->online == 0) text = "NO HOTSPOT";
             break;
     }
     lv_label_set_text(ui.nav_status, text);
-    lv_obj_set_style_text_color(ui.nav_status, color, 0);
+    apply_nav_status_color();
 }
 
 void update_navigation(const moto_ui_state_t *state) {
@@ -1663,6 +1890,10 @@ void create_navigation_page() {
                                             kConnectionSuccessHoldMs,
                                             nullptr);
     lv_timer_pause(ui.nav_success_timer);
+    apply_map_palette(select_map_palette());
+    ui.nav_map_palette_timer = lv_timer_create(
+        map_palette_tick, kMapPaletteRefreshMs, nullptr);
+    sync_map_palette_timer_visibility();
     apply_lifecycle_content(LifecycleVisual::PhoneOffline);
     ui.lifecycle_target = LifecycleVisual::PhoneOffline;
 }
@@ -1768,12 +1999,12 @@ void create_music_page() {
     lv_obj_set_style_bg_opa(core, LV_OPA_COVER, 0);
     lv_obj_set_style_border_width(core, 0, 0);
 
-    ui.music_title = make_label(page, &lv_font_montserrat_20, kWhite, "NIGHT RIDE");
+    ui.music_title = make_label(page, &s_music_title_font, kWhite, "NIGHT RIDE");
     lv_obj_set_width(ui.music_title, px(260));
     lv_obj_set_style_text_align(ui.music_title, LV_TEXT_ALIGN_CENTER, 0);
     lv_label_set_long_mode(ui.music_title, LV_LABEL_LONG_DOT);
     lv_obj_align(ui.music_title, LV_ALIGN_TOP_MID, 0, px(190));
-    ui.music_artist = make_label(page, &lv_font_montserrat_16, kQuiet, "PHONE NOW PLAYING");
+    ui.music_artist = make_label(page, &s_music_artist_font, kQuiet, "PHONE NOW PLAYING");
     lv_obj_set_width(ui.music_artist, px(260));
     lv_obj_set_style_text_align(ui.music_artist, LV_TEXT_ALIGN_CENTER, 0);
     lv_label_set_long_mode(ui.music_artist, LV_LABEL_LONG_DOT);
@@ -1916,6 +2147,7 @@ extern "C" void moto_nav_ui_show_power_off_screen(void) {
         lv_timer_delete(ui.page_dots_timer);
         ui.page_dots_timer = nullptr;
     }
+    delete_map_palette_timer();
     if(ui.nav_route_motion_timer != nullptr) {
         lv_timer_delete(ui.nav_route_motion_timer);
         ui.nav_route_motion_timer = nullptr;
@@ -1957,6 +2189,7 @@ extern "C" void moto_nav_ui_create_in(lv_obj_t *screen,
                                          uint8_t handle_gestures) {
     if(screen == nullptr) return;
     reset_ui_state();
+    configure_music_fonts();
     ui.screen = screen;
     ui.handle_gestures = handle_gestures != 0U;
     lv_obj_clean(ui.screen);
@@ -1979,6 +2212,9 @@ extern "C" void moto_nav_ui_create_in(lv_obj_t *screen,
     // necessarily to its page. Register once across the finished tree so any
     // touch reliably wakes the dots, including the map and music controls.
     install_interaction_wake(ui.screen);
+    // Compass labels and ticks can become the gesture target. Bubble swipes
+    // from every child so a page turn works from the whole circular display.
+    install_gesture_bubble(ui.screen);
 
     moto_music_state_t initial_music = {
         "APPLE MUSIC", "NIGHT RIDE", "PHONE NOW PLAYING", 1, 1, 0, 0,
@@ -1992,6 +2228,18 @@ extern "C" void moto_nav_ui_create_in(lv_obj_t *screen,
     initial.traffic = MOTO_TRAFFIC_UNKNOWN;
     moto_nav_ui_set_state(&initial);
     show_page(MOTO_UI_PAGE_NAVIGATION, true);
+}
+
+extern "C" void moto_nav_ui_set_music_font_fallback(const lv_font_t *font) {
+    s_music_font_fallback = font != nullptr ? font : &moto_font_nav_16;
+    configure_music_fonts();
+    if(ui.music_title != nullptr) lv_obj_invalidate(ui.music_title);
+    if(ui.music_artist != nullptr) lv_obj_invalidate(ui.music_artist);
+}
+
+extern "C" void moto_nav_ui_set_visible(uint8_t visible) {
+    ui.screen_visible = visible != 0U;
+    sync_map_palette_timer_visibility();
 }
 
 extern "C" void moto_nav_ui_handle_gesture(moto_ui_gesture_t gesture) {

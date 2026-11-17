@@ -1,6 +1,7 @@
 #include "ble_nav_transport_nimble.h"
 
 #include <algorithm>
+#include <cstddef>
 #include <cstring>
 
 #include "ble_event_filter.hpp"
@@ -9,6 +10,7 @@
 #include "esp_timer.h"
 #include "host/ble_gatt.h"
 #include "host/ble_hs.h"
+#include "host/ble_hs_adv.h"
 #include "host/ble_uuid.h"
 #include "host/util/util.h"
 #include "nimble/nimble_port.h"
@@ -34,6 +36,18 @@ const ble_uuid128_t kRxUuid = BLE_UUID128_INIT(
 const ble_uuid128_t kTxUuid = BLE_UUID128_INIT(
     0x00, 0x10, 0x8e, 0x4e, 0xa5, 0x40, 0x57, 0x9c,
     0x6a, 0x4b, 0x0c, 0xb5, 0x02, 0xa0, 0x57, 0x7e);
+
+constexpr std::size_t kAdStructureOverhead = 2U;
+constexpr std::size_t kFlagsPayloadBytes = 1U;
+constexpr std::size_t kServiceUuidPayloadBytes = 16U;
+constexpr std::size_t kDeviceNamePayloadBytes = sizeof(kDeviceName) - 1U;
+static_assert(kAdStructureOverhead + kFlagsPayloadBytes +
+                  kAdStructureOverhead + kServiceUuidPayloadBytes <=
+              BLE_HS_ADV_MAX_SZ,
+              "BLE service UUID and flags must fit in legacy advertising data");
+static_assert(kAdStructureOverhead + kDeviceNamePayloadBytes <=
+                  BLE_HS_ADV_MAX_SZ,
+              "BLE device name must fit in the scan response");
 
 ble_gatt_chr_def g_characteristics[3]{};
 ble_gatt_svc_def g_services[2]{};
@@ -310,10 +324,6 @@ void BleNavTransport::host_sync() {
 void BleNavTransport::advertise() {
   ble_hs_adv_fields fields{};
   fields.flags = BLE_HS_ADV_F_DISC_GEN | BLE_HS_ADV_F_BREDR_UNSUP;
-  fields.name = reinterpret_cast<std::uint8_t*>(
-      const_cast<char*>(kDeviceName));
-  fields.name_len = sizeof(kDeviceName) - 1U;
-  fields.name_is_complete = 1;
   fields.uuids128 = const_cast<ble_uuid128_t*>(&kServiceUuid);
   fields.num_uuids128 = 1;
   fields.uuids128_is_complete = 1;
@@ -324,6 +334,17 @@ void BleNavTransport::advertise() {
     return;
   }
 
+  ble_hs_adv_fields scan_response{};
+  scan_response.name = reinterpret_cast<std::uint8_t*>(
+      const_cast<char*>(kDeviceName));
+  scan_response.name_len = kDeviceNamePayloadBytes;
+  scan_response.name_is_complete = 1;
+  result = ble_gap_adv_rsp_set_fields(&scan_response);
+  if (result != 0) {
+    ESP_LOGE(kTag, "scan response rejected: rc=%d", result);
+    return;
+  }
+
   ble_gap_adv_params parameters{};
   parameters.conn_mode = BLE_GAP_CONN_MODE_UND;
   parameters.disc_mode = BLE_GAP_DISC_MODE_GEN;
@@ -331,7 +352,10 @@ void BleNavTransport::advertise() {
                              &parameters, gap_event, this);
   if (result != 0 && result != BLE_HS_EALREADY) {
     ESP_LOGE(kTag, "advertising start failed: rc=%d", result);
+    return;
   }
+  ESP_LOGI(kTag, "advertising started; name=%s service=%s", kDeviceName,
+           moto::ble::kServiceUuid);
 }
 
 void BleNavTransport::host_task(void*) {

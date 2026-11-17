@@ -4,7 +4,6 @@
 #include "power.h"
 #include "lock.h"
 #include "buttons.h"
-#include "glyph.h"
 #include "launcher_icons.h"
 #include "quickpanel.h"
 #include "companion_icons.h"
@@ -33,8 +32,7 @@ const int APP_COUNT = sizeof(APPS) / sizeof(APPS[0]);
 
 static lv_obj_t *launcher_screen, *app_screen;
 static lv_obj_t *s_retained_app_screen;
-static lv_obj_t *g_icon, *g_iconart, *g_name, *g_title, *g_back, *g_batt, *g_bolt;
-static lv_obj_t *g_back_label, *g_backdots;
+static lv_obj_t *g_icon, *g_iconart, *g_name, *g_title, *g_batt, *g_bolt;
 static lv_obj_t *g_nextart;
 static const app_t *cur_app;
 static bool s_app_fullscreen;
@@ -44,6 +42,7 @@ static uint32_t s_last_batt_color = UINT32_MAX;
 static bool s_app_visible;
 static uint32_t s_tick_at;
 static void battery_visibility(bool covered);
+static void app_back(void);
 static bool battery_covered(void) { return lock_is_locked() || s_app_fullscreen; }
 static void header_app_style(void) {
     const app_t *shown=cur_app;
@@ -56,10 +55,7 @@ static void header_app_style(void) {
     lv_label_set_long_mode(g_title,LV_LABEL_LONG_MODE_DOTS);
     lv_obj_set_style_text_align(g_title,LV_TEXT_ALIGN_CENTER,0);
     lv_obj_align(g_title, LV_ALIGN_TOP_MID, 0, controls ? 52 : 46);
-    lv_obj_set_size(g_back, controls ? 44 : 48, controls ? 44 : 48);
-    lv_obj_align(g_back, LV_ALIGN_TOP_MID, controls ? -110 : -100, controls ? 52 : 40);
     lv_obj_align(g_bolt,LV_ALIGN_TOP_MID,0,14);
-    lv_obj_set_style_bg_color(g_back, lv_color_hex(0x16161a), 0);
     lv_obj_set_size(g_batt, 458, 458);lv_obj_center(g_batt);
     lv_obj_set_style_arc_width(g_batt, 8, LV_PART_MAIN);
     lv_obj_set_style_arc_width(g_batt, 8, LV_PART_INDICATOR);
@@ -68,16 +64,6 @@ static void header_app_style(void) {
         s_last_batt_color = COL_TXT;
         lv_obj_set_style_arc_color(g_batt,lv_color_hex(s_last_batt_color),LV_PART_INDICATOR);
     }
-    lv_obj_set_style_bg_opa(g_back, LV_OPA_COVER, 0);
-    lv_obj_set_style_border_width(g_back, 1, 0);
-    lv_obj_set_style_border_color(g_back, lv_color_hex(COL_TXT2), 0);
-    lv_obj_set_style_border_opa(g_back, LV_OPA_50, 0);
-    lv_label_set_text(g_back_label, LV_SYMBOL_LEFT);
-    lv_obj_set_style_text_color(g_back_label, lv_color_hex(COL_TXT), 0);
-    lv_obj_remove_local_style_prop(g_back_label, LV_STYLE_TEXT_FONT, 0);
-    lv_obj_center(g_back_label);
-    lv_obj_remove_flag(g_back_label, LV_OBJ_FLAG_HIDDEN);
-    lv_obj_add_flag(g_backdots, LV_OBJ_FLAG_HIDDEN);
 }
 
 /* ---- Native icon widget; app and artwork IDs are mapped explicitly. ---- */
@@ -241,7 +227,11 @@ static void app_tick_timer(lv_timer_t *t) {
         s_tick_at = now;
         if (cur_app->visibility) cur_app->visibility(visible);
     }
-    (void)buttons_control_long_pressed();
+    bool return_pressed = buttons_control_long_pressed();
+    if (visible && return_pressed) {
+        app_back();
+        return;
+    }
     if (!cur_app->tick || (!visible && !cur_app->tick_in_background)) return;
     uint32_t period = cur_app->tick_period_ms ? cur_app->tick_period_ms : 50;
     if (now - s_tick_at < period) return;
@@ -262,8 +252,6 @@ static void app_gesture_cb(lv_event_t *e) {
     }
     if (direction == LV_DIR_RIGHT) app_back();
 }
-static void back_cb(lv_event_t *e) { app_back(); }
-
 static void enter_app(void) {
     buttons_reset_control();
     cur_app = APPS[cur];
@@ -283,8 +271,8 @@ static void enter_app(void) {
     lv_obj_remove_flag(app_screen, LV_OBJ_FLAG_SCROLLABLE);
     lv_obj_add_event_cb(app_screen, app_gesture_cb, LV_EVENT_GESTURE, NULL);
     lv_label_set_text(g_title, tr_app_name(cur_app->name));   // 默认标题 = app 名(按语言)
-    lv_obj_remove_flag(g_title, LV_OBJ_FLAG_HIDDEN);
-    lv_obj_remove_flag(g_back, LV_OBJ_FLAG_HIDDEN);
+    if (cur_app == &app_moto_gps) lv_obj_add_flag(g_title, LV_OBJ_FLAG_HIDDEN);
+    else lv_obj_remove_flag(g_title, LV_OBJ_FLAG_HIDDEN);
     if (cur_app->enter) cur_app->enter(app_screen);     // app 可在 enter 里改标题(天气→城市)
     lv_screen_load(app_screen);
 }
@@ -313,7 +301,6 @@ void launcher_set_app_fullscreen(bool fullscreen) {
     s_app_fullscreen=fullscreen;
     if (fullscreen) {
         lv_obj_add_flag(g_title,LV_OBJ_FLAG_HIDDEN);
-        lv_obj_add_flag(g_back,LV_OBJ_FLAG_HIDDEN);
     }
     battery_visibility(battery_covered());
 }
@@ -324,7 +311,6 @@ void go_home(void) {
     lv_obj_t *closing_screen = app_screen;
     buttons_reset_control();
     lv_obj_add_flag(g_title, LV_OBJ_FLAG_HIDDEN);
-    lv_obj_add_flag(g_back, LV_OBJ_FLAG_HIDDEN);
     if (cur_app->exit) cur_app->exit();
     s_app_fullscreen=false;
     // App退出先提交最后副本，再有界等待；失败仍留在后台队列，不能当作保存成功。
@@ -348,7 +334,7 @@ static void hotzone_gesture_cb(lv_event_t *e) {
     if (lv_indev_get_gesture_dir(lv_indev_active()) == LV_DIR_BOTTOM) quickpanel_open();
 }
 
-/* ---- 顶层悬浮:电量环 + 标题 + 返回 + 下拉热区 + 快捷面板 ---- */
+/* ---- 顶层悬浮:电量环 + 标题 + 下拉热区 + 快捷面板 ---- */
 static void build_overlay(void) {
     lv_obj_t *top = lv_layer_top();
 
@@ -382,33 +368,6 @@ static void build_overlay(void) {
     lv_obj_set_style_text_color(g_title, lv_color_hex(COL_TXT), 0);
     lv_obj_align(g_title, LV_ALIGN_TOP_MID, 0, 46);
     lv_obj_add_flag(g_title, LV_OBJ_FLAG_HIDDEN);
-
-    // 返回键:圆形描边(Nothing 风)—— 深底 + 细灰环 + 白箭头
-    g_back = lv_obj_create(top);
-    lv_obj_set_size(g_back, 48, 48);
-    lv_obj_set_style_radius(g_back, LV_RADIUS_CIRCLE, 0);
-    lv_obj_set_style_bg_color(g_back, lv_color_hex(0x16161a), 0);
-    lv_obj_set_style_bg_opa(g_back, LV_OPA_COVER, 0);
-    lv_obj_set_style_border_width(g_back, 1, 0);
-    lv_obj_set_style_border_color(g_back, lv_color_hex(COL_TXT2), 0);
-    lv_obj_set_style_border_opa(g_back, LV_OPA_50, 0);
-    lv_obj_set_style_pad_all(g_back, 0, 0);
-    lv_obj_align(g_back, LV_ALIGN_TOP_MID, -100, 40);
-    lv_obj_remove_flag(g_back, LV_OBJ_FLAG_SCROLLABLE);
-    lv_obj_add_flag(g_back, LV_OBJ_FLAG_CLICKABLE);
-    lv_obj_add_event_cb(g_back, back_cb, LV_EVENT_CLICKED, NULL);
-    g_back_label = lv_label_create(g_back);
-    lv_label_set_text(g_back_label, LV_SYMBOL_LEFT);
-    lv_obj_set_style_text_color(g_back_label, lv_color_hex(COL_TXT), 0);
-    lv_obj_center(g_back_label);
-    g_backdots = lv_obj_create(g_back);
-    lv_obj_remove_style_all(g_backdots);
-    lv_obj_set_size(g_backdots, 48, 48);
-    lv_obj_remove_flag(g_backdots, LV_OBJ_FLAG_SCROLLABLE | LV_OBJ_FLAG_CLICKABLE);
-    lv_obj_add_flag(g_backdots, LV_OBJ_FLAG_EVENT_BUBBLE | LV_OBJ_FLAG_HIDDEN);
-    glyph_line(g_backdots, 28, 17, 21, 24, 4, 1, COL_TXT);
-    glyph_line(g_backdots, 21, 24, 28, 31, 4, 1, COL_TXT);
-    lv_obj_add_flag(g_back, LV_OBJ_FLAG_HIDDEN);
 
     // 顶部边缘下拉热区(透明、仅最顶 30px):只在屏幕最顶起手的下拉才触发,避开列表纵向滚动误触
     lv_obj_t *hz = lv_obj_create(top);

@@ -35,47 +35,14 @@ python -m esptool --chip esp32s3 -b 460800 \
 
 刷写结束后连接串口监视器，检查芯片启动、`Project name: Jarvis_OS`、显示/触摸/IMU 初始化和启动自检结果。任何启动循环或 panic 都应先停止重复刷写并保存串口日志。
 
-## 3. 部署 Moto GPS Worker
+## 3. 部署 Moto GPS 后端
 
-源码和 Wrangler 配置在 `services/moto-gps-gateway/cloudflare/`。已配置 Worker 名称 `moto-gps-gateway`、私有 R2 桶 `moto-gps-map-cache` 和 UTC Cron `17 3 * * *`。该 Cron 只执行地图源元数据刷新，与固件 OTA 无关。
+Node.js 本地服务、Cloudflare Worker、AMap Secret、R2、Cron、健康检查及 Key 白名单的详细步骤见[后端服务部署指南](../backend/deployment.md)。
 
-在已授权目标 Cloudflare 账户的终端中，先进入 Worker 目录：
+仓库和 App 安装包不提供共享的默认网关地址。部署者应从自己的 Cloudflare Dashboard 获取 Worker 地址，再在 iPhone App 的“网关设置”中填写。健康检查只确认 Worker 状态，不验证高德 Key 的实时搜索或路线调用。
 
-```sh
-cd services/moto-gps-gateway/cloudflare
-npm ci
-npx wrangler whoami
-npm run build
-npx wrangler secret put AMAP_WEB_SERVICE_KEY \
-  --config wrangler.jsonc
-npm run deploy
-```
+## 4. 配置 iPhone App
 
-`secret put` 会交互式读取 Key。不要把 Key 粘贴到聊天或直接放在命令参数、配置文件和日志中。已有部署的资源/Secret 应先核对，避免无意覆盖控制台配置。
+网关地址配置、运行时更换、Xcode 签名和 iOS 权限见[手机 App 配置指南](../mobile-app/configuration.md)。首次使用时在首页齿轮 → **网关设置**填写自己的 HTTPS 根地址。
 
-Worker 默认接口没有用户身份认证，访问范围为公开 HTTPS；配置中的 CORS 和 IP 限流不等于身份鉴权。若要限制消费者，需另行规划认证机制。R2 保持私有，`tiles/` 生命周期按部署说明在 Cloudflare 控制台设为 30 天。
-
-Wrangler 配置和本仓库源码不会证明线上部署、Secret、桶权限或 Cron 已生效。部署后在 Cloudflare 控制台检查 Worker 版本、Settings → Triggers 中的 Cron、R2 绑定和 Secret 名称，再请求 `/healthz` 与真实搜索/路线接口。此轮只读线上状态检查未能完成，发布前需在控制台确认。
-
-## 4. 将 App 指向网关
-
-当前默认 HTTPS 根地址：
-
-```text
-https://moto-gps-gateway.naodeng.workers.dev/
-```
-
-构建默认值来自 `apps/ios/moto-gps/project.yml` 的 `MOTOGPSGatewayBaseURL`。用户也可在 App 的“网关设置”里保存自己的根地址。若自建 Worker 或设置了路径前缀，App 地址必须使用对应 Worker 域名和 API 根路径。
-
-App Store/TestFlight 签名、Bundle ID、团队和上传凭据属于发布者的 Apple 账户配置，不纳入仓库或本地调试文档。
-
-## 5. 网关本地服务
-
-Node 服务可在本机运行用于开发：
-
-```sh
-npm ci --prefix services/moto-gps-gateway
-npm start --prefix services/moto-gps-gateway
-```
-
-本地环境变量放在该服务忽略的 `.env` 文件。Worker 的 `.dev.vars` 和生产 Secret 相互独立。
+手机与 Jarvis_OS 圆屏配对和导航同步步骤见[MOTO GPS 连接指南](../connection-guide.md)。

@@ -112,12 +112,12 @@
 		28DDE3A24C9D3315D0034273 /* ble_protocol.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = ble_protocol.cpp; sourceTree = "<group>"; };
 		28E353499168504346A5E341 /* SurroundingMapStoreTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SurroundingMapStoreTests.swift; sourceTree = "<group>"; };
 		2BA3D9CECC4F092CB80A764E /* AppModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppModel.swift; sourceTree = "<group>"; };
-		2BAE7B929E8A15DCCCC67F02 /* MotoGPSUnitTests.xctest */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.cfbundle; path = MotoGPSUnitTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		2BAE7B929E8A15DCCCC67F02 /* MotoGPSUnitTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = MotoGPSUnitTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		2C19D291886044A1C4997A21 /* jinan_map_scene_sample.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = jinan_map_scene_sample.json; sourceTree = "<group>"; };
 		2CCA577D70A51755F11A8718 /* MotoGPSUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MotoGPSUITests.swift; sourceTree = "<group>"; };
 		30C4BB9772C51A6F7D3931C8 /* RoutePreviewSupportTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RoutePreviewSupportTests.swift; sourceTree = "<group>"; };
 		32F124214ED971CDF8249AE8 /* ble-navigation-v1.golden.txt */ = {isa = PBXFileReference; lastKnownFileType = text; path = "ble-navigation-v1.golden.txt"; sourceTree = "<group>"; };
-		3A7B643E40D24FFF11E43752 /* MotoGPSUITests.xctest */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.cfbundle; path = MotoGPSUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		3A7B643E40D24FFF11E43752 /* MotoGPSUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = MotoGPSUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		3E4A1B6890189BC4475269D4 /* LICENSE.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = LICENSE.md; sourceTree = "<group>"; };
 		409AABB1F255FC1E18E62742 /* JinanDemoFixture.generated.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JinanDemoFixture.generated.swift; sourceTree = "<group>"; };
 		40E49AA1E7532130973D3C28 /* NavigationContracts.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NavigationContracts.swift; sourceTree = "<group>"; };
@@ -128,12 +128,12 @@
 		5CEB08A0E0A5CF31CD0711F9 /* CoreLocationNavigationSource.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CoreLocationNavigationSource.swift; sourceTree = "<group>"; };
 		5FBB5370543E12F20AF69669 /* MotoNavCoreBridge.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = MotoNavCoreBridge.mm; sourceTree = "<group>"; };
 		64D2919955C8F5B02F1E17FF /* OfflineMapScene.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OfflineMapScene.swift; sourceTree = "<group>"; };
-		6A58F293F4A4FAF145F7C87C /* MotoGPS.app */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.application; path = MotoGPS.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		6A58F293F4A4FAF145F7C87C /* MOTO GPS.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "MOTO GPS.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		78535F861085768C62E33374 /* GatewayConfiguration.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GatewayConfiguration.swift; sourceTree = "<group>"; };
 		7DE6DAD261B6C739E14C2A2F /* MapTilePlanner.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MapTilePlanner.swift; sourceTree = "<group>"; };
 		8942D0D867332F30E3A95F25 /* libsqlite3.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = libsqlite3.tbd; path = usr/lib/libsqlite3.tbd; sourceTree = SDKROOT; };
 		89BD7429898D3D68716EA449 /* OnlineMapWireTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnlineMapWireTests.swift; sourceTree = "<group>"; };
-		8DD3EC3D7819C56F1C26D7D7 /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; path = PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
+		8DD3EC3D7819C56F1C26D7D7 /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
 		900078CE17BF25FF4421BFB1 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		90419AAB065F07B13113A7D8 /* THIRD_PARTY_NOTICES.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = THIRD_PARTY_NOTICES.md; sourceTree = "<group>"; };
 		957F4ED9082D82CC9FF88239 /* coordinates.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = coordinates.cpp; sourceTree = "<group>"; };
@@ -153,7 +153,7 @@
 		BFCA5D9A5FAC2A7864E5E6A8 /* RouteOverviewMap.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RouteOverviewMap.swift; sourceTree = "<group>"; };
 		C3D8AC402B3952E90A2A4DDB /* ConnectionPolicies.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConnectionPolicies.swift; sourceTree = "<group>"; };
 		D348F00651E46676563C0B30 /* shanghai-online-map-tile.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = "shanghai-online-map-tile.json"; sourceTree = "<group>"; };
-		D57F9F11F8DCD3F54FC54553 /* NOTICE */ = {isa = PBXFileReference; path = NOTICE; sourceTree = "<group>"; };
+		D57F9F11F8DCD3F54FC54553 /* NOTICE */ = {isa = PBXFileReference; lastKnownFileType = text; path = NOTICE; sourceTree = "<group>"; };
 		D6EF5D893E682571B8463215 /* AppleMusicRemoteController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppleMusicRemoteController.swift; sourceTree = "<group>"; };
 		DDD7E8BAB66738DE80AE7703 /* MotoGPS-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "MotoGPS-Bridging-Header.h"; sourceTree = "<group>"; };
 		DEFC07E8E2DC7DD73EA37F55 /* NavigationModels.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NavigationModels.swift; sourceTree = "<group>"; };
@@ -231,7 +231,7 @@
 		3F0DF8DE8956C1E8E67D44CD /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				6A58F293F4A4FAF145F7C87C /* MotoGPS.app */,
+				6A58F293F4A4FAF145F7C87C /* MOTO GPS.app */,
 				3A7B643E40D24FFF11E43752 /* MotoGPSUITests.xctest */,
 				2BAE7B929E8A15DCCCC67F02 /* MotoGPSUnitTests.xctest */,
 				17C4D3200B88571F3B412E3D /* MotoNavigationCore.framework */,
@@ -513,7 +513,7 @@
 			packageProductDependencies = (
 			);
 			productName = MotoGPS;
-			productReference = 6A58F293F4A4FAF145F7C87C /* MotoGPS.app */;
+			productReference = 6A58F293F4A4FAF145F7C87C /* MOTO GPS.app */;
 			productType = "com.apple.product-type.application";
 		};
 		B557BCBD4EE1ED28CBED1106 /* MotoGPSUnitTests */ = {
@@ -560,10 +560,9 @@
 			isa = PBXProject;
 			attributes = {
 				BuildIndependentTargetsInParallel = YES;
-				LastUpgradeCheck = 1600;
+				LastUpgradeCheck = 2720;
 				TargetAttributes = {
 					6C3699E918C19EDD29B3341F = {
-						DevelopmentTeam = "";
 						ProvisioningStyle = Automatic;
 					};
 					BE90135D8892001600BA7C83 = {
@@ -749,6 +748,7 @@
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				ENABLE_NS_ASSERTIONS = NO;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
 				GCC_C_LANGUAGE_STANDARD = gnu11;
 				GCC_NO_COMMON_BLOCKS = YES;
 				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
@@ -762,6 +762,7 @@
 				MTL_FAST_MATH = YES;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = iphoneos;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
 				SWIFT_COMPILATION_MODE = wholemodule;
 				SWIFT_OPTIMIZATION_LEVEL = "-O";
 				SWIFT_VERSION = 5.0;
@@ -797,7 +798,6 @@
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 6;
-				DEVELOPMENT_TEAM = "";
 				GENERATE_INFOPLIST_FILE = NO;
 				HEADER_SEARCH_PATHS = (
 					"$(SRCROOT)/../../../packages/moto-gps/shared/ble_protocol/include",
@@ -866,12 +866,14 @@
 				DYLIB_COMPATIBILITY_VERSION = 1;
 				DYLIB_CURRENT_VERSION = 1;
 				DYLIB_INSTALL_NAME_BASE = "@rpath";
+				ENABLE_MODULE_VERIFIER = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
+				MODULE_VERIFIER_SUPPORTED_LANGUAGE_STANDARDS = "gnu11 gnu++14";
 				PRODUCT_BUNDLE_IDENTIFIER = org.example.motogps.core;
 				SDKROOT = iphoneos;
 				SKIP_INSTALL = YES;
@@ -890,12 +892,14 @@
 				DYLIB_COMPATIBILITY_VERSION = 1;
 				DYLIB_CURRENT_VERSION = 1;
 				DYLIB_INSTALL_NAME_BASE = "@rpath";
+				ENABLE_MODULE_VERIFIER = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
+				MODULE_VERIFIER_SUPPORTED_LANGUAGE_STANDARDS = "gnu11 gnu++14";
 				PRODUCT_BUNDLE_IDENTIFIER = org.example.motogps.core;
 				SDKROOT = iphoneos;
 				SKIP_INSTALL = YES;
@@ -916,7 +920,6 @@
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 6;
-				DEVELOPMENT_TEAM = "";
 				GENERATE_INFOPLIST_FILE = NO;
 				HEADER_SEARCH_PATHS = (
 					"$(SRCROOT)/../../../packages/moto-gps/shared/ble_protocol/include",
@@ -977,6 +980,7 @@
 				DEBUG_INFORMATION_FORMAT = dwarf;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				ENABLE_TESTABILITY = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
 				GCC_C_LANGUAGE_STANDARD = gnu11;
 				GCC_DYNAMIC_NO_PIC = NO;
 				GCC_NO_COMMON_BLOCKS = YES;
@@ -997,6 +1001,7 @@
 				ONLY_ACTIVE_ARCH = YES;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = iphoneos;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				SWIFT_VERSION = 5.0;

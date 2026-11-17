@@ -22,7 +22,7 @@ Run Swift Package tests with `swift test` from this directory. Simulator can che
 
 ## Gateway and signing
 
-The default gateway root URL is in `project.yml` under `MOTOGPSGatewayBaseURL`. The app also allows a runtime override in Gateway Settings. The Worker key is not shipped in the app or stored on the device. See the root [deployment guide](../../../docs/deployment/README.md).
+The app does not bundle anyone's Worker URL. Enter your own gateway root URL in Gateway Settings before first use. The Worker key is not shipped in the app or stored on the device. See the root [deployment guide](../../../docs/deployment/README.md).
 
 Configure Bundle ID, Apple Team, signing certificates, and TestFlight credentials with your own Apple account. Privacy copy and permissions are in `App/DataUseView.swift`, `App/Info.plist`, and `App/PrivacyInfo.xcprivacy`.
 

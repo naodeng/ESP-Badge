@@ -47,6 +47,11 @@ final class MapCitySearch: ObservableObject {
         errorMessage = nil
         let keywords = query.trimmingCharacters(in: .whitespacesAndNewlines)
         guard (2 ... 80).contains(keywords.count) else { isSearching = false; return }
+        guard (try? GatewayConfiguration.normalizedURL(baseURL.absoluteString)) != nil else {
+            isSearching = false
+            errorMessage = "请先在网关设置中填写自己的服务地址。"
+            return
+        }
         isSearching = true
         var components = URLComponents(url: baseURL.appendingPathComponent("v1/map/cities"), resolvingAgainstBaseURL: false)!
         components.queryItems = [URLQueryItem(name: "keywords", value: keywords)]
